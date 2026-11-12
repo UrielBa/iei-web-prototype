@@ -1,0 +1,10 @@
+# Archivos de trabajo que no hacen falta en el sitio publicado
+maps/
+tables/
+backup/
+flags.zip
+*.bat
+*.ps1
+data-Tsp3I.csv
+index_antes_*.html
+Impact Economy Index.html
