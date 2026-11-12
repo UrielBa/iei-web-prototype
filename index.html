@@ -346,6 +346,34 @@ function togglePanel5() {
 </div>
 </div>
 
+<!-- How to read -->
+<section class="s-read" id="howto" aria-labelledby="sReadT">
+  <div class="s-wrap">
+    <p class="s-eyebrow">How to read the Index</p>
+    <h2 id="sReadT">Before the results: how the scores are built.</h2>
+    <div class="s-read-grid">
+      <article class="s-rcard s-reveal">
+        <span class="s-rk">Score</span>
+        <h3>One score, built from 14 drivers.</h3>
+        <p>The total score runs from 0 to 100 and is the average of the <b>14 equally-weighted drivers</b>. The four levers group those drivers to make them easier to interpret; the total is not an average of the four lever scores.</p>
+        <div class="s-rdiag" aria-hidden="true"><span style="--c:#3DCC7D;flex:3">Lever 1<b>3</b></span><span style="--c:#77DAD9;flex:3">Lever 2<b>3</b></span><span style="--c:#FFBD87;flex:3">Lever 3<b>3</b></span><span style="--c:#F094B5;flex:5">Lever 4<b>5</b></span></div>
+        <small>The four levers group the 14 drivers as 3 + 3 + 3 + 5.</small>
+      </article>
+      <article class="s-rcard s-reveal" data-d="1">
+        <span class="s-rk">Tiers</span>
+        <h3>Four tiers, defined by score range.</h3>
+        <ul class="s-tierlist" id="sTierList"></ul>
+        <small>Tier names describe score bands only. Countries within a few points of a cut-off (for example 49 and 50) are not meaningfully different.</small>
+      </article>
+      <article class="s-rcard s-reveal" data-d="2">
+        <span class="s-rk">Gaps</span>
+        <h3>No data is not a low score.</h3>
+        <p>When a driver cannot be scored for a country it is shown as <span class="s-nd">No data</span>. It is not a zero: it is left out of averages and comparisons. Countries are compared with peers (income group, region, tier or countries you choose), not just a global league table.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- About section-->
 <section class="s-ins" id="about" aria-labelledby="sInsT">
   <div class="s-wrap">

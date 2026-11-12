@@ -59,6 +59,11 @@ $$('.s-chip').forEach(function(c){c.addEventListener('click',function(){
   if(t)t.click();if(d)d.scrollIntoView({behavior:'smooth',block:'start'});
 })});
 
+/* ---- how to read: tier list ---- */
+(function(){var ul=$('#sTierList');if(!ul||!C.length)return;var k=[0,0,0,0];C.forEach(function(c){k[tier(c.score)]++});
+  var rg=['below 40','40–49','50–59','60 and above'];
+  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+t+'</b><span>'+rg[i]+'</span><em>'+k[i]+' countries</em></li>'}).join('')})();
+
 /* ---- insights (evidence computed from data) ---- */
 function insights(){
   if(!C.length)return;
@@ -72,7 +77,7 @@ function insights(){
     if(i===j)mx+='<b class="d" aria-hidden="true">—</b>';else{var r=corr(L[i],L[j]);var a=((r-.4)/.35);a=Math.max(0,Math.min(1,a));
       mx+='<b style="background:rgba(112,132,255,'+(.15+.75*a).toFixed(2)+');color:'+(a>.55?'#fff':'#0F1428')+'" title="'+LN[i]+' × '+LN[j]+': r = '+r.toFixed(2)+'">'+r.toFixed(2).replace('0.','.')+'</b>'}}}
   mx+='</div>';
-  var e1=mx+'<p class="s-cap">Every pair of levers is positively correlated (r = '+rmin.toFixed(2)+'–'+rmax.toFixed(2)+').<small>Pearson correlation of lever scores across '+C.length+' countries.</small></p>';
+  var e1=mx+'<p class="s-cap">Every pair of levers is positively correlated (r = '+rmin.toFixed(2)+'–'+rmax.toFixed(2)+').<small>Pearson correlation of lever scores across '+C.length+' countries (n = '+C.length+'). An association, not evidence of cause and effect.</small></p>';
   // F2: tiers by income swarm-ish strip
   var inc=[['High Income','High'],['Upper Middle Income','Upper-middle'],['Lower Middle Income','Lower-middle'],['Low Income','Low']],rows=[];
   inc.forEach(function(g){var cs=C.filter(function(c){return c.income===g[0]});if(cs.length)rows.push([g[1],cs])});

@@ -206,3 +206,7 @@ button.ix-leg-item:hover{background:var(--soft)}
 .ix-d.down{background:#FCE6EE;color:#992450}
 .ix-key{flex-wrap:wrap}
 @media (max-width:767px){.ix-pager{padding:12px 16px;flex-wrap:wrap}.ix-sel{flex:1 1 140px}}
+.ix-drvwrap{flex:0 1 300px}
+.ix .ix-drvwrap select{border-radius:999px;font-weight:700}
+.ix-drvwrap.is-active select{border-color:#0F1428;box-shadow:0 0 0 3px rgba(100,120,255,.25)}
+.ix-metrics{align-items:center}

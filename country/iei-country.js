@@ -39,7 +39,7 @@
   var regions = Array.from(new Set(C.map(function (c) { return c.region; }))).sort();
   var incomes = ['High Income', 'Upper Middle Income', 'Lower Middle Income', 'Low Income'].filter(function (i) { return C.some(function (c) { return c.income === i; }); });
   var fromHash = (location.hash.indexOf('#' + PAGE_HASH) === 0) ? location.hash.slice(PAGE_HASH.length + 1).toUpperCase() : '';
-  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', q: '', tier: '', region: '', income: '' };
+  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', q: '', tier: '', region: '', income: '' };
 
   function filtered() {
     return C.filter(function (c) {
@@ -105,6 +105,57 @@
   }
 
   /* ---------- report ---------- */
+  function heatColour(v) {
+    if (v == null) return null;
+    var a = 0.12 + 0.78 * Math.max(0, Math.min(1, v / 100));
+    return { bg: 'rgba(112,132,255,' + a.toFixed(2) + ')', fg: a > 0.62 ? '#0F1428' : '#fff' };
+  }
+  function peerCard(c, bn, drivers, closest) {
+    if (state.peerFor !== c.id) { state.peerFor = c.id; state.peers = closest.slice(0, 4).map(function (p) { return p.c.id; }); }
+    var P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
+    var opts = C.filter(function (x) { return x.id !== c.id && state.peers.indexOf(x.id) < 0; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
+    var cols = [c].concat(P);
+    var head = '<tr><th scope="col" class="ic-hd">Driver</th>' + cols.map(function (x, i) {
+      return '<th scope="col" class="ic-hc' + (i === 0 ? ' is-me' : '') + '">' + flag(x, 'ic-flag') + '<span>' + esc(x.name) + '</span>' + (i > 0 ? '<button type="button" class="ic-rm" data-rm="' + x.id + '" aria-label="Remove ' + esc(x.name) + '">×</button>' : '') + '</th>';
+    }).join('') + (P.length ? '<th scope="col" class="ic-hc ic-pavg"><span>Peer avg</span></th>' : '') + '<th scope="col" class="ic-hc"><span>vs ' + esc(bn.short) + '</span></th></tr>';
+    var body = drivers.map(function (x, n) {
+      var pv = P.map(function (p) { return p.d[x.i]; }), pavg = avg(pv, function (v) { return v; });
+      var cells = cols.map(function (y, j) {
+        var v = y.d[x.i], hc = heatColour(v);
+        return v == null ? '<td class="ic-hv na"><span class="ic-na">No data</span></td>' : '<td class="ic-hv' + (j === 0 ? ' me' : '') + '" style="background:' + hc.bg + ';color:' + hc.fg + '">' + v + '</td>';
+      }).join('');
+      var cls = x.d == null ? '' : x.d >= 5 ? 'up' : x.d <= -5 ? 'down' : 'eq', lab = x.d == null ? '–' : x.d >= 5 ? 'Ahead' : x.d <= -5 ? 'Behind' : 'In line';
+      return '<tr><th scope="row" class="ic-hd"><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span><span class="ic-hl2">' + esc(DLAB[x.id]) + '</span></th>' + cells +
+        (P.length ? '<td class="ic-hv avg">' + (pavg == null ? '–' : Math.round(pavg)) + '</td>' : '') +
+        '<td class="ic-hv st ' + cls + '">' + lab + (x.d == null ? '' : ' <em>' + sgn(x.d) + '</em>') + '</td></tr>';
+    }).join('');
+    return '<div class="ic-card ic-pcard"><div class="ic-dhead"><div><h4 class="ic-h4">Compare with chosen peers</h4><p class="ic-psub">Driver scores side by side. Choose up to five countries.</p></div></div>' +
+      '<div class="ic-ppick"><span class="ic-lbl">Quick picks</span>' +
+      [['region', 'Same region'], ['income', 'Same income group'], ['closest', 'Closest profile'], ['clear', 'Clear']].map(function (o) { return '<button type="button" class="ic-qp" data-qp="' + o[0] + '">' + o[1] + '</button>'; }).join('') +
+      (P.length < 5 ? '<label class="ic-field ic-add"><span class="ic-sr">Add a country</span><select class="ic-padd"><option value="">Add a country…</option>' + opts.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
+      '<div class="ic-tscroll"><table class="ic-heat"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
+      '<p class="ic-note">Darker blue means a higher driver score. “Ahead” / “Behind” mark a gap of 5 points or more against ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
+  }
+  function csvDownload() {
+    var c = byId[state.sel], bn = benchFor(c), P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
+    var q = function (v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var head = ['Country', 'Driver', 'Description', 'Lever', 'Score', 'Comparison group', 'Comparison average', 'Difference', 'Rank (of countries with data)'].concat(P.map(function (p) { return p.name; }));
+    var rows = DID.map(function (id, i) {
+      var v = c.d[i], ref = avg(bn.list, function (x) { return x.d[i]; }), rk = rankIn(function (x) { return x.d[i]; }, c);
+      return [c.name, id, DLAB[id], LEV[driverLever[id]].name, v == null ? '' : v, bn.label, ref == null ? '' : ref.toFixed(1), (v == null || ref == null) ? '' : Math.round(v - ref), rk ? rk.r + ' of ' + rk.n : ''].concat(P.map(function (p) { return p.d[i]; }));
+    });
+    var lines = [head].concat(rows).map(function (r) { return r.map(q).join(','); });
+    var blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'iei-' + c.id.toLowerCase() + '-drivers.csv';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+  function setPeers(kind) {
+    var c = byId[state.sel], base;
+    if (kind === 'clear') base = [];
+    else if (kind === 'closest') base = C.filter(function (x) { return x.id !== c.id; }).map(function (x) { return { id: x.id, d: Math.sqrt(x.l.reduce(function (s, v, k) { return s + Math.pow(v - c.l[k], 2); }, 0)) }; }).sort(function (a, b) { return a.d - b.d; }).slice(0, 5).map(function (x) { return x.id; });
+    else base = C.filter(function (x) { return x.id !== c.id && x[kind] === c[kind]; }).sort(function (a, b) { return Math.abs(a.score - c.score) - Math.abs(b.score - c.score); }).slice(0, 5).map(function (x) { return x.id; });
+    state.peers = base; render();
+  }
   function render() {
     var c = byId[state.sel], bn = benchFor(c);
     var refTotal = avg(bn.list, function (x) { return x.score; });
@@ -130,6 +181,8 @@
 
     var summary = '<b>' + esc(c.name) + '</b> ranks <b>#' + tr.r + '</b> of ' + N + ' with a total score of <b>' + c.score + '</b> (' + esc(c.tier) + '). ' +
       (best.d === worst.d ? 'Its levers are in line with ' + esc(bn.short) + '.' :
+        best.d <= 0 ? 'It sits below ' + esc(bn.short) + ' on every lever: the smallest gap is on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and the largest on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
+        worst.d >= 0 ? 'It is at or above ' + esc(bn.short) + ' on every lever, strongest on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and narrowest on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
         'Relative to ' + esc(bn.short) + ', its strongest lever is <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and its largest gap is <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').');
 
     var peers = C.filter(function (x) { return x.id !== c.id; }).map(function (x) {
@@ -160,7 +213,7 @@
     var tableRows = rows.map(function (x, n) {
       var head = '';
       if (state.sort === 'lever' && (n === 0 || rows[n - 1].k !== x.k)) {
-        head = '<tr class="ic-grp"><th colspan="4" scope="colgroup" style="--a:' + LEV[x.k].accent + '"><i></i>' + esc(LEV[x.k].name) + '</th></tr>';
+        head = '<tr class="ic-grp"><th colspan="4" scope="colgroup" style="--a:' + LEV[x.k].accent + '"><i></i>' + esc(LEV[x.k].name) + '<span class="ic-gv"><b>' + levers[x.k].v + '</b><em class="ic-d ' + (levers[x.k].d > 0 ? 'up' : levers[x.k].d < 0 ? 'down' : 'eq') + '">' + sgn(levers[x.k].d) + '</em></span></th></tr>';
       }
       return head + '<tr class="ic-dr"><td class="ic-c1"><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span></td>' +
         '<td class="ic-c2">' + esc(DLAB[x.id]) + '</td>' +
@@ -178,7 +231,7 @@
       '</div>' +
       '<div class="ic-card ic-hero">' +
       '  <div class="ic-score"><div class="ic-big">' + c.score + '</div><span class="ic-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span>' +
-      '  <p class="ic-rank">Rank <b>#' + tr.r + '</b> of ' + N + '</p><p class="ic-vs">' + sgn(Math.round(c.score - refTotal)) + ' vs. comparison (' + Math.round(refTotal) + ')</p></div>' +
+      '  <p class="ic-wnote">Average of the 14 equally-weighted drivers</p><p class="ic-rank">Rank <b>#' + tr.r + '</b> of ' + N + '</p><p class="ic-vs">' + sgn(Math.round(c.score - refTotal)) + ' vs. comparison (' + Math.round(refTotal) + ')</p></div>' +
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span><span><i class="b"></i>' + esc(bn.label) + '</span></p></div>' +
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
       '</div>' +
@@ -189,11 +242,12 @@
       '</div>' +
       '<div class="ic-card ic-drivers">' +
       '  <div class="ic-dhead"><h4 class="ic-h4">All 14 drivers</h4><div class="ic-sort" role="group" aria-label="Sort drivers">' +
-      [['lever', 'By lever'], ['gap', 'Largest gaps'], ['strength', 'Strengths']].map(function (o) { return '<button type="button" data-sort="' + o[0] + '" aria-pressed="' + (state.sort === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div></div>' +
+      [['lever', 'By lever'], ['gap', 'Largest gaps'], ['strength', 'Strengths']].map(function (o) { return '<button type="button" data-sort="' + o[0] + '" aria-pressed="' + (state.sort === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div><button type="button" class="ic-dl" data-csv="1">Download CSV</button></div>' +
       '  <p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' +
       '  <div class="ic-tscroll"><table class="ic-table"><thead class="ic-sr"><tr><th>Driver</th><th>Description</th><th>Score</th><th>Value</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
-      (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data” and excluded from comparisons.</p>' : '') +
+      (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data”. This is not a score of zero or a low score: the driver is left out of the averages and comparisons.</p>' : '') +
       '</div>' +
+      peerCard(c, bn, drivers, peers) +
       '<div class="ic-card ic-peers"><h4 class="ic-h4">Countries with a similar lever profile</h4><div class="ic-chips">' +
       peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>' +
       (c.link ? '<a class="ic-profile" href="' + esc(c.link) + '" target="_blank" rel="noopener">Open full country profile ↗</a>' : '');
@@ -226,7 +280,10 @@
       if (f[i]) pick(f[i].id);
       return;
     }
-    if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); }
+    if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); return; }
+    if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
+    if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }
+    if (t.closest('[data-csv]')) csvDownload();
   });
   $('.ic-q').addEventListener('input', function (e) { state.q = e.target.value.trim(); renderList(); });
   $('.ic-ftier').addEventListener('change', function (e) { state.tier = e.target.value; renderList(); });
@@ -240,6 +297,7 @@
       }
       render();
     }
+    if (e.target.classList.contains('ic-padd') && e.target.value && state.peers.length < 5) { state.peers = state.peers.concat(e.target.value); render(); return; }
     if (e.target.classList.contains('ic-bcsel')) { state.benchId = e.target.value; render(); }
   });
   window.addEventListener('hashchange', function () {

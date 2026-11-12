@@ -43,6 +43,17 @@
     C.forEach(function (c) { m.rank[c.id] = 1 + v.filter(function (x) { return x > m.val(c); }).length; });
     M[m.id] = m;
   });
+  META.driverIds.forEach(function (id, i) {
+    var lk = 0; META.levers.forEach(function (L, k) { if (L.drivers.indexOf(id) >= 0) lk = k; });
+    var base = METRICS[lk + 1];
+    var m = { id: 'd' + id, driver: true, name: 'Driver ' + id + ' · ' + META.driverLabels[id], short: 'Driver ' + id, accent: base.accent, ink: base.ink, pal: base.pal, val: function (c) { return c.d[i]; } };
+    var v = C.map(m.val).filter(function (x) { return x != null; });
+    m.min = Math.min.apply(null, v); m.max = Math.max.apply(null, v);
+    m.avg = v.reduce(function (a, b) { return a + b; }, 0) / v.length;
+    m.rank = {};
+    C.forEach(function (c) { var x = m.val(c); m.rank[c.id] = x == null ? null : 1 + v.filter(function (y) { return y > x; }).length; });
+    M[m.id] = m;
+  });
 
   function hex2rgb(h) { h = h.replace('#', ''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
   function lerp(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
@@ -106,6 +117,8 @@
     METRICS.map(function (m) {
       return '<button type="button" class="ix-metric" data-m="' + m.id + '" style="--a:' + m.accent + ';--on:' + m.ink + '" aria-pressed="false"><i class="ix-dot"></i>' + esc(m.id === 'score' ? 'Total score' : m.name) + '</button>';
     }).join('') +
+    '      <label class="ix-sel ix-drvwrap"><span class="ix-sr">Map a single driver</span><select class="ix-drvsel"><option value="">Or map a single driver…</option>' +
+    META.levers.map(function (L) { return '<optgroup label="' + esc(L.name) + '">' + L.drivers.map(function (id) { return '<option value="d' + id + '">' + id + ' · ' + esc(META.driverLabels[id]) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select></label>' +
     '    </div>' +
     '    <div class="ix-filters">' +
     '      <label class="ix-search"><span class="ix-sr">Search countries</span><input type="search" class="ix-q" placeholder="Search a country…" autocomplete="off"></label>' +
@@ -245,7 +258,7 @@
   function tipHtml(c) {
     var m = metric(), v = m.val(c);
     return '<div class="ix-tip-h">' + flag(c, 'ix-flag') + '<b>' + esc(c.name) + '</b></div>' +
-      '<div class="ix-tip-s"><span class="ix-tip-v">' + v + '</span><span>' + esc(m.id === 'score' ? tierOf(v) : m.short) + '</span></div>' +
+      '<div class="ix-tip-s"><span class="ix-tip-v">' + (v == null ? 'No data' : v) + '</span><span>' + esc(m.id === 'score' ? tierOf(v) : m.short) + '</span></div>' +
       (m.id === 'score' ? '<div class="ix-tip-l">' + METRICS.slice(1).map(function (x) { return '<span title="' + esc(x.name) + '"><i style="background:' + x.accent + '"></i>' + x.val(c) + '</span>'; }).join('') + '</div>' : '<div class="ix-tip-l"><span>Total ' + c.score + ' · ' + esc(tierOf(c.score)) + '</span></div>');
   }
   function showTip(c, e) {
@@ -274,17 +287,19 @@
     var m = metric();
     C.forEach(function (c) {
       var el = pathEl[c.id];
-      el.style.fill = colour(m, m.val(c)).bg;
+      el.style.fill = m.val(c) == null ? '#E9EBF2' : colour(m, m.val(c)).bg;
       var off = !matches(c) || (state.tierFocus && m.id === 'score' && tierOf(c.score) !== state.tierFocus);
       el.classList.toggle('dim', !!off);
     });
     $('.ix-maptitle').textContent = m.name;
-    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (0–100)' : 'Lever score by country (0–100)') + ' · ' + N + ' countries';
+    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (0–100)' : m.driver ? 'Driver score by country (0–100) · grey = no data' : 'Lever score by country (0–100)') + ' · ' + N + ' countries';
     Array.prototype.forEach.call(root.querySelectorAll('.ix-metric'), function (b) {
       var on = b.getAttribute('data-m') === state.metric;
       b.classList.toggle('is-active', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    var ds = $('.ix-drvsel'); if (ds) ds.value = m.driver ? m.id : '';
+    $('.ix-drvwrap').classList.toggle('is-active', !!m.driver);
     if (legendFor !== state.metric) renderLegend();
   }
   var legendFor = null;
@@ -310,12 +325,12 @@
   /* ---------- side panel ---------- */
   function listItems(arr, m) {
     return '<ol class="ix-list">' + arr.map(function (c) {
-      return '<li><button type="button" data-id="' + c.id + '">' + flag(c) + '<span>' + esc(c.name) + '</span><b>' + m.val(c) + '</b></button></li>';
+      return '<li><button type="button" data-id="' + c.id + '">' + flag(c) + '<span>' + esc(c.name) + '</span><b>' + (m.val(c) == null ? '–' : m.val(c)) + '</b></button></li>';
     }).join('') + '</ol>';
   }
   function renderOverview() {
     var m = metric();
-    var ranked = C.slice().sort(function (a, b) { return m.val(b) - m.val(a) || a.name.localeCompare(b.name); });
+    var ranked = C.filter(function (c) { return m.val(c) != null; }).sort(function (a, b) { return m.val(b) - m.val(a) || a.name.localeCompare(b.name); });
     var tiers = '';
     if (m.id === 'score') {
       var counts = META.tiers.map(function (t) { return { t: t.name, n: C.filter(function (c) { return c.tier === t.name; }).length }; });
@@ -325,7 +340,7 @@
     }
     panel.innerHTML = '<div class="ix-pb">' +
       '<p class="ix-kicker">Global snapshot</p><h3 class="ix-ptitle">' + esc(m.name) + '</h3>' +
-      '<div class="ix-avg"><span style="color:' + (m.id === 'score' ? '#1B2A8F' : m.pal[2]) + '">' + Math.round(m.avg) + '</span><small>average across ' + N + ' countries<br>range ' + m.min + '–' + m.max + '</small></div>' +
+      '<div class="ix-avg"><span style="color:' + (m.id === 'score' ? '#1B2A8F' : m.pal[2]) + '">' + Math.round(m.avg) + '</span><small>average across ' + ranked.length + ' countries<br>range ' + m.min + '–' + m.max + '</small></div>' +
       tiers +
       '<p class="ix-sub">Highest</p>' + listItems(ranked.slice(0, 3), m) +
       '<p class="ix-sub">Lowest</p>' + listItems(ranked.slice(-3).reverse(), m) +
@@ -401,6 +416,7 @@
     var k = state.sort.key, d = state.sort.dir;
     return C.filter(matches).sort(function (a, b) {
       var x = keyVal(a, k), y = keyVal(b, k);
+      if (x == null || y == null) return (x == null) - (y == null) || a.name.localeCompare(b.name);
       var r = typeof x === 'string' ? x.localeCompare(y) : x - y;
       return (r * d) || a.name.localeCompare(b.name);
     });
@@ -414,7 +430,7 @@
     var from = state.all ? 1 : state.page * PAGE + 1;
     tbody.innerHTML = list.length ? list.map(function (c) {
       return '<tr class="ix-row' + (state.selected === c.id ? ' is-selected' : '') + '" data-id="' + c.id + '" tabindex="0" aria-label="' + esc(c.name) + ', total score ' + c.score + '">' +
-        '<td class="ix-rk">' + m.rank[c.id] + '</td>' +
+        '<td class="ix-rk">' + (m.rank[c.id] == null ? '–' : m.rank[c.id]) + '</td>' +
         '<td class="ix-nm">' + flag(c) + '<span>' + esc(c.name) + '</span></td>' +
         '<td class="hide-sm ix-mut">' + esc(c.region) + '</td>' +
         '<td class="hide-md ix-mut">' + esc(c.income) + '</td>' +
@@ -540,6 +556,7 @@
     if (p) showTip(byId[p.getAttribute('data-id')], e); else hideTip();
   });
   $('.ix-q').addEventListener('input', function (e) { state.q = e.target.value.trim(); refresh(); });
+  $('.ix-drvsel').addEventListener('change', function (e) { setMetric(e.target.value || 'score'); });
   $('.ix-region').addEventListener('change', function (e) { state.region = e.target.value; refresh(); });
   $('.ix-income').addEventListener('change', function (e) { state.income = e.target.value; refresh(); });
   $('.ix-tier').addEventListener('change', function (e) { state.tier = e.target.value; refresh(); });
