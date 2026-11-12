@@ -8,9 +8,9 @@
 <title>Impact Economy Index</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="./Impact Economy Index_files/css2" rel="stylesheet">
+<link href="./Impact Economy Index_files/css2.css" rel="stylesheet">
 
-<script src="./Impact Economy Index_files/643e12dce6.js.descarga" crossorigin="anonymous"></script><style media="all" id="fa-v4-font-face">/*!
+<script src="./Impact Economy Index_files/643e12dce6.js" crossorigin="anonymous"></script><style media="all" id="fa-v4-font-face">/*!
  * Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  * Copyright 2024 Fonticons, Inc.
@@ -36,8 +36,9 @@
 <link href="./Impact Economy Index_files/bootstrap(1).min.css" rel="stylesheet">
 <link href="./Impact Economy Index_files/styles.css" rel="stylesheet">
 <link rel="stylesheet" href="./Impact Economy Index_files/animate.min.css">
-<script type="text/javascript" src="./Impact Economy Index_files/jquery.min.js.descarga"></script>
+<script type="text/javascript" src="./Impact Economy Index_files/jquery.min.js"></script>
  
+<link href="./site/iei-site.css" rel="stylesheet">
 <link href="./explorer/iei-explorer.css" rel="stylesheet">
 <link href="./country/iei-country.css" rel="stylesheet">
 </head>
@@ -46,67 +47,48 @@
 
 <body id="body">
   
-<nav class="navbar navbar-expand-lg sticky-top navbar-light bg-light">
-    <div class="container">
-  <a class="navbar-brand" href="https://impactpolicytracker.org/IEI/#"><img src="./Impact Economy Index_files/logo.svg"></a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="https://impactpolicytracker.org/IEI/#">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="https://impactpolicytracker.org/IEI/#explore">Explore</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="https://impactpolicytracker.org/IEI/#country">
-          Country data
-        </a>
-        
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="https://impactpolicytracker.org/IEI/#about">About</a>
-      </li>
+<nav class="s-nav" aria-label="Main">
+  <div class="s-wrap">
+    <a class="s-brand" href="#top" aria-label="Impact Economy Index - home"><img src="./Impact Economy Index_files/logo.svg" alt="GSG Impact"></a>
+    <button class="s-burger" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sLinks"><span></span></button>
+    <ul class="s-links" id="sLinks">
+      <li><a class="s-link" href="#framework">Framework</a></li>
+      <li><a class="s-link" href="#about">Insights</a></li>
+      <li><a class="s-link" href="#explore">Explore</a></li>
+      <li><a class="s-link" href="#country">Country data</a></li>
+      <li><a class="s-btn primary" href="#download">Get the report</a></li>
     </ul>
-    
-  </div>
   </div>
 </nav>
 
-<div class="container">
 
 <!-- Header section-->
-   
-
-    <div class="row" style="margin: 60px 0px;">
-        <div class="col-lg-6">
-             <p class="pre-text">Impact Economy Index</p>
-            <h1>How ready is the world for an impact economy?</h1>
-            <p>The Impact Economy Index makes progress visible. Explore how countries are building the conditions and behaviours that put impact at the heart of every decision.</p>
-            <a class="button-link dark" href="https://impactpolicytracker.org/IEI/#">Download the 2026 Report</a>
-            <a class="button-link" href="https://impactpolicytracker.org/IEI/#">Explore the Index </a>
-        </div>
-        <div class="col-lg-6">
-            
-                <img src="./Impact Economy Index_files/header.png" width="90%">
-            </div>
-        </div>
-</div>
-<div class="container-fluid" id="framework">
-    <div class="container">
-         <div class="row" style="padding: 80px 0;">
-                        <div class="col-lg-6">
-                        <h3>“An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making”.</h3>
-                        </div>
-                        <div class="col-lg-6">
-                            <p>While this transition is globally relevant, it will take different forms across countries depending on their development priorities and starting points. However, despite growing momentum and increasing conceptual convergence on impact economies, there is no shared framework to assess whether national systems are structured to align risk, return, and impact. The Impact Economy Index (IEI) provides the first framework to assess where and how progress towards an impact economy can be advanced. The IEI framework is designed to be meaningful across both advanced and developing economies, recognizing that the transition to an impact economy will look different depending on a country’s starting point, institutional context, and development priorities. Its goal is to generate actionable intelligence that policymakers, investors, and advocates need to accelerate the transition towards a more inclusive economic system. </p>
-                        </div>
-        </div>
+<header class="s-hero" id="top">
+  <div class="s-wrap">
+    <div class="s-hero-grid">
+      <div>
+        <p class="s-eyebrow">Impact Economy Index</p>
+        <h1>How ready is the world for an <em>impact economy?</em></h1>
+        <p class="s-lede">The Impact Economy Index makes progress visible. Explore how countries are building the conditions and behaviours that put impact at the heart of every decision.</p>
+        <div class="s-cta"><a class="s-btn primary" href="#download">Download the 2026 Report</a><a class="s-btn" href="#explore">Explore the Index <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <div class="s-hero-img"><img src="./Impact Economy Index_files/header.png" alt="Illustration of the Impact Economy Index"></div>
     </div>
-</div>
+    <div class="s-stats" id="sStats" aria-label="The Index at a glance"></div>
+  </div>
+</header>
+<section class="s-def" aria-label="Definition">
+  <div class="s-wrap s-def-grid">
+    <blockquote class="s-reveal">An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making.</blockquote>
+    <div class="s-reveal" data-d="1"><p>While this transition is globally relevant, it will take different forms across countries depending on their development priorities and starting points. However, despite growing momentum and increasing conceptual convergence on impact economies, there is no shared framework to assess whether national systems are structured to align risk, return, and impact. The Impact Economy Index (IEI) provides the first framework to assess where and how progress towards an impact economy can be advanced. The IEI framework is designed to be meaningful across both advanced and developing economies, recognizing that the transition to an impact economy will look different depending on a country’s starting point, institutional context, and development priorities. Its goal is to generate actionable intelligence that policymakers, investors, and advocates need to accelerate the transition towards a more inclusive economic system.</p></div>
+    <div class="s-chips"><span>Four levers</span>
+      <button class="s-chip" type="button" data-i="0" style="--c:#3DCC7D"><i></i>Accountability &amp; Transparency</button>
+      <button class="s-chip" type="button" data-i="1" style="--c:#77DAD9"><i></i>Procurement &amp; Demand</button>
+      <button class="s-chip" type="button" data-i="2" style="--c:#FFBD87"><i></i>Coordination &amp; Support</button>
+      <button class="s-chip" type="button" data-i="3" style="--c:#F094B5"><i></i>Capital Allocation &amp; Deployment</button>
+    </div>
+  </div>
+</section>
 
 <!-- Lever section-->
 <div class="container-fluid" id="framework">
@@ -365,38 +347,18 @@ function togglePanel5() {
 </div>
 
 <!-- About section-->
-<div class="container"> 
- 
-     <div class="row" id="about" style="padding: 80px 0;">
-        <div class="col-12">
-            <p class="pre-text">Insights</p>
-             <h2>What the data is telling us.</h2><br><br>
-             
-        </div>
-   
-        <div class="col-lg-4"> 
-            <div class="finding">
-            <p class="pre-text">Global Finding 1</p>
-             <h3>Impact economies are built through both policy and practice.</h3>
-             <p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p>
-             </div>
-        </div>
-        <div class="col-lg-4"> 
-            <div class="finding">
-            <p class="pre-text">Global Finding 2</p>
-              <h3>Progress does not follow one path.</h3>
-             <p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p>
-            </div>
-        </div>
-        <div class="col-lg-4"> 
-            <div class="finding">
-            <p class="pre-text">Global Finding 3</p>
-              <h3>Measurement is the connective tissue.</h3>
-             <p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p>
-            </div>
-        </div>
-    </div>   
-</div>
+<section class="s-ins" id="about" aria-labelledby="sInsT">
+  <div class="s-wrap">
+    <p class="s-eyebrow">Insights</p>
+    <h2 id="sInsT">What the data is telling us.</h2>
+    <p class="s-sub">Three global findings from the 2026 Index. The evidence beneath each one is calculated live from the country scores.</p>
+    <div class="s-find-grid">
+      <article class="s-find s-reveal"><span class="s-num">1</span><h3>Impact economies are built through both policy and practice.</h3><p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p><div class="s-evid"></div></article>
+      <article class="s-find s-reveal" data-d="1"><span class="s-num">2</span><h3>Progress does not follow one path.</h3><p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p><div class="s-evid"></div></article>
+      <article class="s-find s-reveal" data-d="2"><span class="s-num">3</span><h3>Measurement is the connective tissue.</h3><p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p><div class="s-evid"></div></article>
+    </div>
+  </div>
+</section>
 
 <!-- Explore section-->
 <div class="container-fluid" style="background-color:#f0f0f0;">        
@@ -443,45 +405,44 @@ function togglePanel5() {
 
 
 
-<!-- Download section-->    
-
-    <div class="row download">
-            <div class="col-md-12">
-              <h2> Report download </h2>
-          </div>
-      </div>
-
-
-
-<!-- Partner section-->    
-<div class="container">
-      <div class="row" style="padding: 80px 0;">
-            <div class="col-2">
-                partner logo
-            </div>
-            <div class="col-2">
-                partner logo
-            </div>
-            <div class="col-2">
-                partner logo
-            </div>
-            <div class="col-2">
-                partner logo
-            </div>
-            <div class="col-2">
-                partner logo
-            </div>
-            <div class="col-2">
-                partner logo
-            </div>
-
+<!-- Download section-->
+<section class="s-dl" id="download" aria-labelledby="sDlT">
+  <div class="s-wrap s-dl-grid">
+    <div class="s-reveal"><p class="s-eyebrow">Report</p><h2 id="sDlT">Get the full Impact Economy Index report.</h2><p class="s-lead">Methodology, country profiles and the findings behind the Index, in one document.</p></div>
+    <form class="s-form s-reveal" data-d="1" id="sForm" novalidate data-endpoint="" data-report="">
+      <div class="s-formbody">
+        <h3>Download the 2026 Report</h3><p class="s-note">Tell us a little about you. Takes ten seconds.</p>
+        <div class="s-fields">
+          <label><span>First name</span><input type="text" name="first" autocomplete="given-name" required></label>
+          <label><span>Last name</span><input type="text" name="last" autocomplete="family-name" required></label>
+          <label class="full"><span>Work email</span><input type="email" name="email" autocomplete="email" required></label>
+          <label><span>Organisation</span><input type="text" name="org" autocomplete="organization" required></label>
+          <label><span>I am a…</span><select name="role" required><option value="">Select</option><option>Policymaker</option><option>Investor</option><option>Business</option><option>Researcher</option><option>Civil society</option><option>Other</option></select></label>
         </div>
-</div>
-  
+        <label class="s-consent"><input type="checkbox" name="consent" required><span style="font-weight:500;letter-spacing:0;font-size:13px;margin:0">I agree to GSG Impact contacting me about the Index.</span></label>
+        <button class="s-btn primary" type="submit">Download report</button>
+        <p class="s-err" role="alert"></p>
+      </div>
+      <div class="s-ok" role="status"><h3>Thank you!</h3><p>Your report is ready.</p><a class="s-btn primary s-getit" href="#" hidden download>Download the report</a></div>
+    </form>
+  </div>
+</section>
 
+<!-- Partner section-->
+<section class="s-partners" aria-label="Partners"><div class="s-wrap"><h2>In partnership with</h2><div class="s-plogos"><div class="s-plogo">Partner logo</div><div class="s-plogo">Partner logo</div><div class="s-plogo">Partner logo</div><div class="s-plogo">Partner logo</div><div class="s-plogo">Partner logo</div><div class="s-plogo">Partner logo</div></div></div></section>
 
+<footer class="s-foot">
+  <div class="s-wrap">
+    <div class="s-foot-grid">
+      <div><img src="./Impact Economy Index_files/logo.svg" alt="GSG Impact"><p>The Impact Economy Index tracks how countries are building the conditions for an impact economy.</p></div>
+      <div><h4>Index</h4><ul><li><a href="#framework">Framework</a></li><li><a href="#about">Insights</a></li><li><a href="#explore">Explore</a></li><li><a href="#country">Country data</a></li></ul></div>
+      <div><h4>Resources</h4><ul><li><a href="#download">2026 Report</a></li><li><a href="#top">Back to top ↑</a></li></ul></div>
+      <div><h4>GSG Impact</h4><ul><li><a href="https://gsgimpact.org/" rel="noopener">gsgimpact.org</a></li><li><a href="https://gsgimpact.org/contact" rel="noopener">Contact us</a></li></ul></div>
+    </div>
+    <div class="s-foot-bottom"><span>© GSG Impact</span><span>Prototype · draft data</span></div>
+  </div>
+</footer>
 
-<div class="footer"></div>
 
 
 <!-- The Side Panel -->
@@ -511,7 +472,7 @@ function togglePanel5() {
 
 
 
-<script src="./Impact Economy Index_files/viewportchecker.js.descarga"></script>
+<script src="./Impact Economy Index_files/viewportchecker.js"></script>
 
 <script>
     function displayRole() {
@@ -646,6 +607,7 @@ document.getElementById('search').addEventListener('keyup', function(e) {
 
 
 <script src="./data/iei-data.js"></script>
+<script src="./site/iei-site.js"></script>
 <script src="./data/iei-world.js"></script>
 <script src="./explorer/iei-explorer.js"></script>
 <script src="./country/iei-country.js"></script>
