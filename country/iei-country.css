@@ -257,3 +257,31 @@ html.icm-open{overflow:hidden}
   .ic-itable .ic-grp th{display:block}
 }
 .ic-itable .ic-c2,.ic-itable .ic-iname,.ic-itable .ic-ival{white-space:normal !important;text-overflow:clip !important;overflow:visible !important}
+
+/* ---- gap explanation ---- */
+.ic-gaps{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:18px;margin:6px 0 22px}
+.ic-gcol{background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:16px 18px;min-width:0}
+.ic-gcol h5{display:flex;align-items:center;gap:8px;margin:0 0 10px !important;font-size:13px !important;font-weight:800;color:#fff !important}
+.ic-gcol h5 i{width:9px;height:9px;border-radius:50%;background:var(--up)}.ic-gcol h5 i.down{background:var(--down)}
+.ic-gcol ul{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.ic-gcol li{padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.ic-gcol li:first-child{padding-top:0;border:0}
+.ic-gl1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.ic-gl1 b{font-size:14px;font-weight:800;flex:1;min-width:140px}
+.ic-gcol p{margin:3px 0 0 !important;font-size:13px !important;line-height:1.45 !important;color:#E6E9F5 !important}
+.ic-gcol p i,.ic-icmp i{font-style:normal;font-weight:800;color:var(--muted)}
+.ic-gcol .ic-gact{color:#fff !important}.ic-gcol .ic-gact i{color:var(--down)}
+.ic-gnone{color:var(--muted) !important}
+.ic-mlink{margin-top:6px;border:0;background:none;padding:0;color:#9DB0FF;font-size:12.5px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.ic-allh{margin:4px 0 10px !important;font-size:12px !important;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted) !important}
+.ic-icmp{display:block;margin-top:3px;font-size:12px;line-height:1.4;color:var(--muted)}
+.ic-itable .ic-c4 .ic-d{margin-left:5px}
+.ic-itable .ic-c4{width:96px}
+.ic-itable .ic-c3{width:16%}
+@media(max-width:991px){.ic-gaps{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:640px){.ic-itable .ic-c4{width:auto}.ic-itable .ic-c4 .ic-d{display:inline-block}}
+.icm-tech{margin-top:18px;border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
+.icm-tech summary{cursor:pointer;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#A9B0C8;padding:6px 0;list-style:none}
+.icm-tech summary::before{content:'▸ ';}
+.icm-tech[open] summary::before{content:'▾ ';}
+.icm-tech summary:focus-visible{outline:2px solid #9DB0FF;outline-offset:3px;border-radius:6px}
+.icm-tech .icm-sec:first-of-type{border-top:0;margin-top:6px}

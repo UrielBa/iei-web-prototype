@@ -293,18 +293,104 @@
     if (m.lic) return 'Underlying value not shown (licensed data)';
     return e.v == null ? '' : 'Value used: ' + fmt(e.v);
   }
+
+  var FACTS = window.IEI_FACTS || {};
+  function catIdx(spec, v) {
+    if (!spec || !spec.cat || v == null) return -1;
+    var best = -1, bd = 1e9;
+    spec.cat.forEach(function (r, i) { var d = Math.abs(r[0] - v); if (d < bd) { bd = d; best = i; } });
+    var span = Math.abs(spec.cat[spec.cat.length - 1][0] - spec.cat[0][0]) || 1;
+    return bd <= span * 0.06 ? best : -1;
+  }
+  function band(s) { return s >= 67 ? 'Strong' : s >= 34 ? 'Moderate' : 'Weak'; }
+  function factFor(m, e) {
+    var sp = FACTS[m.id]; if (!sp || !e) return null;
+    if (sp.comps) {
+      var q = (e.p || []).map(function (x, i) { return x == null ? null : sp.comps[i] + ' scores ' + fmt(x); }).filter(Boolean);
+      return q.length ? q.join('; ') : null;
+    }
+    if (sp.hid) return e.s == null ? null : band(e.s) + ' performance on ' + sp.hid + ' (score ' + fmt(e.s) + ')';
+    if (e.v == null || typeof e.v !== 'number') return null;
+    if (sp.cat) { var i = catIdx(sp, e.v); if (i >= 0) return sp.cat[i][1]; }
+    return sp.fact ? sp.fact(e.v) : null;
+  }
+  function others(c, bn) { return bn.list.filter(function (x) { return x.id !== c.id; }); }
+  function median(a) { a = a.slice().sort(function (x, y) { return x - y; }); var k = a.length >> 1; return a.length % 2 ? a[k] : (a[k - 1] + a[k]) / 2; }
+  function groupFact(m, list) {
+    var sp = FACTS[m.id]; if (!sp) return null;
+    var es = list.map(function (x) { return indVal(x.id, m.id); }).filter(function (e) { return e && e.s != null; });
+    if (!es.length) return null;
+    if (es.length === 1) return factFor(m, es[0]);
+    if (sp.comps || sp.hid) { var av = es.reduce(function (a, e) { return a + e.s; }, 0) / es.length; return sp.hid ? band(av) + ' performance on average (average score ' + Math.round(av) + ')' : 'Average score ' + Math.round(av); }
+    if (sp.cat) {
+      var cnt = {}; es.forEach(function (e) { var i = catIdx(sp, e.v); if (i >= 0) cnt[i] = (cnt[i] || 0) + 1; });
+      var keys = Object.keys(cnt).sort(function (a, b) { return cnt[b] - cnt[a] || b - a; });
+      if (!keys.length) return null;
+      var tot = es.length;
+      return 'Most common: ' + sp.cat[keys[0]][1].replace(/^./, function (z) { return z.toLowerCase() === z ? z : (/^[A-Z]{2,}/.test(sp.cat[keys[0]][1]) ? z : z.toLowerCase()); }) + ' (' + cnt[keys[0]] + ' of ' + tot + ' economies with data)';
+    }
+    var vs = es.map(function (e) { return e.v; }).filter(function (x) { return typeof x === 'number'; });
+    return vs.length ? 'Typical economy: ' + lcf(sp.fact(median(vs))) : null;
+  }
+  function lcf(t) { return /^[A-Z][a-z]/.test(t) ? t.charAt(0).toLowerCase() + t.slice(1) : t; }
+  function gName(bn) {
+    var l = bn.label; var i = l.indexOf(' · ');
+    return i > 0 ? l.slice(i + 3) : (l === 'Average of all countries' ? 'All countries' : l);
+  }
+  function scoreOfCode(m, code) { var f = num(m.floor), t = num(m.ceil); return (f == null || t == null || t === f) ? null : 1 + 99 * (code - f) / (t - f); }
+  function neededValue(m, T) {
+    var f = num(m.floor), t = num(m.ceil), meth = String(m.method || '').toLowerCase();
+    if (m.pass) return T;
+    if (m.id === '1A.4') { var pts = [[0, 100], [0.1, 80], [0.5, 60], [1, 40], [1.5, 1]]; for (var i = 0; i < pts.length - 1; i++) { var a = pts[i], b = pts[i + 1]; if (T <= a[1] && T >= b[1]) return a[0] + (a[1] - T) / (a[1] - b[1]) * (b[0] - a[0]); } return null; }
+    if (f == null || t == null) return null;
+    if (meth === 'log') return f > 0 ? f * Math.pow(t / f, (T - 1) / 99) : null;
+    return f + (T - 1) / 99 * (t - f);
+  }
+  /* explanation of the difference with the comparison group, in plain language */
+  function explain(m, c, bn) {
+    var e = indVal(c.id, m.id) || {}, sp = FACTS[m.id] || {}, oth = others(c, bn);
+    var ref = indRef(m, bn.list), r = { e: e, cf: factFor(m, e), gf: oth.length ? groupFact(m, oth) : null, ref: ref, d: (e.s == null || ref == null) ? null : e.s - ref, steps: [] };
+    if (m.star || e.s == null || sp.comps) return r;
+    if (sp.cat && typeof e.v === 'number') {
+      var i = catIdx(sp, e.v);
+      if (i >= 0 && i < sp.cat.length - 1) { var nx = sp.cat[i + 1], sc = scoreOfCode(m, nx[0]); r.steps.push('Next step up: ' + nx[1] + (sc == null ? '' : ' (about +' + Math.round(sc - e.s) + ' points)') + '.'); }
+      else if (i === sp.cat.length - 1) r.steps.push('Already at the top of the ladder.');
+    } else if (!sp.hid && typeof e.v === 'number' && sp.fact && r.d != null && r.d < -0.5) {
+      var nv = neededValue(m, ref);
+      if (nv != null && isFinite(nv)) r.steps.push('To reach the comparison average score (' + Math.round(ref) + '), the picture would need to look like: ' + sp.fact(nv).replace(/^./, function (x) { return x.toLowerCase(); }) + '.');
+    }
+    return r;
+  }
   function indRow(m, c, bn) {
-    var e = indVal(c.id, m.id) || {}, k = parseInt(m.id.charAt(0), 10) - 1, ref = m.star ? null : indRef(m, bn.list);
-    var s = e.s, rk = m.star ? null : indRank(m, c);
+    var k = parseInt(m.id.charAt(0), 10) - 1, x = explain(m, c, bn), e = x.e, s = e.s;
+    var rk = m.star ? null : indRank(m, c), ref = m.star ? null : x.ref;
+    var d = (x.d == null) ? null : Math.round(x.d);
     var cell;
     if (m.star) cell = '<span class="ic-ni-tag">Not scored</span>';
     else if (s == null) cell = '<span class="ic-na">No data</span>';
-    else cell = '<b>' + Math.round(s) + '</b>' + (rk ? '<span class="ic-rk">#' + rk.r + '/' + rk.n + '</span>' : '');
+    else cell = '<b>' + Math.round(s) + '</b>' + (d == null ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + (rk ? '<span class="ic-rk">#' + rk.r + '/' + rk.n + '</span>' : '');
+    var f1 = x.cf || (s == null && !m.star ? 'No data available for this economy' : '');
+    var f2 = (x.gf && !m.star) ? '<span class="ic-icmp"><i>' + esc(gName(bn)) + ':</i> ' + esc(x.gf) + '</span>' : '';
     return '<tr class="ic-ir" data-lev="' + k + '"><td class="ic-c1"><span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span></td>' +
-      '<td class="ic-c2"><span class="ic-iname">' + esc(m.name) + '</span><span class="ic-ival">' + esc(valueLine(m, e)) + '</span></td>' +
+      '<td class="ic-c2"><span class="ic-iname">' + esc(m.name) + '</span><span class="ic-ival">' + esc(f1) + '</span>' + f2 + '</td>' +
       '<td class="ic-c3">' + (m.star || s == null ? '' : '<div class="ic-bar thin" style="--a:' + LEV[k].accent + '"><span style="width:' + s + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div>') + '</td>' +
       '<td class="ic-c4">' + cell + '</td>' +
-      '<td class="ic-c5"><button type="button" class="ic-mbtn" data-ind="' + esc(m.id) + '" aria-label="How is ' + esc(m.name) + ' scored? Methodology">Method</button></td></tr>';
+      '<td class="ic-c5"><button type="button" class="ic-mbtn" data-ind="' + esc(m.id) + '" aria-label="Why this score and how to improve it: ' + esc(m.name) + '">Details</button></td></tr>';
+  }
+  function gapsHtml(c, bn) {
+    if (!others(c, bn).length) return '';
+    var rows = INDS.filter(function (m) { return !m.star && FACTS[m.id]; }).map(function (m) { var x = explain(m, c, bn); return { m: m, x: x }; }).filter(function (r) { return r.x.d != null; });
+    var behind = rows.filter(function (r) { return r.x.d <= -5; }).sort(function (a, b) { return a.x.d - b.x.d; }).slice(0, 5);
+    var ahead = rows.filter(function (r) { return r.x.d >= 5; }).sort(function (a, b) { return b.x.d - a.x.d; }).slice(0, 3);
+    function li(r, withAct) {
+      var m = r.m, x = r.x, k = parseInt(m.id.charAt(0), 10) - 1, d = Math.round(x.d), act = FACTS[m.id].act;
+      return '<li><div class="ic-gl1"><span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span><b>' + esc(m.name) + '</b><em class="ic-d ' + (d > 0 ? 'up' : 'down') + '">' + sgn(d) + '</em></div>' +
+        '<p><i>' + esc(c.name) + ':</i> ' + esc(x.cf || 'No detail available') + '</p>' + (x.gf ? '<p><i>' + esc(gName(bn)) + ':</i> ' + esc(x.gf) + '</p>' : '') +
+        (withAct && act ? '<p class="ic-gact"><i>How to close the gap:</i> ' + esc(act) + '</p>' : '') +
+        '<button type="button" class="ic-mlink" data-ind="' + esc(m.id) + '">More detail</button></li>';
+    }
+    return '<div class="ic-gaps"><div class="ic-gcol"><h5><i class="down"></i>Where it falls behind ' + esc(bn.short) + '</h5>' + (behind.length ? '<ul>' + behind.map(function (r) { return li(r, true); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points below the comparison.</p>') + '</div>' +
+      '<div class="ic-gcol"><h5><i class="up"></i>Where it leads</h5>' + (ahead.length ? '<ul>' + ahead.map(function (r) { return li(r, false); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points above the comparison.</p>') + '</div></div>';
   }
   function indCard(c, bn) {
     if (!INDS.length) return '';
@@ -325,18 +411,18 @@
     var tabs = [['all', 'All levers']].concat(LEV.map(function (L, k) { return [String(k), L.short]; }));
     return '<div class="ic-card ic-inds" id="icInds">' +
       '<div class="ic-dhead"><h4 class="ic-h4">Indicator scores</h4><button type="button" class="ic-dl" data-csv-ind="1">Download CSV</button></div>' +
-      '<p class="ic-note ic-inote">Each driver score is the simple average of its indicators’ scores (1–100). Indicators with no data for this country are left out of that average, not scored as zero. Open <b>Method</b> on any row to see the definition, source, goalposts and how the score is derived. <b>' + nData + ' of ' + nScored + '</b> scored indicators have data for ' + esc(c.name) + '.</p>' +
-      '<div class="ic-tabs" role="group" aria-label="Filter indicators by lever">' + tabs.map(function (t, i) { return '<button type="button" data-itab="' + t[0] + '" aria-pressed="' + (i === 0) + '"' + (i > 0 ? ' style="--a:' + LEV[i - 1].accent + '"' : '') + '>' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
+      '<p class="ic-note ic-inote">Each driver score is the simple average of its indicators’ scores (1–100). Below, the facts behind the scores are set against ' + esc(bn.short) + '. Indicators with no data are left out of the average, not scored as zero. Open <b>Details</b> on any row for what drives the difference, how to improve it and the full methodology. <b>' + nData + ' of ' + nScored + '</b> scored indicators have data for ' + esc(c.name) + '.</p>' +
+      gapsHtml(c, bn) + '<h5 class="ic-allh">All indicators</h5><div class="ic-tabs" role="group" aria-label="Filter indicators by lever">' + tabs.map(function (t, i) { return '<button type="button" data-itab="' + t[0] + '" aria-pressed="' + (i === 0) + '"' + (i > 0 ? ' style="--a:' + LEV[i - 1].accent + '"' : '') + '>' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
       '<p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' +
-      '<div class="ic-tscroll"><table class="ic-table ic-itable"><thead class="ic-sr"><tr><th>ID</th><th>Indicator</th><th>Score bar</th><th>Score</th><th>Methodology</th></tr></thead><tbody>' + html + '</tbody></table></div></div>';
+      '<div class="ic-tscroll"><table class="ic-table ic-itable"><thead class="ic-sr"><tr><th>ID</th><th>Indicator</th><th>Score bar</th><th>Score</th><th>Details</th></tr></thead><tbody>' + html + '</tbody></table></div></div>';
   }
   function indCsv() {
     var c = byId[state.sel], bn = benchFor(c);
     var q = function (v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-    var head = ['Country', 'Indicator ID', 'Indicator', 'Driver', 'Lever', 'Scored', 'Score (1-100)', 'Value used', 'Comparison group', 'Comparison average'];
+    var head = ['Country', 'Indicator ID', 'Indicator', 'Driver', 'Lever', 'Scored', 'Score (1-100)', 'Value used', 'Comparison group', 'Comparison average', 'What the data says', 'Comparison group (typical)'];
     var rows = INDS.map(function (m) {
       var e = indVal(c.id, m.id) || {}, k = parseInt(m.id.charAt(0), 10) - 1, ref = m.star ? null : indRef(m, bn.list);
-      return [c.name, m.id, m.name, m.driver + ' ' + (m.drvname || ''), LEV[k].name, m.star ? 'No' : 'Yes', e.s == null ? '' : e.s, m.comps ? (e.p || []).join(' | ') : (m.lic ? 'not shown' : (e.v == null ? '' : e.v)), bn.label, ref == null ? '' : ref.toFixed(1)];
+      return [c.name, m.id, m.name, m.driver + ' ' + (m.drvname || ''), LEV[k].name, m.star ? 'No' : 'Yes', e.s == null ? '' : e.s, m.comps ? (e.p || []).join(' | ') : (m.lic ? 'not shown' : (e.v == null ? '' : e.v)), bn.label, ref == null ? '' : ref.toFixed(1), factFor(m, e) || '', (!m.star && others(c, bn).length ? groupFact(m, others(c, bn)) : '') || ''];
     });
     var out = [head].concat(rows).map(function (r) { return r.map(q).join(','); });
     var a = document.createElement('a');
@@ -371,6 +457,13 @@
     else if (m.comps) box = '<p class="icm-big">' + esc(c.name) + ': score <b>' + fmt(e.s) + '</b>' + (rk ? ' · rank #' + rk.r + ' of ' + rk.n : '') + '</p><ul class="icm-comp">' + m.comps.map(function (cp, i) { return '<li><b>' + esc(cp.label) + '</b>: ' + (e.p && e.p[i] != null ? 'component score ' + fmt(e.p[i]) + (e.v && e.v[i] != null ? ' (value ' + fmt(e.v[i]) + ')' : '') : 'no data') + '</li>'; }).join('') + '</ul>';
     else box = '<p class="icm-big">' + esc(c.name) + ': ' + (m.lic || e.v == null ? '' : 'value <b>' + fmt(e.v) + '</b> → ') + 'score <b>' + fmt(e.s) + '</b>' + (rk ? ' · rank #' + rk.r + ' of ' + rk.n : '') + '</p>' + (m.lic ? '<p>The underlying value comes from licensed data and is not shown on this page.</p>' : '');
     parts.push('<div class="icm-country" style="--a:' + LEV[k].accent + '">' + box + '</div>');
+    var bn0 = benchFor(c), x0 = explain(m, c, bn0), sp0 = FACTS[m.id] || {};
+    if (!m.star && e.s != null && others(c, bn0).length) {
+      var dd = x0.d == null ? null : Math.round(x0.d);
+      parts.push(section('Why it differs from ' + gName(bn0), '<p><b>' + esc(c.name) + '</b>: ' + esc(x0.cf || 'no detail available') + '.</p>' + (x0.gf ? '<p><b>' + esc(gName(bn0)) + '</b>: ' + esc(x0.gf) + '.</p>' : '') + (dd == null ? '' : '<p class="icm-mut">Score gap: ' + sgn(dd) + ' points (' + Math.round(e.s) + ' vs ' + Math.round(x0.ref) + ').</p>')));
+    }
+    if (sp0.act || x0.steps.length) parts.push(section('How to improve it', (sp0.act ? p(sp0.act) : '') + x0.steps.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('')));
+    parts.push('<details class="icm-tech"><summary>Methodology detail</summary>');
     parts.push(section('What it measures', p(m.measures)));
     /* scoring */
     var sc = '';
@@ -401,6 +494,7 @@
     var cov = '<p><b>Coverage:</b> ' + have.length + ' of ' + N + ' economies have data.' + (miss.length && miss.length <= 20 ? ' Without data: ' + esc(miss.map(function (x) { return x.name; }).join(', ')) + '.' : '') + '</p>' +
       (m.star ? '' : '<p>An economy with no data for an indicator is left out of that driver’s average; it is not scored as zero. A confirmed zero is a genuine observation and receives the lowest score on the scale (1).</p>');
     parts.push(section('Coverage and missing data', cov));
+    parts.push('</details>');
     return parts.join('');
   }
   var modal = null, opener = null;
