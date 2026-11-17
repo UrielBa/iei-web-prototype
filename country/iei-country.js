@@ -22,6 +22,10 @@
   var TIER_FG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#FFFFFF', 'Advanced': '#FFFFFF' };
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  function cbtn(scope, noun) {
+    var n = window.IEI_CASES_COUNT ? window.IEI_CASES_COUNT(scope) : 0;
+    return n ? '<button type="button" class="cs-pill" data-cases="' + scope + '" aria-label="' + n + ' case ' + (n === 1 ? 'study' : 'studies') + ' ' + noun + '">★ ' + n + ' case stud' + (n === 1 ? 'y' : 'ies') + '</button>' : '';
+  }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
   function flag(c, cls) { return '<img class="' + cls + '" src="' + FLAGS + c.flag + '.svg" alt="" loading="lazy">'; }
@@ -216,7 +220,7 @@
       return '<div class="ic-lev" style="--a:' + x.L.accent + '"><p class="ic-lname"><i></i>' + esc(x.L.short) + '</p>' +
         '<p class="ic-lval">' + x.v + '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em></p>' +
         '<div class="ic-bar"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.l[x.k]; }, x.ref) + '</div>' +
-        '<p class="ic-lmeta">Rank #' + x.rk.r + ' of ' + x.rk.n + ' · comparison ' + Math.round(x.ref) + '</p></div>';
+        '<p class="ic-lmeta">Rank #' + x.rk.r + ' of ' + x.rk.n + ' · comparison ' + Math.round(x.ref) + '</p>' + cbtn('L:' + (x.k + 1), 'for this lever') + '</div>';
     }).join('');
 
     function sg(arr, cls) {
@@ -393,7 +397,7 @@
     var f1 = x.cf || (s == null && !m.star ? 'No data available for this economy' : '');
     var f2 = (x.gf && !m.star) ? '<span class="ic-icmp"><i>' + esc(gName(bn)) + ':</i> ' + esc(x.gf) + '</span>' : '';
     return '<div class="ic-ixr"><span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span>' +
-      '<div class="ic-ixm"><span class="ic-iname">' + esc(m.name) + '</span>' + typeTag(m) + '<span class="ic-ival">' + esc(f1) + '</span>' + f2 + '</div>' +
+      '<div class="ic-ixm"><span class="ic-iname">' + esc(m.name) + '</span>' + typeTag(m) + '<span class="ic-ival">' + esc(f1) + '</span>' + f2 + cbtn('I:' + m.id, 'for this indicator') + '</div>' +
       '<div class="ic-ixs">' + cell + '</div>' +
       '<button type="button" class="ic-mbtn" data-ind="' + esc(m.id) + '" aria-label="Why this score and how to improve it: ' + esc(m.name) + '">Details</button>' +
       ((m.star || s == null) ? '' : '<div class="ic-ixb"><div class="ic-bar thin" style="--a:' + LEV[k].accent + '"><span style="width:' + s + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div></div>') + '</div>';
@@ -403,7 +407,7 @@
     var list = INDS.filter(function (m) { return m.driver === id; }).sort(function (a, b) { return (a.star ? 1 : 0) - (b.star ? 1 : 0); });
     var n = list.filter(function (m) { return !m.star; }), nd = n.filter(function (m) { var e = indVal(c.id, m.id); return e && e.s != null; }).length;
     return '<div class="ic-dpan"><p class="ic-dpm"><b>' + nd + ' of ' + n.length + '</b> indicators have data · ' +
-      '<span class="ic-ty e">Enabling</span> ' + (de[0] == null ? '–' : Math.round(de[0])) + ' · <span class="ic-ty b">Behaviour</span> ' + (de[1] == null ? '–' : Math.round(de[1])) + '</p>' +
+      '<span class="ic-ty e">Enabling</span> ' + (de[0] == null ? '–' : Math.round(de[0])) + ' · <span class="ic-ty b">Behaviour</span> ' + (de[1] == null ? '–' : Math.round(de[1])) + '</p>' + cbtn('D:' + id, 'for this driver') +
       list.map(function (m) { return indItem(m, c, bn); }).join('') + '</div>';
   }
   function ebCard(c, bn) {
@@ -522,6 +526,7 @@
       (m.star ? '' : '<p>An economy with no data for an indicator is left out of that driver’s average; it is not scored as zero. A confirmed zero is a genuine observation and receives the lowest score on the scale (1).</p>');
     parts.push(section('Coverage and missing data', cov));
     parts.push('</details>');
+    var cb = cbtn('I:' + m.id, 'for this indicator'); if (cb) parts.push(section('Case studies', '<p>See how other countries have put this into practice.</p>' + cb));
     return parts.join('');
   }
   var modal = null, opener = null;

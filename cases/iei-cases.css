@@ -36,3 +36,40 @@
 .cs-bar,.cs-grid,.cs-card{min-width:0}
 #ieiCases{min-width:0;max-width:100%}
 .s-cases,.s-cases *,.s-cases *::before,.s-cases *::after{box-sizing:border-box}.s-csv,.s-csv *{box-sizing:border-box}
+/* popup */
+.cp{position:fixed;inset:0;z-index:100010;display:flex;align-items:center;justify-content:center;padding:20px;font-family:"Urbanist",system-ui,sans-serif}
+.cp[hidden]{display:none}
+.cp *,.cp *::before,.cp *::after{box-sizing:border-box}
+.cp-bg{position:absolute;inset:0;background:rgba(8,12,28,.62)}
+.cp-box{position:relative;width:min(760px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;color:#0F1428;border-radius:24px;padding:28px 30px 30px;box-shadow:0 40px 80px -30px rgba(0,0,0,.6);outline:0}
+.cp-x{position:absolute;top:14px;right:16px;width:38px;height:38px;border:0;border-radius:50%;background:#F4F6FB;font-size:24px;line-height:1;cursor:pointer;color:#0F1428}
+.cp-eye{margin:0 40px 8px 0;font:700 11px/1.3 "Urbanist",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#5d6479}
+.cp-head h3{margin:0 40px 6px 0;font:800 clamp(1.3rem,2.4vw,1.7rem)/1.2 "Urbanist",sans-serif;color:#0F1428}
+.cp-sub{margin:0 0 4px;color:#5d6479;font:500 14px "Urbanist",sans-serif}
+.cp-back{border:0;background:none;padding:0 0 10px;font:800 14px "Urbanist",sans-serif;color:#3a4fe0;cursor:pointer}
+.cp-body{margin-top:18px}
+.cp-list{display:grid;gap:12px}
+.cp-card{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;background:#F4F6FB;border:1px solid #E3E6EE;border-radius:16px;padding:16px 18px;cursor:pointer;font-family:inherit;color:#0F1428;transition:border-color .15s,transform .15s}
+.cp-card:hover{border-color:#6478ff;transform:translateY(-1px)}
+.cp-card:focus-visible,.cp-x:focus-visible,.cp-back:focus-visible,.cp-link:focus-visible,.cp-prof:focus-visible{outline:3px solid #6478ff;outline-offset:2px}
+.cp-card b{font:800 16px/1.3 "Urbanist",sans-serif}
+.cp-b{font:500 14px/1.5 "Urbanist",sans-serif;color:#5d6479;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cp-more{font:800 13px "Urbanist",sans-serif;color:#3a4fe0}
+.cp-detail .cs-top{margin-bottom:8px}
+.cp-detail h3{display:none}
+.cp-text p{margin:0 0 12px;font:500 15px/1.6 "Urbanist",sans-serif;color:#2a3150}
+.cp-text{margin:16px 0}
+.cp-meta{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0 0 18px;font:500 14px/1.45 "Urbanist",sans-serif}
+.cp-meta dt{font-weight:800;color:#5d6479}.cp-meta dd{margin:0;overflow-wrap:anywhere}
+.cp-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.cp-link{display:inline-flex;padding:12px 20px;border-radius:999px;background:#0F1428;color:#fff !important;font:800 14px "Urbanist",sans-serif;text-decoration:none !important}
+.cp-link:hover{background:#6478ff}
+.cp-prof{background:none;border:0;font:800 14px "Urbanist",sans-serif;color:#3a4fe0;cursor:pointer;padding:8px 0}
+.cp-open{overflow:hidden}
+/* triggers inside the country report */
+.ic .cs-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.28);background:rgba(245,185,66,.12);color:#F5B942;font:800 12px "Urbanist",sans-serif;cursor:pointer}
+.ic .cs-pill:hover{background:#F5B942;color:#0F1428;border-color:#F5B942}
+.ic .cs-pill:focus-visible{outline:3px solid #7084FF;outline-offset:2px}
+.icm .cs-pill{display:inline-flex;margin-top:6px;padding:8px 14px;border-radius:999px;border:1.5px solid #0F1428;background:#fff;color:#0F1428;font:800 13px "Urbanist",sans-serif;cursor:pointer}
+.icm .cs-pill:hover{background:#0F1428;color:#fff}
+@media(max-width:620px){.cp{padding:0;align-items:flex-end}.cp-box{border-radius:24px 24px 0 0;max-height:92vh;padding:24px 20px 28px}.cp-meta{grid-template-columns:1fr}}
