@@ -173,3 +173,87 @@
 .ic-hd{position:sticky;left:0;background:var(--card);z-index:1}
 @media (max-width:991px){.ic-grid{grid-template-columns:minmax(0,1fr)}}
 .ic-report{grid-template-columns:minmax(0,1fr)}
+
+/* ---- indicator detail ---- */
+.ic-inds{margin-top:18px}
+.ic-inote{margin:8px 0 14px !important;max-width:760px}
+.ic-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
+.ic-tabs button{border:1px solid var(--line);background:transparent;color:var(--muted);padding:7px 14px;border-radius:99px;font-size:12.5px;font-weight:800;transition:background .2s,color .2s,border-color .2s}
+.ic-tabs button:hover{color:#fff;border-color:rgba(255,255,255,.35)}
+.ic-tabs button[aria-pressed="true"]{background:#fff;color:#0F1428;border-color:#fff}
+.ic-itable .ic-c1{width:62px}.ic-itable .ic-c3{width:22%;min-width:90px}.ic-itable .ic-c4{width:64px;text-align:right;white-space:nowrap}.ic-itable .ic-c5{width:84px;text-align:right}
+.ic-itable tr[hidden]{display:none}
+.ic-iid{display:inline-block;font-size:11px;font-weight:800;padding:3px 7px;border-radius:7px;background:color-mix(in srgb,var(--a) 22%,transparent);color:#fff;border:1px solid color-mix(in srgb,var(--a) 60%,transparent);white-space:nowrap}
+.ic-iname{display:block;font-weight:700}
+.ic-ival{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+.ic-ival:empty{display:none}
+.ic-itable .ic-grp th{position:relative;padding-right:56px !important;line-height:1.3}
+.ic-itable .ic-grp .ic-gv{position:absolute;right:4px;top:50%;transform:translateY(-35%)}
+.ic-gid{font-weight:800;margin-right:6px}
+.ic-gsub{font-weight:600;color:var(--muted);margin-left:6px;font-size:12px}
+.ic-ni-tag{font-size:11px;font-weight:800;color:var(--muted);border:1px dashed var(--line);padding:2px 7px;border-radius:99px}
+.ic-mbtn{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;padding:6px 12px;border-radius:99px;font-size:12px;font-weight:800;white-space:nowrap;transition:background .2s,color .2s}
+.ic-mbtn:hover,.ic-mbtn:focus-visible{background:#fff;color:#0F1428}
+@media(max-width:640px){
+  .ic-itable .ic-c3{display:none}
+  .ic-itable .ic-c1{width:auto}
+  .ic-itable .ic-c5{width:auto}
+  .ic-itable td{padding:9px 3px}
+}
+
+/* ---- methodology modal (self-contained, lives on <body>) ---- */
+html.icm-open{overflow:hidden}
+.icm{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;font-family:inherit}
+.icm[hidden]{display:none}
+.icm-bg{position:absolute;inset:0;background:rgba(6,9,22,.72)}
+.icm-box{position:relative;width:min(680px,100%);max-height:min(86vh,820px);overflow:auto;background:#151B33;color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:26px 28px 28px;box-shadow:0 30px 80px rgba(0,0,0,.5);outline:0;-webkit-overflow-scrolling:touch}
+.icm-x{position:sticky;top:0;float:right;margin:-10px -12px 0 8px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:#151B33;color:#fff;font-size:22px;line-height:1;z-index:2}
+.icm-x:hover,.icm-x:focus-visible{background:#fff;color:#0F1428}
+.icm-head .ic-iid{margin-bottom:10px}
+.icm-head h3{margin:0 !important;font-size:24px !important;line-height:1.2 !important;color:#fff !important;padding-right:24px}
+.icm-head p{margin:6px 0 0 !important;font-size:13.5px !important;color:#A9B0C8 !important}
+.icm-body{margin-top:16px}
+.icm-body p{margin:0 0 8px !important;font-size:14.5px !important;line-height:1.55 !important;color:#E6E9F5 !important}
+.icm-sec{margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+.icm-sec h5{margin:0 0 8px !important;font-size:11.5px !important;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#A9B0C8 !important}
+.icm-country{border-radius:16px;padding:14px 16px;background:color-mix(in srgb,var(--a) 14%,#0F1428);border:1px solid color-mix(in srgb,var(--a) 55%,transparent)}
+.icm-country p:last-child{margin-bottom:0 !important}
+.icm-big{font-size:17px !important;color:#fff !important}
+.icm-comp{margin:6px 0 0;padding-left:18px;font-size:14px;color:#E6E9F5}
+.icm-gp{margin:0 0 10px;padding:12px 14px;border-radius:14px;background:#0F1428;border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:5px;font-size:13.5px;color:#E6E9F5}
+.icm-gp span{color:#A9B0C8}
+.icm-gp code{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;color:#fff;background:rgba(255,255,255,.07);padding:7px 9px;border-radius:8px;overflow-wrap:anywhere}
+.icm-mut{color:#A9B0C8 !important}
+.icm-links{display:flex;flex-wrap:wrap;gap:8px 14px}
+.icm-links:empty{display:none}
+.icm-links a{color:#9DB0FF;font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:640px){
+  .icm{align-items:flex-end;padding:0}
+  .icm-box{width:100%;max-height:90vh;border-radius:22px 22px 0 0;padding:22px 18px 28px}
+  .icm-head h3{font-size:20px !important}
+}
+@media(prefers-reduced-motion:no-preference){.icm-box{animation:icmIn .22s ease-out}@keyframes icmIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}}
+.ic-inds .ic-tscroll{overflow-x:auto;max-width:100%}
+.ic-itable{table-layout:fixed}
+.ic-itable .ic-c2{overflow-wrap:anywhere;word-break:normal}
+@media(max-width:640px){
+  .ic-itable .ic-c1{width:50px}.ic-itable .ic-c4{width:46px}.ic-itable .ic-c5{width:64px}
+  .ic-mbtn{padding:6px 9px;font-size:11.5px}
+  .ic-iid{font-size:10.5px;padding:3px 5px}
+  .ic-itable .ic-grp th{padding-right:44px !important}
+}
+@media(max-width:640px){
+  .ic-itable,.ic-itable tbody,.ic-itable tr.ic-ir{display:block}
+  .ic-itable tr.ic-ir{display:grid;grid-template-columns:48px minmax(0,1fr) auto auto;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+  .ic-itable tr.ic-ir[hidden]{display:none}
+  .ic-itable tr.ic-ir td{display:block;border:0;padding:0;width:auto !important}
+  .ic-itable .ic-c1{grid-column:1;grid-row:1}
+  .ic-itable .ic-c2{grid-column:2;grid-row:1}
+  .ic-itable .ic-c4{grid-column:3;grid-row:1;text-align:right}
+  .ic-itable .ic-c5{grid-column:4;grid-row:1}
+  .ic-itable .ic-c3{display:block;grid-column:2/-1;grid-row:2;min-width:0}
+  .ic-itable .ic-c3:empty{display:none}
+  .ic-itable .ic-grp{display:block}
+  .ic-itable .ic-grp th{display:block}
+}
+.ic-itable .ic-c2,.ic-itable .ic-iname,.ic-itable .ic-ival{white-space:normal !important;text-overflow:clip !important;overflow:visible !important}

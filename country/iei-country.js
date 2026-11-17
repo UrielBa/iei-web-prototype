@@ -247,6 +247,7 @@
       '  <div class="ic-tscroll"><table class="ic-table"><thead class="ic-sr"><tr><th>Driver</th><th>Description</th><th>Score</th><th>Value</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
       (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data”. This is not a score of zero or a low score: the driver is left out of the averages and comparisons.</p>' : '') +
       '</div>' +
+      indCard(c, bn) +
       peerCard(c, bn, drivers, peers) +
       '<div class="ic-card ic-peers"><h4 class="ic-h4">Countries with a similar lever profile</h4><div class="ic-chips">' +
       peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>' +
@@ -267,6 +268,179 @@
     }
   }
 
+  /* ---------- indicator detail + methodology pop-up ---------- */
+  var IND = window.IEI_IND, INDS = IND ? IND.inds : [], IV = IND ? IND.vals : {};
+  var DRVNAME = {};
+  INDS.forEach(function (m) { DRVNAME[m.driver] = m.drvname; });
+  function num(x) { var n = parseFloat(x); return isFinite(n) ? n : null; }
+  function fmt(v) {
+    if (v == null) return '–';
+    var a = Math.abs(v);
+    if (a >= 1000) return Math.round(v).toLocaleString('en-US');
+    if (a === 0) return '0';
+    var s = Number(v.toPrecision(4)); return String(s);
+  }
+  function indVal(iso, id) { return (IV[iso] && IV[iso][id]) || null; }
+  function indRank(m, c) {
+    var mine = indVal(c.id, m.id); if (!mine || mine.s == null) return null;
+    var all = C.map(function (x) { var e = indVal(x.id, m.id); return e ? e.s : null; }).filter(function (x) { return x != null; });
+    return { r: 1 + all.filter(function (x) { return x > mine.s; }).length, n: all.length };
+  }
+  function indRef(m, list) { return avg(list, function (x) { var e = indVal(x.id, m.id); return e ? e.s : null; }); }
+  function valueLine(m, e) {
+    if (!e || e.s == null && !m.star) return '';
+    if (m.comps) return 'Component scores: ' + (e.p || []).map(function (x) { return fmt(x); }).join(' · ');
+    if (m.lic) return 'Underlying value not shown (licensed data)';
+    return e.v == null ? '' : 'Value used: ' + fmt(e.v);
+  }
+  function indRow(m, c, bn) {
+    var e = indVal(c.id, m.id) || {}, k = parseInt(m.id.charAt(0), 10) - 1, ref = m.star ? null : indRef(m, bn.list);
+    var s = e.s, rk = m.star ? null : indRank(m, c);
+    var cell;
+    if (m.star) cell = '<span class="ic-ni-tag">Not scored</span>';
+    else if (s == null) cell = '<span class="ic-na">No data</span>';
+    else cell = '<b>' + Math.round(s) + '</b>' + (rk ? '<span class="ic-rk">#' + rk.r + '/' + rk.n + '</span>' : '');
+    return '<tr class="ic-ir" data-lev="' + k + '"><td class="ic-c1"><span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span></td>' +
+      '<td class="ic-c2"><span class="ic-iname">' + esc(m.name) + '</span><span class="ic-ival">' + esc(valueLine(m, e)) + '</span></td>' +
+      '<td class="ic-c3">' + (m.star || s == null ? '' : '<div class="ic-bar thin" style="--a:' + LEV[k].accent + '"><span style="width:' + s + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div>') + '</td>' +
+      '<td class="ic-c4">' + cell + '</td>' +
+      '<td class="ic-c5"><button type="button" class="ic-mbtn" data-ind="' + esc(m.id) + '" aria-label="How is ' + esc(m.name) + ' scored? Methodology">Method</button></td></tr>';
+  }
+  function indCard(c, bn) {
+    if (!INDS.length) return '';
+    var html = '', last = '', nScored = 0, nData = 0;
+    var order = DID.concat(['KIM']);
+    order.forEach(function (d) {
+      var list = INDS.filter(function (m) { return d === 'KIM' ? m.star : (m.driver === d && !m.star); });
+      if (!list.length) return;
+      var k = d === 'KIM' ? -1 : driverLever[d];
+      if (d === 'KIM') {
+        html += '<tr class="ic-grp ic-gk" data-lev="all"><th colspan="5" scope="colgroup"><i style="background:#fff"></i>Key impact models <span class="ic-gsub">tracked, not included in any score</span></th></tr>';
+      } else {
+        var dv = c.d[DID.indexOf(d)];
+        html += '<tr class="ic-grp" data-lev="' + k + '"><th colspan="5" scope="colgroup" style="--a:' + LEV[k].accent + '"><i></i><span class="ic-gid">' + d + '</span> ' + esc(DRVNAME[d] || '') + '<span class="ic-gv">' + (dv == null ? '–' : '<b>' + dv + '</b>') + '</span></th></tr>';
+      }
+      list.forEach(function (m) { html += indRow(m, c, bn); if (!m.star) { nScored++; var e = indVal(c.id, m.id); if (e && e.s != null) nData++; } });
+    });
+    var tabs = [['all', 'All levers']].concat(LEV.map(function (L, k) { return [String(k), L.short]; }));
+    return '<div class="ic-card ic-inds" id="icInds">' +
+      '<div class="ic-dhead"><h4 class="ic-h4">Indicator scores</h4><button type="button" class="ic-dl" data-csv-ind="1">Download CSV</button></div>' +
+      '<p class="ic-note ic-inote">Each driver score is the simple average of its indicators’ scores (1–100). Indicators with no data for this country are left out of that average, not scored as zero. Open <b>Method</b> on any row to see the definition, source, goalposts and how the score is derived. <b>' + nData + ' of ' + nScored + '</b> scored indicators have data for ' + esc(c.name) + '.</p>' +
+      '<div class="ic-tabs" role="group" aria-label="Filter indicators by lever">' + tabs.map(function (t, i) { return '<button type="button" data-itab="' + t[0] + '" aria-pressed="' + (i === 0) + '"' + (i > 0 ? ' style="--a:' + LEV[i - 1].accent + '"' : '') + '>' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
+      '<p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' +
+      '<div class="ic-tscroll"><table class="ic-table ic-itable"><thead class="ic-sr"><tr><th>ID</th><th>Indicator</th><th>Score bar</th><th>Score</th><th>Methodology</th></tr></thead><tbody>' + html + '</tbody></table></div></div>';
+  }
+  function indCsv() {
+    var c = byId[state.sel], bn = benchFor(c);
+    var q = function (v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var head = ['Country', 'Indicator ID', 'Indicator', 'Driver', 'Lever', 'Scored', 'Score (1-100)', 'Value used', 'Comparison group', 'Comparison average'];
+    var rows = INDS.map(function (m) {
+      var e = indVal(c.id, m.id) || {}, k = parseInt(m.id.charAt(0), 10) - 1, ref = m.star ? null : indRef(m, bn.list);
+      return [c.name, m.id, m.name, m.driver + ' ' + (m.drvname || ''), LEV[k].name, m.star ? 'No' : 'Yes', e.s == null ? '' : e.s, m.comps ? (e.p || []).join(' | ') : (m.lic ? 'not shown' : (e.v == null ? '' : e.v)), bn.label, ref == null ? '' : ref.toFixed(1)];
+    });
+    var out = [head].concat(rows).map(function (r) { return r.map(q).join(','); });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + out.join('\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'IEI_indicators_' + c.name.replace(/[^A-Za-z0-9]+/g, '_') + '.csv';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  /* method description */
+  function goalDesc(method, fl, ce, unit) {
+    var m = String(method || '').toLowerCase(), f = num(fl), t = num(ce);
+    if (f == null || t == null) return null;
+    if (m === 'log') return { kind: 'Logarithmic scale', f: f, t: t, formula: 'score = 1 + 99 × ln(value ÷ floor) ÷ ln(ceiling ÷ floor)', note: 'Values are clamped to the floor and ceiling. A logarithmic scale stops a few very large values from flattening everyone else’s score.' };
+    if (m === 'categorical') return { kind: 'Categorical ladder on a linear scale', f: f, t: t, formula: 'score = 1 + 99 × (code − floor) ÷ (ceiling − floor)', note: 'Each policy category has a fixed code, so every category always earns the same score.' };
+    return { kind: 'Linear scale', f: f, t: t, formula: 'score = 1 + 99 × (value − floor) ÷ (ceiling − floor)', note: 'Values are clamped to the floor and ceiling.' };
+  }
+  function section(t, body) { return body ? '<section class="icm-sec"><h5>' + esc(t) + '</h5>' + body + '</section>' : ''; }
+  function p(t) { return t ? '<p>' + esc(t) + '</p>' : ''; }
+  function linkList(ls) {
+    return (ls || []).filter(function (u) { return /^https?:\/\//i.test(u); }).map(function (u) {
+      var h = u.replace(/^https?:\/\/(www\.)?/i, '').split('/')[0];
+      return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(h) + ' ↗</a>';
+    }).join(' ');
+  }
+  function methodHtml(m, c) {
+    var k = parseInt(m.id.charAt(0), 10) - 1, e = indVal(c.id, m.id) || {}, rk = m.star ? null : indRank(m, c);
+    var parts = [];
+    /* country box */
+    var box;
+    if (m.star) box = '<p>' + esc(m.name) + ' is a leading-edge model: it is tracked and shown for context but does <b>not</b> enter any driver or total score.</p>' + (e.v != null ? '<p class="icm-big">' + esc(c.name) + ': <b>' + fmt(e.v) + '</b></p>' : '<p class="icm-big">No data for ' + esc(c.name) + '</p>');
+    else if (e.s == null) box = '<p class="icm-big">' + esc(c.name) + ': <b>no data</b></p><p>The indicator is left out of the driver average for this country. It is not scored as zero.</p>';
+    else if (m.comps) box = '<p class="icm-big">' + esc(c.name) + ': score <b>' + fmt(e.s) + '</b>' + (rk ? ' · rank #' + rk.r + ' of ' + rk.n : '') + '</p><ul class="icm-comp">' + m.comps.map(function (cp, i) { return '<li><b>' + esc(cp.label) + '</b>: ' + (e.p && e.p[i] != null ? 'component score ' + fmt(e.p[i]) + (e.v && e.v[i] != null ? ' (value ' + fmt(e.v[i]) + ')' : '') : 'no data') + '</li>'; }).join('') + '</ul>';
+    else box = '<p class="icm-big">' + esc(c.name) + ': ' + (m.lic || e.v == null ? '' : 'value <b>' + fmt(e.v) + '</b> → ') + 'score <b>' + fmt(e.s) + '</b>' + (rk ? ' · rank #' + rk.r + ' of ' + rk.n : '') + '</p>' + (m.lic ? '<p>The underlying value comes from licensed data and is not shown on this page.</p>' : '');
+    parts.push('<div class="icm-country" style="--a:' + LEV[k].accent + '">' + box + '</div>');
+    parts.push(section('What it measures', p(m.measures)));
+    /* scoring */
+    var sc = '';
+    if (m.comps) {
+      sc += p(m.rationale);
+      m.comps.forEach(function (cp) {
+        var g = goalDesc(cp.method, cp.floor, cp.ceil);
+        sc += '<div class="icm-gp"><b>' + esc(cp.label) + '</b>' + (g ? '<span>' + esc(g.kind) + ' · floor ' + fmt(g.f) + ' → score 1 · ceiling ' + fmt(g.t) + ' → score 100</span>' : '') + (cp.unit ? '<span>Unit: ' + esc(cp.unit) + '</span>' : '') + '</div>';
+      });
+    } else {
+      var g = m.pass ? null : goalDesc(m.method, m.floor, m.ceil);
+      if (m.pass) sc += '<div class="icm-gp"><b>Direct 1–100 score</b><span>The source composite is already on the IEI 1–100 scale, so no further transformation is applied.</span></div>';
+      if (m.id === '1A.4') sc += '<div class="icm-gp"><b>Custom piecewise scale</b><span>Larger subsidies score lower; see the breakpoints below.</span></div>';
+      if (m.star) sc += p(m.rationale);
+      else {
+        if (g) sc += '<div class="icm-gp"><b>' + esc(g.kind) + '</b><span>Floor ' + fmt(g.f) + ' → score 1 · ceiling ' + fmt(g.t) + ' → score 100</span><code>' + esc(g.formula) + '</code>' + (g.note ? '<span>' + esc(g.note) + '</span>' : '') + '</div>';
+        sc += p(m.rationale);
+      }
+    }
+    parts.push(section(m.star ? 'How it is used' : 'How the score is derived', sc));
+    if (!m.comps) { parts.push(section('Unit and calculation', (m.unit ? '<p><b>Unit:</b> ' + esc(m.unit) + '</p>' : '') + (m.metric ? '<p>' + esc(m.metric) + '</p>' : ''))); }
+    else parts.push(section('Unit and calculation', m.comps.map(function (cp) { return '<p><b>' + esc(cp.label) + '.</b> ' + esc(cp.unit || '') + ' ' + esc(cp.metric || '') + '</p>'; }).join('')));
+    var src = m.comps ? m.comps.map(function (cp) { return '<p><b>' + esc(cp.label) + ':</b> ' + esc(cp.source || '') + (cp.year ? ' <span class="icm-mut">' + esc(cp.year) + '</span>' : '') + '</p><p class="icm-links">' + linkList(cp.links) + '</p>'; }).join('') :
+      '<p>' + esc(m.source || '') + '</p>' + (m.year ? '<p class="icm-mut"><b>Reference period:</b> ' + esc(m.year) + '</p>' : '') + '<p class="icm-links">' + linkList(m.links) + '</p>';
+    parts.push(section('Data source', src));
+    var have = [], miss = [];
+    C.forEach(function (x) { var q = indVal(x.id, m.id); if (q && (q.s != null)) have.push(x); else miss.push(x); });
+    var cov = '<p><b>Coverage:</b> ' + have.length + ' of ' + N + ' economies have data.' + (miss.length && miss.length <= 20 ? ' Without data: ' + esc(miss.map(function (x) { return x.name; }).join(', ')) + '.' : '') + '</p>' +
+      (m.star ? '' : '<p>An economy with no data for an indicator is left out of that driver’s average; it is not scored as zero. A confirmed zero is a genuine observation and receives the lowest score on the scale (1).</p>');
+    parts.push(section('Coverage and missing data', cov));
+    return parts.join('');
+  }
+  var modal = null, opener = null;
+  function ensureModal() {
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.className = 'icm'; modal.hidden = true;
+    modal.innerHTML = '<div class="icm-bg" data-close="1"></div><div class="icm-box" role="dialog" aria-modal="true" aria-labelledby="icmT" tabindex="-1"><button type="button" class="icm-x" data-close="1" aria-label="Close">×</button><div class="icm-head"></div><div class="icm-body"></div></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) closeModal(); });
+    return modal;
+  }
+  function openModal(id, btn) {
+    var m = INDS.filter(function (x) { return x.id === id; })[0], c = byId[state.sel];
+    if (!m || !c) return;
+    ensureModal(); opener = btn || null;
+    var k = parseInt(m.id.charAt(0), 10) - 1;
+    modal.querySelector('.icm-head').innerHTML = '<span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span><h3 id="icmT">' + esc(m.name) + '</h3><p>' + esc(LEV[k].short) + ' · ' + esc(m.drvname || '') + (m.star ? ' · key impact model' : '') + '</p>';
+    modal.querySelector('.icm-body').innerHTML = methodHtml(m, c);
+    modal.hidden = false; document.documentElement.classList.add('icm-open');
+    var box = modal.querySelector('.icm-box'); box.scrollTop = 0; modal.querySelector('.icm-body').scrollTop = 0;
+    setTimeout(function () { box.focus(); }, 0);
+  }
+  function closeModal() {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true; document.documentElement.classList.remove('icm-open');
+    if (opener && document.body.contains(opener)) opener.focus(); opener = null;
+  }
+  document.addEventListener('keydown', function (e) {
+    if (!modal || modal.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+    if (e.key === 'Tab') {
+      var f = Array.prototype.slice.call(modal.querySelectorAll('button, a[href]')).filter(function (x) { return x.offsetParent !== null; });
+      if (!f.length) return;
+      var first = f[0], lastEl = f[f.length - 1], box = modal.querySelector('.icm-box');
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === box)) { e.preventDefault(); lastEl.focus(); }
+      else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
+    }
+  });
+
   /* ---------- events ---------- */
   root.addEventListener('click', function (e) {
     var t = e.target, b;
@@ -283,6 +457,14 @@
     if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); return; }
     if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
     if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }
+    if ((b = t.closest('[data-ind]'))) { openModal(b.getAttribute('data-ind'), b); return; }
+    if ((b = t.closest('[data-itab]'))) {
+      var v = b.getAttribute('data-itab'), card = b.closest('.ic-inds');
+      Array.prototype.forEach.call(card.querySelectorAll('[data-itab]'), function (x) { x.setAttribute('aria-pressed', x === b); });
+      Array.prototype.forEach.call(card.querySelectorAll('tbody tr'), function (r) { var l = r.getAttribute('data-lev'); r.hidden = !(v === 'all' || l === v); });
+      return;
+    }
+    if (t.closest('[data-csv-ind]')) { indCsv(); return; }
     if (t.closest('[data-csv]')) csvDownload();
   });
   $('.ic-q').addEventListener('input', function (e) { state.q = e.target.value.trim(); renderList(); });
