@@ -39,7 +39,7 @@
   var regions = Array.from(new Set(C.map(function (c) { return c.region; }))).sort();
   var incomes = ['High Income', 'Upper Middle Income', 'Lower Middle Income', 'Low Income'].filter(function (i) { return C.some(function (c) { return c.income === i; }); });
   var fromHash = (location.hash.indexOf('#' + PAGE_HASH) === 0) ? location.hash.slice(PAGE_HASH.length + 1).toUpperCase() : '';
-  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', q: '', tier: '', region: '', income: '' };
+  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', open: {}, q: '', tier: '', region: '', income: '' };
 
   function filtered() {
     return C.filter(function (c) {
@@ -215,12 +215,14 @@
       if (state.sort === 'lever' && (n === 0 || rows[n - 1].k !== x.k)) {
         head = '<tr class="ic-grp"><th colspan="4" scope="colgroup" style="--a:' + LEV[x.k].accent + '"><i></i>' + esc(LEV[x.k].name) + '<span class="ic-gv"><b>' + levers[x.k].v + '</b><em class="ic-d ' + (levers[x.k].d > 0 ? 'up' : levers[x.k].d < 0 ? 'down' : 'eq') + '">' + sgn(levers[x.k].d) + '</em></span></th></tr>';
       }
-      return head + '<tr class="ic-dr"><td class="ic-c1"><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span></td>' +
-        '<td class="ic-c2">' + esc(DLAB[x.id]) + '</td>' +
+      var isOpen = !!state.open[x.id];
+      return head + '<tr class="ic-dr" tabindex="0" role="button" data-drv="' + x.id + '" aria-expanded="' + isOpen + '" aria-label="' + x.id + ' ' + esc(DLAB[x.id]) + ': show indicators"><td class="ic-c1"><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span></td>' +
+        '<td class="ic-c2"><span class="ic-dtxt">' + esc(DLAB[x.id]) + '</span><span class="ic-chev" aria-hidden="true"></span></td>' +
         '<td class="ic-c3">' + (x.v == null ? '<span class="ic-na">No data</span>' :
           '<div class="ic-bar thin" style="--a:' + LEV[x.k].accent + '"><span style="width:' + x.v + '%"></span>' + (x.ref == null ? '' : '<u style="left:' + x.ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(x.ref) + '"></u>') + '</div>') + '</td>' +
         '<td class="ic-c4">' + (x.v == null ? '–' : '<b>' + x.v + '</b>' + (x.d == null ? '' : '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em>')) +
-        '<span class="ic-rk">' + (x.rk ? '#' + x.rk.r + '/' + x.rk.n : '') + '</span></td></tr>';
+        '<span class="ic-rk">' + (x.rk ? '#' + x.rk.r + '/' + x.rk.n : '') + '</span></td></tr>' +
+        '<tr class="ic-dx" data-for="' + x.id + '"' + (isOpen ? '' : ' hidden') + '><td colspan="4">' + (isOpen ? driverPanel(x.id, c, bn) : '') + '</td></tr>';
     }).join('');
 
     report.innerHTML =
@@ -236,13 +238,15 @@
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
       '</div>' +
       '<div class="ic-levs">' + levCards + '</div>' +
+      ebCard(c, bn) +
       '<div class="ic-two">' +
       '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
       '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul></div>' +
       '</div>' +
       '<div class="ic-card ic-drivers">' +
       '  <div class="ic-dhead"><h4 class="ic-h4">All 14 drivers</h4><div class="ic-sort" role="group" aria-label="Sort drivers">' +
-      [['lever', 'By lever'], ['gap', 'Largest gaps'], ['strength', 'Strengths']].map(function (o) { return '<button type="button" data-sort="' + o[0] + '" aria-pressed="' + (state.sort === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div><button type="button" class="ic-dl" data-csv="1">Download CSV</button></div>' +
+      [['lever', 'By lever'], ['gap', 'Largest gaps'], ['strength', 'Strengths']].map(function (o) { return '<button type="button" data-sort="' + o[0] + '" aria-pressed="' + (state.sort === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div><div class="ic-dbtns"><button type="button" class="ic-dl" data-expand="1">' + (DID.every(function (id) { return state.open[id]; }) ? 'Collapse all' : 'Expand all') + '</button><button type="button" class="ic-dl" data-csv="1">Drivers CSV</button><button type="button" class="ic-dl" data-csv-ind="1">Indicators CSV</button></div></div>' +
+      '  <p class="ic-hint">Select a driver to see its indicators, the facts behind each score and how it compares.</p>' +
       '  <p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' +
       '  <div class="ic-tscroll"><table class="ic-table"><thead class="ic-sr"><tr><th>Driver</th><th>Description</th><th>Score</th><th>Value</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
       (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data”. This is not a score of zero or a low score: the driver is left out of the averages and comparisons.</p>' : '') +
@@ -361,7 +365,9 @@
     }
     return r;
   }
-  function indRow(m, c, bn) {
+  var TYPE = { E: ['Enabling', 'e'], B: ['Behaviour', 'b'], K: ['Key impact model', 'k'] };
+  function typeTag(m) { var t = TYPE[m.type]; return t ? '<em class="ic-ty ' + t[1] + '">' + t[0] + '</em>' : ''; }
+  function indItem(m, c, bn) {
     var k = parseInt(m.id.charAt(0), 10) - 1, x = explain(m, c, bn), e = x.e, s = e.s;
     var rk = m.star ? null : indRank(m, c), ref = m.star ? null : x.ref;
     var d = (x.d == null) ? null : Math.round(x.d);
@@ -371,11 +377,34 @@
     else cell = '<b>' + Math.round(s) + '</b>' + (d == null ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + (rk ? '<span class="ic-rk">#' + rk.r + '/' + rk.n + '</span>' : '');
     var f1 = x.cf || (s == null && !m.star ? 'No data available for this economy' : '');
     var f2 = (x.gf && !m.star) ? '<span class="ic-icmp"><i>' + esc(gName(bn)) + ':</i> ' + esc(x.gf) + '</span>' : '';
-    return '<tr class="ic-ir" data-lev="' + k + '"><td class="ic-c1"><span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span></td>' +
-      '<td class="ic-c2"><span class="ic-iname">' + esc(m.name) + '</span><span class="ic-ival">' + esc(f1) + '</span>' + f2 + '</td>' +
-      '<td class="ic-c3">' + (m.star || s == null ? '' : '<div class="ic-bar thin" style="--a:' + LEV[k].accent + '"><span style="width:' + s + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div>') + '</td>' +
-      '<td class="ic-c4">' + cell + '</td>' +
-      '<td class="ic-c5"><button type="button" class="ic-mbtn" data-ind="' + esc(m.id) + '" aria-label="Why this score and how to improve it: ' + esc(m.name) + '">Details</button></td></tr>';
+    return '<div class="ic-ixr"><span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span>' +
+      '<div class="ic-ixm"><span class="ic-iname">' + esc(m.name) + '</span>' + typeTag(m) + '<span class="ic-ival">' + esc(f1) + '</span>' + f2 + '</div>' +
+      '<div class="ic-ixs">' + cell + '</div>' +
+      '<button type="button" class="ic-mbtn" data-ind="' + esc(m.id) + '" aria-label="Why this score and how to improve it: ' + esc(m.name) + '">Details</button>' +
+      ((m.star || s == null) ? '' : '<div class="ic-ixb"><div class="ic-bar thin" style="--a:' + LEV[k].accent + '"><span style="width:' + s + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div></div>') + '</div>';
+  }
+  function driverPanel(id, c, bn) {
+    var di = DID.indexOf(id), de = (c.de && c.de[di]) || [null, null];
+    var list = INDS.filter(function (m) { return m.driver === id; }).sort(function (a, b) { return (a.star ? 1 : 0) - (b.star ? 1 : 0); });
+    var n = list.filter(function (m) { return !m.star; }), nd = n.filter(function (m) { var e = indVal(c.id, m.id); return e && e.s != null; }).length;
+    return '<div class="ic-dpan"><p class="ic-dpm"><b>' + nd + ' of ' + n.length + '</b> indicators have data · ' +
+      '<span class="ic-ty e">Enabling</span> ' + (de[0] == null ? '–' : Math.round(de[0])) + ' · <span class="ic-ty b">Behaviour</span> ' + (de[1] == null ? '–' : Math.round(de[1])) + '</p>' +
+      list.map(function (m) { return indItem(m, c, bn); }).join('') + '</div>';
+  }
+  function ebCard(c, bn) {
+    if (c.e == null && c.b == null) return '';
+    function row(key, label, cls, v) {
+      var ref = avg(bn.list, function (x) { return x[key]; }), rk = rankIn(function (x) { return x[key]; }, c), d = (v == null || ref == null) ? null : Math.round(v - ref);
+      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div>' +
+        '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + '<span class="ic-rk">' + (rk ? '#' + rk.r + '/' + rk.n : '') + '</span></p></div>';
+    }
+    var diff = (c.e != null && c.b != null) ? c.e - c.b : null;
+    var msg = diff == null ? '' : diff >= 5 ? 'Policy and regulatory frameworks are ahead of practice: enabling conditions score ' + Math.round(diff) + ' points above behaviour.' :
+      diff <= -5 ? 'Practice is ahead of frameworks: behaviour scores ' + Math.round(-diff) + ' points above enabling conditions.' : 'Frameworks and practice are broadly in step (within 5 points).';
+    return '<div class="ic-card ic-eb"><h4 class="ic-h4">Enabling conditions and behaviour</h4>' +
+      '<p class="ic-note ic-ebn"><b>Enabling conditions</b> are the policies, rules and institutions that make an impact economy possible. <b>Behaviour</b> is what companies, investors, consumers and governments actually do. Each score averages the indicators of that type within each driver, then across drivers. It is a diagnostic view of the same indicators, not a separate score.</p>' +
+      '<p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' + row('e', 'Enabling conditions', 'e', c.e) + row('b', 'Behaviour', 'b', c.b) +
+      (msg ? '<p class="ic-ebm">' + esc(msg) + '</p>' : '') + '</div>';
   }
   function gapsHtml(c, bn) {
     if (!others(c, bn).length) return '';
@@ -394,27 +423,10 @@
   }
   function indCard(c, bn) {
     if (!INDS.length) return '';
-    var html = '', last = '', nScored = 0, nData = 0;
-    var order = DID.concat(['KIM']);
-    order.forEach(function (d) {
-      var list = INDS.filter(function (m) { return d === 'KIM' ? m.star : (m.driver === d && !m.star); });
-      if (!list.length) return;
-      var k = d === 'KIM' ? -1 : driverLever[d];
-      if (d === 'KIM') {
-        html += '<tr class="ic-grp ic-gk" data-lev="all"><th colspan="5" scope="colgroup"><i style="background:#fff"></i>Key impact models <span class="ic-gsub">tracked, not included in any score</span></th></tr>';
-      } else {
-        var dv = c.d[DID.indexOf(d)];
-        html += '<tr class="ic-grp" data-lev="' + k + '"><th colspan="5" scope="colgroup" style="--a:' + LEV[k].accent + '"><i></i><span class="ic-gid">' + d + '</span> ' + esc(DRVNAME[d] || '') + '<span class="ic-gv">' + (dv == null ? '–' : '<b>' + dv + '</b>') + '</span></th></tr>';
-      }
-      list.forEach(function (m) { html += indRow(m, c, bn); if (!m.star) { nScored++; var e = indVal(c.id, m.id); if (e && e.s != null) nData++; } });
-    });
-    var tabs = [['all', 'All levers']].concat(LEV.map(function (L, k) { return [String(k), L.short]; }));
-    return '<div class="ic-card ic-inds" id="icInds">' +
-      '<div class="ic-dhead"><h4 class="ic-h4">Indicator scores</h4><button type="button" class="ic-dl" data-csv-ind="1">Download CSV</button></div>' +
-      '<p class="ic-note ic-inote">Each driver score is the simple average of its indicators’ scores (1–100). Below, the facts behind the scores are set against ' + esc(bn.short) + '. Indicators with no data are left out of the average, not scored as zero. Open <b>Details</b> on any row for what drives the difference, how to improve it and the full methodology. <b>' + nData + ' of ' + nScored + '</b> scored indicators have data for ' + esc(c.name) + '.</p>' +
-      gapsHtml(c, bn) + '<h5 class="ic-allh">All indicators</h5><div class="ic-tabs" role="group" aria-label="Filter indicators by lever">' + tabs.map(function (t, i) { return '<button type="button" data-itab="' + t[0] + '" aria-pressed="' + (i === 0) + '"' + (i > 0 ? ' style="--a:' + LEV[i - 1].accent + '"' : '') + '>' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
-      '<p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' +
-      '<div class="ic-tscroll"><table class="ic-table ic-itable"><thead class="ic-sr"><tr><th>ID</th><th>Indicator</th><th>Score bar</th><th>Score</th><th>Details</th></tr></thead><tbody>' + html + '</tbody></table></div></div>';
+    var g = gapsHtml(c, bn);
+    if (!g) return '';
+    return '<div class="ic-card ic-inds" id="icInds"><div class="ic-dhead"><h4 class="ic-h4">What explains the differences</h4></div>' +
+      '<p class="ic-note ic-inote">The facts behind the biggest score gaps against ' + esc(bn.short) + ', and what would move them. Open any driver in “All 14 drivers” to see every indicator.</p>' + g + '</div>';
   }
   function indCsv() {
     var c = byId[state.sel], bn = benchFor(c);
@@ -512,7 +524,7 @@
     if (!m || !c) return;
     ensureModal(); opener = btn || null;
     var k = parseInt(m.id.charAt(0), 10) - 1;
-    modal.querySelector('.icm-head').innerHTML = '<span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span><h3 id="icmT">' + esc(m.name) + '</h3><p>' + esc(LEV[k].short) + ' · ' + esc(m.drvname || '') + (m.star ? ' · key impact model' : '') + '</p>';
+    modal.querySelector('.icm-head').innerHTML = '<span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span><h3 id="icmT">' + esc(m.name) + '</h3><p class="icm-ty">' + typeTag(m) + '</p><p>' + esc(LEV[k].short) + ' · ' + esc(m.drvname || '') + (m.star ? ' · key impact model' : '') + '</p>';
     modal.querySelector('.icm-body').innerHTML = methodHtml(m, c);
     modal.hidden = false; document.documentElement.classList.add('icm-open');
     var box = modal.querySelector('.icm-box'); box.scrollTop = 0; modal.querySelector('.icm-body').scrollTop = 0;
@@ -535,6 +547,18 @@
     }
   });
 
+  function toggleDrv(tr) {
+    var id = tr.getAttribute('data-drv'), open = !state.open[id], dx = tr.parentNode.querySelector('tr.ic-dx[data-for="' + id + '"]');
+    state.open[id] = open; tr.setAttribute('aria-expanded', open);
+    if (!dx) return;
+    if (open) dx.firstChild.innerHTML = driverPanel(id, byId[state.sel], benchFor(byId[state.sel]));
+    dx.hidden = !open;
+    var eb = root.querySelector('[data-expand]'); if (eb) eb.textContent = DID.every(function (d) { return state.open[d]; }) ? 'Collapse all' : 'Expand all';
+  }
+  report.addEventListener('keydown', function (e) {
+    var tr = e.target.closest && e.target.closest('tr.ic-dr[data-drv]');
+    if (tr && e.target === tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleDrv(tr); }
+  });
   /* ---------- events ---------- */
   root.addEventListener('click', function (e) {
     var t = e.target, b;
@@ -551,6 +575,12 @@
     if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); return; }
     if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
     if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }
+    if ((b = t.closest('[data-expand]'))) {
+      var allOpen = DID.every(function (id) { return state.open[id]; });
+      DID.forEach(function (id) { state.open[id] = !allOpen; });
+      render(); return;
+    }
+    if ((b = t.closest('tr.ic-dr[data-drv]'))) { toggleDrv(b); return; }
     if ((b = t.closest('[data-ind]'))) { openModal(b.getAttribute('data-ind'), b); return; }
     if ((b = t.closest('[data-itab]'))) {
       var v = b.getAttribute('data-itab'), card = b.closest('.ic-inds');
