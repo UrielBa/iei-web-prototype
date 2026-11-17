@@ -328,3 +328,13 @@ html.icm-open{overflow:hidden}
 .ic-table tr.ic-dx{display:table-row}
 @media(max-width:640px){.ic-table tr.ic-dx{display:block}}
 .ic-inds .ic-dhead + .ic-inote{margin-top:6px !important}
+
+/* benchmark ticks */
+.ic-bar u.g{background:transparent;border-left:2px dashed #C9D1FF;width:0;margin-left:-1px;border-radius:0}
+.ic-bar u.b{background:#F5B942;width:3px;margin-left:-1.5px}
+.ic-tkey{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 2px 0 !important;font-size:12px !important;color:var(--muted) !important}
+.ic-tkey span{display:inline-flex;align-items:center;gap:7px}
+.ic-tkey i{display:inline-block;width:3px;height:12px;background:#fff;border-radius:2px}
+.ic-tkey i.g{background:none;border-left:2px dashed #C9D1FF;width:0}
+.ic-tkey i.b{background:#F5B942}
+.ic-tkey em{font-style:normal;opacity:.75}

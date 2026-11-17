@@ -47,11 +47,13 @@
         (!state.income || c.income === state.income) && (!state.q || norm(c.name).indexOf(norm(state.q)) !== -1);
     }).sort(function (a, b) { return a.name.localeCompare(b.name); });
   }
+  function bestList() { return C.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 5); }
   function benchFor(c) {
     var b = state.bench, list, label, short;
     if (b === 'tier') { list = C.filter(function (x) { return x.tier === c.tier; }); label = 'Tier average · ' + c.tier; short = 'its tier average'; }
     else if (b === 'region') { list = C.filter(function (x) { return x.region === c.region; }); label = 'Region average · ' + c.region; short = 'its regional average'; }
     else if (b === 'country' && byId[state.benchId] && state.benchId !== c.id) { list = [byId[state.benchId]]; label = byId[state.benchId].name; short = byId[state.benchId].name; }
+    else if (b === 'best') { list = bestList(); label = 'Best in class (provisional): top 5 countries'; short = 'the best-in-class group (top 5, provisional)'; }
     else if (b === 'all') { list = C; label = 'Average of all countries'; short = 'the all-country average'; }
     else { list = C.filter(function (x) { return x.income === c.income; }); label = 'Income group average · ' + c.income; short = 'its income-group average'; }
     return { list: list, label: label, short: short, n: list.length };
@@ -86,6 +88,19 @@
       return '<li><button type="button" class="ic-item' + (c.id === state.sel ? ' is-on' : '') + '" data-id="' + c.id + '"' + (c.id === state.sel ? ' aria-current="true"' : '') + '>' +
         flag(c, 'ic-flag') + '<span class="ic-iname">' + esc(c.name) + '</span><span class="ic-ipill" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + c.score + '</span></button></li>';
     }).join('') : '<li class="ic-none">No countries match these filters.</li>';
+  }
+
+  /* ---------- benchmark ticks: comparison + Global + Best in class ---------- */
+  function ticks(bn, fn, cmp) {
+    var out = '';
+    if (cmp != null) out += '<u style="left:' + cmp.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(cmp) + '"></u>';
+    if (state.bench !== 'all') { var g = avg(C, fn); if (g != null) out += '<u class="g" style="left:' + g.toFixed(1) + '%" title="Global average: ' + Math.round(g) + '"></u>'; }
+    if (state.bench !== 'best') { var b = avg(bestList(), fn); if (b != null) out += '<u class="b" style="left:' + b.toFixed(1) + '%" title="Best in class (provisional, top 5): ' + Math.round(b) + '"></u>'; }
+    return out;
+  }
+  function tickKey() {
+    return '<p class="ic-tkey"><span><i></i>' + (state.bench === 'country' ? 'Selected country' : 'Comparison group') + '</span>' + (state.bench !== 'all' ? '<span><i class="g"></i>Global average</span>' : '') +
+      (state.bench !== 'best' ? '<span><i class="b"></i>Best in class <em>(TBD · top 5 for now)</em></span>' : '') + '</p>';
   }
 
   /* ---------- radar ---------- */
@@ -193,14 +208,14 @@
     var f = filtered(), idx = f.map(function (x) { return x.id; }).indexOf(c.id);
 
     var benchSel = '<div class="ic-bench"><label class="ic-field"><span class="ic-lbl">Compare with</span><select class="ic-bsel">' +
-      [['income', 'Same income group'], ['tier', 'Same tier'], ['region', 'Same region'], ['all', 'All countries'], ['country', 'Another country…']].map(function (o) { return '<option value="' + o[0] + '"' + (state.bench === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
+      [['income', 'Same income group'], ['tier', 'Same tier'], ['region', 'Same region'], ['all', 'Global (all countries)'], ['best', 'Best in class (TBD)'], ['country', 'Another country…']].map(function (o) { return '<option value="' + o[0] + '"' + (state.bench === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
       (state.bench === 'country' ? '<label class="ic-field"><span class="ic-sr">Country to compare</span><select class="ic-bcsel">' + C.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (state.benchId === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') +
       '<p class="ic-bnote">' + esc(bn.label) + (bn.n > 1 ? ' · ' + bn.n + ' countries' : '') + '</p></div>';
 
     var levCards = levers.map(function (x) {
       return '<div class="ic-lev" style="--a:' + x.L.accent + '"><p class="ic-lname"><i></i>' + esc(x.L.short) + '</p>' +
         '<p class="ic-lval">' + x.v + '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em></p>' +
-        '<div class="ic-bar"><span style="width:' + x.v + '%"></span><u style="left:' + x.ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(x.ref) + '"></u></div>' +
+        '<div class="ic-bar"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.l[x.k]; }, x.ref) + '</div>' +
         '<p class="ic-lmeta">Rank #' + x.rk.r + ' of ' + x.rk.n + ' · comparison ' + Math.round(x.ref) + '</p></div>';
     }).join('');
 
@@ -219,7 +234,7 @@
       return head + '<tr class="ic-dr" tabindex="0" role="button" data-drv="' + x.id + '" aria-expanded="' + isOpen + '" aria-label="' + x.id + ' ' + esc(DLAB[x.id]) + ': show indicators"><td class="ic-c1"><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span></td>' +
         '<td class="ic-c2"><span class="ic-dtxt">' + esc(DLAB[x.id]) + '</span><span class="ic-chev" aria-hidden="true"></span></td>' +
         '<td class="ic-c3">' + (x.v == null ? '<span class="ic-na">No data</span>' :
-          '<div class="ic-bar thin" style="--a:' + LEV[x.k].accent + '"><span style="width:' + x.v + '%"></span>' + (x.ref == null ? '' : '<u style="left:' + x.ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(x.ref) + '"></u>') + '</div>') + '</td>' +
+          '<div class="ic-bar thin" style="--a:' + LEV[x.k].accent + '"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.d[x.i]; }, x.ref) + '</div>') + '</td>' +
         '<td class="ic-c4">' + (x.v == null ? '–' : '<b>' + x.v + '</b>' + (x.d == null ? '' : '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em>')) +
         '<span class="ic-rk">' + (x.rk ? '#' + x.rk.r + '/' + x.rk.n : '') + '</span></td></tr>' +
         '<tr class="ic-dx" data-for="' + x.id + '"' + (isOpen ? '' : ' hidden') + '><td colspan="4">' + (isOpen ? driverPanel(x.id, c, bn) : '') + '</td></tr>';
@@ -237,7 +252,7 @@
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span><span><i class="b"></i>' + esc(bn.label) + '</span></p></div>' +
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
       '</div>' +
-      '<div class="ic-levs">' + levCards + '</div>' +
+      '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
       ebCard(c, bn) +
       '<div class="ic-two">' +
       '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +

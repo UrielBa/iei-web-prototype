@@ -494,10 +494,10 @@
     refresh(); renderPanel(); flyTo(BASE);
   }
   function downloadCsv() {
-    var head = ['Country', 'Total score', 'Tier'].concat(META.levers.map(function (l) { return l.name; }), ['Region', 'Income group'], META.driverIds.map(function (id) { return 'Driver ' + id; }));
+    var head = ['Country', 'ISO3', 'Total score', 'Tier'].concat(META.levers.map(function (l) { return l.name; }), ['Enabling conditions', 'Behaviour', 'Region', 'Income group'], META.driverIds.map(function (id) { return 'Driver ' + id + ' - ' + META.driverLabels[id]; }));
     var q = function (v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     var lines = [head.map(q).join(',')].concat(C.slice().sort(function (a, b) { return b.score - a.score; }).map(function (c) {
-      return [c.name, c.score, c.tier].concat(c.l, [c.region, c.income], c.d).map(q).join(',');
+      return [c.name, c.id, c.score, c.tier].concat(c.l, [c.e, c.b, c.region, c.income], c.d).map(q).join(',');
     }));
     var blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
     var a = document.createElement('a');
@@ -505,6 +505,14 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   }
+
+  window.IEI_DOWNLOAD_CSV = downloadCsv;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('[data-iei-csv]');
+    if (a) { e.preventDefault(); downloadCsv(); }
+    a = e.target.closest && e.target.closest('[data-tbc]');
+    if (a) e.preventDefault();
+  });
 
   /* ---------- events ---------- */
   root.addEventListener('click', function (e) {
