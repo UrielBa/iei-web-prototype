@@ -18,13 +18,13 @@
   ];
   var DID = META.driverIds, DLAB = META.driverLabels;
   var driverLever = {}; LEV.forEach(function (L, k) { L.drivers.forEach(function (id) { driverLever[id] = k; }); });
-  var TIER_BG = { 'Early stage': '#DCE1FF', 'Developing': '#AEBAFF', 'Progressing': '#7084FF', 'Advanced': '#1B2A8F' };
-  var TIER_FG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#FFFFFF', 'Advanced': '#FFFFFF' };
+  var TIER_BG = { 'Early stage': '#BFEDEC', 'Developing': '#77DAD9', 'Progressing': '#6478FF', 'Advanced': '#2942B5' };
+  var TIER_FG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#0F1428', 'Advanced': '#FFFFFF' };
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function cbtn(scope, noun) {
     var n = window.IEI_CASES_COUNT ? window.IEI_CASES_COUNT(scope) : 0;
-    return n ? '<button type="button" class="cs-pill" data-cases="' + scope + '" aria-label="' + n + ' case ' + (n === 1 ? 'study' : 'studies') + ' ' + noun + '">★ ' + n + ' case stud' + (n === 1 ? 'y' : 'ies') + '</button>' : '';
+    return n ? '<button type="button" class="cs-pill" data-cases="' + scope + '" aria-label="' + n + ' case ' + (n === 1 ? 'study' : 'studies') + ' ' + noun + '">' + n + ' case stud' + (n === 1 ? 'y' : 'ies') + '</button>' : '';
   }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }

@@ -4,7 +4,7 @@
 document.documentElement.classList.add('js');
 var D=window.IEI_DATA,C=D&&D.countries||[],T=D&&D.meta&&D.meta.tiers;
 var LC=['#3DCC7D','#77DAD9','#FFBD87','#F094B5'],LN=['Accountability & Transparency','Procurement & Demand','Coordination & Support','Capital Allocation & Deployment'];
-var TC=['#DCE1FF','#AEBAFF','#7084FF','#1B2A8F'],TN=['Early stage','Developing','Progressing','Advanced'];
+var TC=['#BFEDEC','#77DAD9','#6478FF','#2942B5'],TN=['Early stage','Developing','Progressing','Advanced'];
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
 function tier(x){return x<40?0:x<50?1:x<60?2:3}
 function avg(a){return a.reduce(function(p,c){return p+c},0)/(a.length||1)}
@@ -84,7 +84,7 @@ function insights(){
   var W=300,x0=82,x1=W-8,min=25,max=80,rh=34,H=rows.length*rh+22;
   function X(v){return x0+(v-min)/(max-min)*(x1-x0)}
   var sv='<svg class="s-swarm" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Country scores by income group">';
-  [40,50,60].forEach(function(t){sv+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="0" y2="'+(H-16)+'" stroke="#E3E6EE" stroke-dasharray="2 3"/><text x="'+X(t)+'" y="'+(H-4)+'" text-anchor="middle">'+t+'</text>'});
+  [40,50,60].forEach(function(t){sv+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="0" y2="'+(H-16)+'" stroke="#E2DFDA" stroke-dasharray="2 3"/><text x="'+X(t)+'" y="'+(H-4)+'" text-anchor="middle">'+t+'</text>'});
   rows.forEach(function(r,ri){var cy=ri*rh+16;sv+='<text class="rl" x="0" y="'+(cy+3)+'">'+r[0]+'</text><text x="0" y="'+(cy+14)+'">n = '+r[1].length+' · mean '+avg(r[1].map(function(c){return c.score})).toFixed(0)+'</text>';
     var placed=[];r[1].sort(function(a,b){return a.score-b.score}).forEach(function(c){var x=X(c.score),off=0,k=0;
       while(placed.some(function(p){return Math.abs(p.x-x)<7&&Math.abs(p.o-off)<7})){k++;off=(k%2?1:-1)*Math.ceil(k/2)*7;if(k>8)break}

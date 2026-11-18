@@ -6,8 +6,8 @@
   var FLAGS = './Impact Economy Index_files/flags/4x3/', C = D.countries, M = D.meta, byId = {};
   C.forEach(function (c) { byId[c.id] = c; });
   var LEVC = ['#3DCC7D', '#77DAD9', '#FFBD87', '#F094B5'];
-  var TBG = { 'Early stage': '#DCE1FF', 'Developing': '#AEBAFF', 'Progressing': '#7084FF', 'Advanced': '#1B2A8F' };
-  var TFG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#fff', 'Advanced': '#fff' };
+  var TBG = { 'Early stage': '#BFEDEC', 'Developing': '#77DAD9', 'Progressing': '#6478FF', 'Advanced': '#2942B5' };
+  var TFG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#0F1428', 'Advanced': '#fff' };
   var LEVN = M.levers.map(function (l) { return l.name; });
   var REGMAP = { 'Europe': 'Europe & Middle East', 'Africa': 'Africa', 'Asia': 'Asia Pacific', 'Americas': 'Latin America' };
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }

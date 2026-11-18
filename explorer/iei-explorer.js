@@ -22,16 +22,16 @@
   WORLD.forEach(function (w) { worldById[w.i] = w; });
 
   /* ---------- metrics & colour ---------- */
-  var TIER_BG = { 'Early stage': '#DCE1FF', 'Developing': '#AEBAFF', 'Progressing': '#7084FF', 'Advanced': '#1B2A8F' };
-  var TIER_FG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#FFFFFF', 'Advanced': '#FFFFFF' };
+  var TIER_BG = { 'Early stage': '#BFEDEC', 'Developing': '#77DAD9', 'Progressing': '#6478FF', 'Advanced': '#2942B5' };
+  var TIER_FG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#0F1428', 'Advanced': '#FFFFFF' };
   var TIER_RANGE = { 'Early stage': 'below 40', 'Developing': '40–49', 'Progressing': '50–59', 'Advanced': '60 and above' };
 
   var METRICS = [
-    { id: 'score', name: 'Total score', short: 'Total', accent: '#0F1428', ink: '#FFFFFF', pal: ['#DCE1FF', '#7084FF', '#1B2A8F'], val: function (c) { return c.score; } },
-    { id: 'l1', name: META.levers[0].name, short: 'Accountability & Transparency', accent: '#3DCC7D', ink: '#0B0B0B', pal: ['#E0F6EA', '#3DCC7D', '#0C6636'], val: function (c) { return c.l[0]; } },
-    { id: 'l2', name: META.levers[1].name, short: 'Procurement & Demand', accent: '#77DAD9', ink: '#0B0B0B', pal: ['#E1F6F6', '#77DAD9', '#17787B'], val: function (c) { return c.l[1]; } },
-    { id: 'l3', name: META.levers[2].name, short: 'Coordination & Support', accent: '#FFBD87', ink: '#0B0B0B', pal: ['#FFEEDF', '#FFBD87', '#B4540C'], val: function (c) { return c.l[2]; } },
-    { id: 'l4', name: META.levers[3].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', ink: '#0B0B0B', pal: ['#FCE6EE', '#F094B5', '#992450'], val: function (c) { return c.l[3]; } }
+    { id: 'score', name: 'Total score', short: 'Total', accent: '#0F1428', ink: '#FFFFFF', pal: ['#BFEDEC', '#6478FF', '#2942B5'], val: function (c) { return c.score; } },
+    { id: 'l1', name: META.levers[0].name, short: 'Accountability & Transparency', accent: '#3DCC7D', ink: '#0F1428', pal: ['#E0F6EA', '#3DCC7D', '#0C6636'], val: function (c) { return c.l[0]; } },
+    { id: 'l2', name: META.levers[1].name, short: 'Procurement & Demand', accent: '#77DAD9', ink: '#0F1428', pal: ['#E1F6F6', '#77DAD9', '#17787B'], val: function (c) { return c.l[1]; } },
+    { id: 'l3', name: META.levers[2].name, short: 'Coordination & Support', accent: '#FFBD87', ink: '#0F1428', pal: ['#FFEEDF', '#FFBD87', '#B4540C'], val: function (c) { return c.l[2]; } },
+    { id: 'l4', name: META.levers[3].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', ink: '#0F1428', pal: ['#FCE6EE', '#F094B5', '#992450'], val: function (c) { return c.l[3]; } }
   ];
   var M = {};
   METRICS.forEach(function (m) {
@@ -287,7 +287,7 @@
     var m = metric();
     C.forEach(function (c) {
       var el = pathEl[c.id];
-      el.style.fill = m.val(c) == null ? '#E9EBF2' : colour(m, m.val(c)).bg;
+      el.style.fill = m.val(c) == null ? '#E2DFDA' : colour(m, m.val(c)).bg;
       var off = !matches(c) || (state.tierFocus && m.id === 'score' && tierOf(c.score) !== state.tierFocus);
       el.classList.toggle('dim', !!off);
     });
@@ -348,7 +348,7 @@
   }
   function ring(score, tier) {
     var r = 42, circ = 2 * Math.PI * r;
-    return '<svg class="ix-ring" viewBox="0 0 100 100" role="img" aria-label="Score ' + score + ' out of 100"><circle cx="50" cy="50" r="' + r + '" class="ix-ring-bg"/><circle cx="50" cy="50" r="' + r + '" class="ix-ring-fg" style="stroke:' + (tier === 'Early stage' ? '#8E9CFF' : tier === 'Developing' ? '#6F82FF' : tier === 'Progressing' ? '#4458E8' : '#1B2A8F') + ';stroke-dasharray:' + (circ * score / 100).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" class="ix-ring-t">' + score + '</text></svg>';
+    return '<svg class="ix-ring" viewBox="0 0 100 100" role="img" aria-label="Score ' + score + ' out of 100"><circle cx="50" cy="50" r="' + r + '" class="ix-ring-bg"/><circle cx="50" cy="50" r="' + r + '" class="ix-ring-fg" style="stroke:' + (tier === 'Early stage' ? '#77DAD9' : tier === 'Developing' ? '#4FC9C8' : tier === 'Progressing' ? '#6478FF' : '#2942B5') + ';stroke-dasharray:' + (circ * score / 100).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" class="ix-ring-t">' + score + '</text></svg>';
   }
   function firstOther() { var o = C.filter(function (x) { return x.id !== state.selected; }).sort(function (a, b) { return b.score - a.score; }); return o.length ? o[0].id : ''; }
   function avgOf(list, fn) {
