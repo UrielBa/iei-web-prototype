@@ -71,13 +71,21 @@ function insights(){
   function corr(a,b){var ma=avg(a),mb=avg(b),n=0,da=0,db=0;a.forEach(function(x,i){n+=(x-ma)*(b[i]-mb);da+=Math.pow(x-ma,2);db+=Math.pow(b[i]-mb,2)});return n/Math.sqrt(da*db)}
   var L=[0,1,2,3].map(function(k){return C.map(function(c){return c.l[k]})});
   var rs=[],pairs=[];for(var i=0;i<4;i++)for(var j=i+1;j<4;j++){var r=corr(L[i],L[j]);rs.push(r);pairs.push([i,j,r])}
-  var rmin=Math.min.apply(null,rs),rmax=Math.max.apply(null,rs);
-  var mx='<div class="s-mx"><span></span>'+[0,1,2,3].map(function(k){return '<i style="background:'+LC[k]+'" title="'+LN[k]+'"></i>'}).join('');
-  for(i=0;i<4;i++){mx+='<i style="background:'+LC[i]+'" title="'+LN[i]+'"></i>';for(j=0;j<4;j++){
-    if(i===j)mx+='<b class="d" aria-hidden="true">—</b>';else{var r=corr(L[i],L[j]);var a=((r-.4)/.35);a=Math.max(0,Math.min(1,a));
-      mx+='<b style="background:rgba(112,132,255,'+(.15+.75*a).toFixed(2)+');color:'+(a>.55?'#fff':'#0F1428')+'" title="'+LN[i]+' × '+LN[j]+': r = '+r.toFixed(2)+'">'+r.toFixed(2).replace('0.','.')+'</b>'}}}
-  mx+='</div>';
-  var e1=mx+'<p class="s-cap">Every pair of levers is positively correlated (r = '+rmin.toFixed(2)+'–'+rmax.toFixed(2)+').<small>Pearson correlation of lever scores across '+C.length+' countries (n = '+C.length+'). An association, not evidence of cause and effect.</small></p>';
+  // F1: enabling (x) vs behaviour (y), coloured by income group
+  var IC={'High Income':'#2942B5','Upper Middle Income':'#6478FF','Lower Middle Income':'#3DCC7D','Low Income':'#FFBD87'},IN={'High Income':'High','Upper Middle Income':'Upper-middle','Lower Middle Income':'Lower-middle','Low Income':'Low'};
+  var P=C.filter(function(c){return c.e!=null&&c.b!=null});
+  var ex=P.map(function(c){return c.e}),bx=P.map(function(c){return c.b}),rEB=corr(ex,bx),me=avg(ex),mb=avg(bx);
+  var lo=Math.floor(Math.min(Math.min.apply(null,ex),Math.min.apply(null,bx))/10)*10,hi=Math.ceil(Math.max(Math.max.apply(null,ex),Math.max.apply(null,bx))/10)*10;
+  var S=260,pd=30,sx=function(v){return pd+(v-lo)/(hi-lo)*(S-pd-8)},sy=function(v){return S-pd-(v-lo)/(hi-lo)*(S-pd-8)};
+  var sc='<svg class="s-scat" viewBox="0 0 '+S+' '+S+'" role="img" aria-label="Enabling conditions score against behaviour score for '+P.length+' countries">';
+  for(var t=lo;t<=hi;t+=10){sc+='<line x1="'+sx(t)+'" x2="'+sx(t)+'" y1="'+sy(lo)+'" y2="'+sy(hi)+'" stroke="#EEECE8"/><line y1="'+sy(t)+'" y2="'+sy(t)+'" x1="'+sx(lo)+'" x2="'+sx(hi)+'" stroke="#EEECE8"/><text x="'+sx(t)+'" y="'+(S-pd+14)+'" text-anchor="middle">'+t+'</text><text x="'+(pd-5)+'" y="'+(sy(t)+3)+'" text-anchor="end">'+t+'</text>'}
+  sc+='<line x1="'+sx(lo)+'" y1="'+sy(lo)+'" x2="'+sx(hi)+'" y2="'+sy(hi)+'" stroke="#0F1428" stroke-dasharray="3 3" opacity=".35"/>';
+  sc+='<line x1="'+sx(me)+'" x2="'+sx(me)+'" y1="'+sy(lo)+'" y2="'+sy(hi)+'" stroke="#9AA0B2" stroke-width=".8"/><line y1="'+sy(mb)+'" y2="'+sy(mb)+'" x1="'+sx(lo)+'" x2="'+sx(hi)+'" stroke="#9AA0B2" stroke-width=".8"/>';
+  sc+='<text class="ax" x="'+sx(hi)+'" y="'+(S-2)+'" text-anchor="end">Enabling conditions →</text><text class="ax" x="'+(pd+4)+'" y="'+(sy(hi)+9)+'">↑ Behaviour</text>';
+  P.forEach(function(c){sc+='<circle class="s-dot" tabindex="0" cx="'+sx(c.e).toFixed(1)+'" cy="'+sy(c.b).toFixed(1)+'" r="4.3" fill="'+(IC[c.income]||'#999')+'" stroke="#fff" stroke-width=".8"><title>'+esc(c.name)+': enabling '+Math.round(c.e)+', behaviour '+Math.round(c.b)+'</title></circle>'});
+  sc+='</svg><div class="s-scleg">'+Object.keys(IC).filter(function(k){return P.some(function(c){return c.income===k})}).map(function(k){return '<span><i style="background:'+IC[k]+'"></i>'+IN[k]+'</span>'}).join('')+'</div>';
+  var ahead=P.filter(function(c){return c.e>c.b}).length;
+  var e1=sc+'<p class="s-cap">Enabling conditions and behaviour move together (r = '+rEB.toFixed(2)+'), but in '+ahead+' of '+P.length+' countries policies are ahead of practice (dots below the dashed line).<small>Each dot is a country, coloured by income group. Grey lines mark the averages. An association, not evidence of cause and effect.</small></p>';
   // F2: tiers by income swarm-ish strip
   var inc=[['High Income','High'],['Upper Middle Income','Upper-middle'],['Lower Middle Income','Lower-middle'],['Low Income','Low']],rows=[];
   inc.forEach(function(g){var cs=C.filter(function(c){return c.income===g[0]});if(cs.length)rows.push([g[1],cs])});

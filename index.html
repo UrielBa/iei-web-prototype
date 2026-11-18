@@ -34,15 +34,15 @@
 <meta name="theme-color" content="#ffffff">
 <link href="./Impact Economy Index_files/bootstrap.min.css" rel="stylesheet">
 <link href="./Impact Economy Index_files/bootstrap(1).min.css" rel="stylesheet">
-<link href="./Impact Economy Index_files/styles.css?v=20261118a" rel="stylesheet">
+<link href="./Impact Economy Index_files/styles.css?v=20261118c" rel="stylesheet">
 <link rel="stylesheet" href="./Impact Economy Index_files/animate.min.css">
 <script type="text/javascript" src="./Impact Economy Index_files/jquery.min.js"></script>
  
-<link href="./site/iei-site.css?v=20261118a" rel="stylesheet">
-<link href="./explorer/iei-explorer.css?v=20261118a" rel="stylesheet">
-<link href="./country/iei-country.css?v=20261118a" rel="stylesheet">
-<link href="./cases/iei-cases.css?v=20261118a" rel="stylesheet">
-<link href="./site/iei-brand.css?v=20261118a" rel="stylesheet">
+<link href="./site/iei-site.css?v=20261118c" rel="stylesheet">
+<link href="./explorer/iei-explorer.css?v=20261118c" rel="stylesheet">
+<link href="./country/iei-country.css?v=20261118c" rel="stylesheet">
+<link href="./cases/iei-cases.css?v=20261118c" rel="stylesheet">
+<link href="./site/iei-brand.css?v=20261118c" rel="stylesheet">
 </head>
 
 
@@ -96,45 +96,43 @@
 <!-- Lever section-->
 <div class="container-fluid" id="framework">
 <div class="container">
-<div class="row" style="padding: 80px 0;">
+<div class="row lever-headrow">
   <div class="col-lg-5">
     <p class="pre-text">Framework</p>
-    <h2>
-    Four levers.<br>
-    One bigger picture.</h2>
+    <h2 class="lever-h2">Four levers, one bigger picture.</h2>
   </div>
   <div class="col-lg-6 offset-lg-1">
-    <p class="lever-intro">The Index measures enabling conditions and behaviours across four system dimensions. Drivers describe what stakeholders do in practice. <span class="lever-hint">Select a lever to explore it, or use the arrow keys.</span></p>
+    <p class="lever-intro">The Index measures enabling conditions and behaviours across four system dimensions. Drivers describe what stakeholders do in practice. <span class="lever-hint">Select a lever to see its drivers and what they mean in practice.</span></p>
   </div>
   <div class="col-12 lever-deck" id="leverDeck">
-    <div class="lever-tabs" role="tablist" aria-label="Impact economy levers">
-      <button class="lever-tab lever-green is-active" role="tab" id="lever-tab-0" aria-controls="lever-detail-0" aria-selected="true" tabindex="0" type="button">
-        <span class="lever-num">01</span>
+    <div class="lever-tabs" aria-label="Impact economy levers">
+      <button class="lever-tab lever-green" id="lever-tab-0" aria-controls="lever-detail-0" aria-expanded="false" type="button">
+        <span class="lever-num">01 <em class="lever-n">3 drivers</em></span>
         <span class="lever-title">Accountability &amp; Transparency</span>
         <span class="lever-tag">Organisations manage and account for their impact on people and planet.</span>
-        <span class="lever-arrow" aria-hidden="true">↗</span>
+        <span class="lever-arrow" aria-hidden="true">+</span>
       </button>
-      <button class="lever-tab lever-acqua" role="tab" id="lever-tab-1" aria-controls="lever-detail-1" aria-selected="false" tabindex="-1" type="button">
-        <span class="lever-num">02</span>
+      <button class="lever-tab lever-acqua" id="lever-tab-1" aria-controls="lever-detail-1" aria-expanded="false" type="button">
+        <span class="lever-num">02 <em class="lever-n">3 drivers</em></span>
         <span class="lever-title">Procurement &amp; Demand</span>
         <span class="lever-tag">Governments, businesses and consumers choose products and services that create value.</span>
-        <span class="lever-arrow" aria-hidden="true">↗</span>
+        <span class="lever-arrow" aria-hidden="true">+</span>
       </button>
-      <button class="lever-tab lever-orange" role="tab" id="lever-tab-2" aria-controls="lever-detail-2" aria-selected="false" tabindex="-1" type="button">
-        <span class="lever-num">03</span>
+      <button class="lever-tab lever-orange" id="lever-tab-2" aria-controls="lever-detail-2" aria-expanded="false" type="button">
+        <span class="lever-num">03 <em class="lever-n">3 drivers</em></span>
         <span class="lever-title">Coordination &amp; Support</span>
         <span class="lever-tag">Institutions and intermediaries reduce barriers and align incentives.</span>
-        <span class="lever-arrow" aria-hidden="true">↗</span>
+        <span class="lever-arrow" aria-hidden="true">+</span>
       </button>
-      <button class="lever-tab lever-pink" role="tab" id="lever-tab-3" aria-controls="lever-detail-3" aria-selected="false" tabindex="-1" type="button">
-        <span class="lever-num">04</span>
+      <button class="lever-tab lever-pink" id="lever-tab-3" aria-controls="lever-detail-3" aria-expanded="false" type="button">
+        <span class="lever-num">04 <em class="lever-n">5 drivers</em></span>
         <span class="lever-title">Capital Allocation &amp; Deployment</span>
         <span class="lever-tag">Funders and corporates deploy capital using impact models and practices.</span>
-        <span class="lever-arrow" aria-hidden="true">↗</span>
+        <span class="lever-arrow" aria-hidden="true">+</span>
       </button>
     </div>
-    <div class="lever-stage" data-active="0">
-    <article class="lever-detail lever-enter" role="tabpanel" id="lever-detail-0" aria-labelledby="lever-tab-0">
+    <div class="lever-stage" data-active="0" hidden>
+    <article class="lever-detail" role="region" id="lever-detail-0" aria-labelledby="lever-tab-0">
       <div class="lever-grid">
         <div class="lever-lead">
           <span class="lever-bignum" aria-hidden="true">01</span>
@@ -143,20 +141,8 @@
         </div>
         <div class="lever-body">
           <p>A foundational system condition of an impact economy is the availability of transparent, reliable, and decision-useful information on the social and environmental impact of organizations. Transparent information about the real costs, risks and opportunities of investment enables accountability for the impact of economic choices on people and planet. In practice, Accountability &amp; Transparency looks like:</p>
-          <ul class="lever-drivers">
-            <li><span class="lever-badge">A</span><span>Corporate disclosure and management of sustainability impacts against verified standards</span></li>
-            <li><span class="lever-badge">B</span><span>Government reporting on social, environmental, and fiscal progress on public commitments</span></li>
-            <li><span class="lever-badge">C</span><span>Private investor reporting on and accountability for the impact of their portfolios</span></li>
-          </ul>
+          <ul class="lever-drivers"><li><span class="lever-badge lever-badge-wide">1A</span><span>Corporates disclose and manage sustainability impacts against verified standards</span></li><li><span class="lever-badge lever-badge-wide">1B</span><span>Governments report on social, environmental, and fiscal progress on public commitments</span></li><li><span class="lever-badge lever-badge-wide">1C</span><span>Private investors formally report on and are held accountable for the impact of their portfolios</span></li></ul>
           <p class="lever-closing">These drivers of Accountability &amp; Transparency create visibility into outcomes, strengthen trust, and help hold all economic actors responsible for delivering impact.</p>
-          <div class="lever-official">
-            <p class="lever-label">Drivers – enabling conditions – within this lever</p>
-            <ul class="lever-drivers">
-              <li><span class="lever-badge lever-badge-wide">1A</span><span>Corporates disclose and manage sustainability impacts against verified standards</span></li>
-              <li><span class="lever-badge lever-badge-wide">1B</span><span>Governments report on social, environmental, and fiscal progress on public comments</span></li>
-              <li><span class="lever-badge lever-badge-wide">1C</span><span>Private investors formally report on and are held accountable for the impact of their portfolios</span></li>
-            </ul>
-          </div>
         </div>
       </div>
       <div class="lever-foot">
@@ -165,10 +151,11 @@
           <a class="lever-link" href="#explore">See how countries score ↓</a>
           <button class="lever-step" type="button" data-lever-step="-1" aria-label="Previous lever">←</button>
           <button class="lever-step" type="button" data-lever-step="1" aria-label="Next lever">→</button>
+          <button class="lever-close" type="button" data-lever-close aria-label="Close lever details">Close ×</button>
         </div>
       </div>
     </article>
-    <article class="lever-detail" role="tabpanel" id="lever-detail-1" aria-labelledby="lever-tab-1" hidden>
+    <article class="lever-detail" role="region" id="lever-detail-1" aria-labelledby="lever-tab-1" hidden>
       <div class="lever-grid">
         <div class="lever-lead">
           <span class="lever-bignum" aria-hidden="true">02</span>
@@ -177,12 +164,8 @@
         </div>
         <div class="lever-body">
           <p>Demand-side dynamics are a critical but often underleveraged driver of impact economies. Better information enables the state, consumers, and corporates to make purchasing and procurement decisions for products and services that create a positive impact. Impact-oriented Procurement &amp; Demand looks like:</p>
-          <ul class="lever-drivers">
-            <li><span class="lever-badge">A</span><span>Corporate shifts in procurement to impact-oriented products and services (e.g. though corporate supply chain responsibility)</span></li>
-            <li><span class="lever-badge">B</span><span>Government procurement decisions reflective of social and environmental value (e.g. green public procurement frameworks)</span></li>
-            <li><span class="lever-badge">C</span><span>Consumer purchasing decisions informed by impact information (e.g. certified sustainable / fair-trade consumer products)</span></li>
-          </ul>
-          <p class="lever-closing">In turn, organizations embedded social and environmental value into their products, services, and business models are rewarded with greater consumer spending, procurement opportunities, and market growth.</p>
+          <ul class="lever-drivers"><li><span class="lever-badge lever-badge-wide">2A</span><span>Corporate shifts in procurement to impact-oriented products and services (e.g. through corporate supply chain responsibility)</span></li><li><span class="lever-badge lever-badge-wide">2B</span><span>Government procurement decisions reflective of social and environmental value (e.g. green public procurement frameworks)</span></li><li><span class="lever-badge lever-badge-wide">2C</span><span>Consumer purchasing decisions informed by impact information (e.g. certified sustainable / fair-trade consumer products)</span></li></ul>
+          <p class="lever-closing">In turn, organisations that embed social and environmental value into their products, services, and business models are rewarded with greater consumer spending, procurement opportunities, and market growth.</p>
         </div>
       </div>
       <div class="lever-foot">
@@ -191,10 +174,11 @@
           <a class="lever-link" href="#explore">See how countries score ↓</a>
           <button class="lever-step" type="button" data-lever-step="-1" aria-label="Previous lever">←</button>
           <button class="lever-step" type="button" data-lever-step="1" aria-label="Next lever">→</button>
+          <button class="lever-close" type="button" data-lever-close aria-label="Close lever details">Close ×</button>
         </div>
       </div>
     </article>
-    <article class="lever-detail" role="tabpanel" id="lever-detail-2" aria-labelledby="lever-tab-2" hidden>
+    <article class="lever-detail" role="region" id="lever-detail-2" aria-labelledby="lever-tab-2" hidden>
       <div class="lever-grid">
         <div class="lever-lead">
           <span class="lever-bignum" aria-hidden="true">03</span>
@@ -203,11 +187,7 @@
         </div>
         <div class="lever-body">
           <p>Institutional coordination supports re-enforcing actions across the four levers. Institutions and intermediaries enable more efficient progress by coordinating and supporting impact organizations across sectors to reduce barriers and align incentives. In practice, Coordination &amp; Support looks like:</p>
-          <ul class="lever-drivers">
-            <li><span class="lever-badge">A</span><span>Governments aligning priorities through national impact platforms and coordinating bodies</span></li>
-            <li><span class="lever-badge">B</span><span>Specialized service providers and intermediaries offering the expertise, networks, and market infrastructure needed to support impact-driven organizations</span></li>
-            <li><span class="lever-badge">C</span><span>Active citizen and civil society engagement on social and environmental issues</span></li>
-          </ul>
+          <ul class="lever-drivers"><li><span class="lever-badge lever-badge-wide">3A</span><span>Governments aligning priorities through national impact platforms and coordinating bodies</span></li><li><span class="lever-badge lever-badge-wide">3B</span><span>Specialized service providers and intermediaries offering the expertise, networks, and market infrastructure needed to support impact-driven organizations</span></li><li><span class="lever-badge lever-badge-wide">3C</span><span>Active citizen and civil society engagement on social and environmental issues</span></li></ul>
           <p class="lever-closing">These drivers strengthen the enabling ecosystem for impact, helping actors work toward shared goals while overcoming coordination failures that can slow progress.</p>
         </div>
       </div>
@@ -217,10 +197,11 @@
           <a class="lever-link" href="#explore">See how countries score ↓</a>
           <button class="lever-step" type="button" data-lever-step="-1" aria-label="Previous lever">←</button>
           <button class="lever-step" type="button" data-lever-step="1" aria-label="Next lever">→</button>
+          <button class="lever-close" type="button" data-lever-close aria-label="Close lever details">Close ×</button>
         </div>
       </div>
     </article>
-    <article class="lever-detail" role="tabpanel" id="lever-detail-3" aria-labelledby="lever-tab-3" hidden>
+    <article class="lever-detail" role="region" id="lever-detail-3" aria-labelledby="lever-tab-3" hidden>
       <div class="lever-grid">
         <div class="lever-lead">
           <span class="lever-bignum" aria-hidden="true">04</span>
@@ -229,13 +210,7 @@
         </div>
         <div class="lever-body">
           <p>How capital is allocated is one of the defining features of an impact economy. Institutional investors, governments, development finance institutions, philanthropic funders, and retail savers all play a role in directing financial flows toward activities that create long-term value. Impact-oriented Capital Allocation &amp; Deployment looks like:</p>
-          <ul class="lever-drivers">
-            <li><span class="lever-badge">A</span><span>Institutional investors funding inclusive growth through sustainable investment practices and impact management</span></li>
-            <li><span class="lever-badge">B</span><span>Private investors scaling impact through dedicated financing instruments</span></li>
-            <li><span class="lever-badge">C</span><span>Governments allocating and mobilizing capital for impact through public spending and innovative financing mechanisms</span></li>
-            <li><span class="lever-badge">D</span><span>Philanthropic funders seeding and de-risking impact-driven markets</span></li>
-            <li><span class="lever-badge">E</span><span>Corporates producing goods and services using sustainable and inclusive business models and practices</span></li>
-          </ul>
+          <ul class="lever-drivers"><li><span class="lever-badge lever-badge-wide">4A</span><span>Institutional investors funding inclusive growth through sustainable investment practices and impact management</span></li><li><span class="lever-badge lever-badge-wide">4B</span><span>Private investors scaling impact through dedicated financing instruments</span></li><li><span class="lever-badge lever-badge-wide">4C</span><span>Governments allocating and mobilizing capital for impact through public spending and innovative financing mechanisms</span></li><li><span class="lever-badge lever-badge-wide">4D</span><span>Philanthropic funders seeding and de-risking impact-driven markets</span></li><li><span class="lever-badge lever-badge-wide">4E</span><span>Corporates producing goods and services using sustainable and inclusive business models and practices</span></li></ul>
           <p class="lever-closing">Taken together, these drivers direct capital toward activities that generate positive social and environmental outcomes, helping scale solutions and reshape incentives across the economy.</p>
         </div>
       </div>
@@ -245,6 +220,7 @@
           <a class="lever-link" href="#explore">See how countries score ↓</a>
           <button class="lever-step" type="button" data-lever-step="-1" aria-label="Previous lever">←</button>
           <button class="lever-step" type="button" data-lever-step="1" aria-label="Next lever">→</button>
+          <button class="lever-close" type="button" data-lever-close aria-label="Close lever details">Close ×</button>
         </div>
       </div>
     </article>
@@ -257,89 +233,36 @@
   var tabs = Array.prototype.slice.call(deck.querySelectorAll('.lever-tab'));
   var panels = Array.prototype.slice.call(deck.querySelectorAll('.lever-detail'));
   var stage = deck.querySelector('.lever-stage');
-  var current = 0;
+  var current = -1;
   function select(i, focus) {
     i = (i + tabs.length) % tabs.length;
     current = i;
-    tabs.forEach(function (t, k) {
-      var on = k === i;
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-      t.tabIndex = on ? 0 : -1;
-      t.classList.toggle('is-active', on);
-    });
-    panels.forEach(function (p, k) {
-      p.hidden = k !== i;
-      p.classList.remove('lever-enter');
-      if (k === i) { void p.offsetWidth; p.classList.add('lever-enter'); }
-    });
-    stage.setAttribute('data-active', i);
+    tabs.forEach(function (t, k) { var on = k === i; t.setAttribute('aria-expanded', on ? 'true' : 'false'); t.classList.toggle('is-active', on); });
+    panels.forEach(function (p, k) { p.hidden = k !== i; p.classList.remove('lever-enter'); if (k === i) { void p.offsetWidth; p.classList.add('lever-enter'); } });
+    stage.hidden = false; stage.setAttribute('data-active', i); deck.classList.add('is-open');
     if (focus) tabs[i].focus();
   }
+  function closeAll(focusTab) {
+    var was = current; current = -1; stage.hidden = true; deck.classList.remove('is-open');
+    tabs.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); t.classList.remove('is-active'); });
+    if (focusTab && was >= 0) tabs[was].focus();
+  }
   tabs.forEach(function (t, k) {
-    t.addEventListener('click', function () { select(k); });
+    t.addEventListener('click', function () { if (current === k) closeAll(); else select(k); });
     t.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); select(k + 1, true); }
-      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); select(k - 1, true); }
-      else if (e.key === 'Home') { e.preventDefault(); select(0, true); }
-      else if (e.key === 'End') { e.preventDefault(); select(tabs.length - 1, true); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); tabs[(k + 1) % tabs.length].focus(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); tabs[(k + tabs.length - 1) % tabs.length].focus(); }
+      else if (e.key === 'Escape' && current >= 0) { e.preventDefault(); closeAll(true); }
     });
   });
   deck.querySelectorAll('[data-lever-step]').forEach(function (b) {
     b.addEventListener('click', function () { select(current + Number(b.getAttribute('data-lever-step'))); });
   });
+  deck.querySelectorAll('[data-lever-close]').forEach(function (b) { b.addEventListener('click', function () { closeAll(true); }); });
+  deck.addEventListener('keydown', function (e) { if (e.key === 'Escape' && current >= 0 && stage.contains(e.target)) closeAll(true); });
 })();
 </script>
-<script>
-    function togglePanel() {
-  const panel = document.getElementById('slidePanel');
-  const overlay = document.getElementById('panelOverlay');
-  
-  // Toggle the 'open' utility class on both elements
-  panel.classList.toggle('open');
-  overlay.classList.toggle('open');
-}
-function togglePanel1() {
-  const panel = document.getElementById('slidePanel1');
-  const overlay = document.getElementById('panelOverlay');
-  
-  // Toggle the 'open' utility class on both elements
-  panel.classList.toggle('open');
-  overlay.classList.toggle('open');
-}
-function togglePanel2() {
-  const panel = document.getElementById('slidePanel2');
-  const overlay = document.getElementById('panelOverlay');
-  
-  // Toggle the 'open' utility class on both elements
-  panel.classList.toggle('open');
-  overlay.classList.toggle('open');
-}
-function togglePanel3() {
-  const panel = document.getElementById('slidePanel3');
-  const overlay = document.getElementById('panelOverlay');
 
-    // Toggle the 'open' utility class on both elements
-  panel.classList.toggle('open');
-  overlay.classList.toggle('open');
-}
-function togglePanel4() {
-  const panel = document.getElementById('slidePanel4');
-  const overlay = document.getElementById('panelOverlay');
-
-    // Toggle the 'open' utility class on both elements
-  panel.classList.toggle('open');
-  overlay.classList.toggle('open');
-}
-function togglePanel5() {
-  const panel = document.getElementById('slidePanel5');
-  const overlay = document.getElementById('panelOverlay');
-
-    // Toggle the 'open' utility class on both elements
-  panel.classList.toggle('open');
-  overlay.classList.toggle('open');
-}
-
-</script>
 
 
 
@@ -349,18 +272,32 @@ function togglePanel5() {
 </div>
 </div>
 
+<!-- About section-->
+<section class="s-ins" id="about" aria-labelledby="sInsT">
+  <div class="s-wrap">
+    <div class="s-head"><div><p class="s-eyebrow">Insights</p>
+    <h2 id="sInsT">What the data is telling us.</h2>
+    <p class="s-sub">Three global findings from the 2026 Index. The evidence beneath each one is calculated live from the country scores.</p></div><img class="s-illu" src="./brand/img/illustration-bar-chart.jpg" alt="" width="360" height="510" loading="lazy"></div>
+    <div class="s-find-grid">
+      <article class="s-find s-reveal"><span class="s-num">1</span><h3>Impact economies are built through both policy and practice.</h3><p>Countries with stronger enabling conditions tend to show stronger impact behaviours, but in most countries policies and rules are still ahead of what actors actually do.</p><div class="s-evid"></div></article>
+      <article class="s-find s-reveal" data-d="1"><span class="s-num">2</span><h3>Progress does not follow one path.</h3><p>Income is not destiny: countries at similar income levels sit far apart on the Index, and similar totals hide different mixes of strengths across the four levers.</p><div class="s-evid"></div></article>
+      <article class="s-find s-reveal" data-d="2"><span class="s-num">3</span><h3>Measurement is the connective tissue.</h3><p>Accountability and transparency is the most developed lever globally, but that information is not yet shaping what governments, businesses and consumers buy: procurement and demand lags furthest behind.</p><div class="s-evid"></div></article>
+    </div>
+  </div>
+</section>
+
 <!-- How to read -->
 <section class="s-read" id="howto" aria-labelledby="sReadT">
   <div class="s-wrap">
-    <p class="s-eyebrow">How to read the Index</p>
-    <h2 id="sReadT">Before the results: how the scores are built.</h2>
+    <details class="s-howto">
+      <summary><span class="s-eyebrow">How to read the Index</span><span class="s-howto-t" id="sReadT">Before the results: how the scores are built</span><span class="s-howto-h">One score from 14 drivers · four tiers · no data is not a low score</span><span class="s-howto-btn" aria-hidden="true">Show</span></summary>
     <div class="s-read-grid">
       <article class="s-rcard s-reveal">
         <span class="s-rk">Score</span>
         <h3>One score, built from 14 drivers.</h3>
         <p>The total score runs from 0 to 100 and is the average of the <b>14 equally-weighted drivers</b>. The four levers group those drivers to make them easier to interpret; the total is not an average of the four lever scores.</p>
-        <div class="s-rdiag" aria-hidden="true"><span style="--c:#3DCC7D;flex:3">Lever 1<b>3</b></span><span style="--c:#77DAD9;flex:3">Lever 2<b>3</b></span><span style="--c:#FFBD87;flex:3">Lever 3<b>3</b></span><span style="--c:#F094B5;flex:5">Lever 4<b>5</b></span></div>
-        <small>The four levers group the 14 drivers as 3 + 3 + 3 + 5.</small>
+        <div class="s-rdiag" aria-hidden="true"><span style="--c:#3DCC7D;flex:3">Lever 1 · 21%<b>3</b></span><span style="--c:#77DAD9;flex:3">Lever 2 · 21%<b>3</b></span><span style="--c:#FFBD87;flex:3">Lever 3 · 21%<b>3</b></span><span style="--c:#F094B5;flex:5">Lever 4 · 36%<b>5</b></span></div>
+        <small>The four levers group the 14 drivers as 3 + 3 + 3 + 5, so Lever 4 accounts for 5 of the 14 drivers (36% of the total score).</small>
       </article>
       <article class="s-rcard s-reveal" data-d="1">
         <span class="s-rk">Tiers</span>
@@ -374,20 +311,7 @@ function togglePanel5() {
         <p>When a driver cannot be scored for a country it is shown as <span class="s-nd">No data</span>. It is not a zero: it is left out of averages and comparisons. Countries are compared with peers (income group, region, tier or countries you choose), not just a global league table.</p>
       </article>
     </div>
-  </div>
-</section>
-
-<!-- About section-->
-<section class="s-ins" id="about" aria-labelledby="sInsT">
-  <div class="s-wrap">
-    <div class="s-head"><div><p class="s-eyebrow">Insights</p>
-    <h2 id="sInsT">What the data is telling us.</h2>
-    <p class="s-sub">Three global findings from the 2026 Index. The evidence beneath each one is calculated live from the country scores.</p></div><img class="s-illu" src="./brand/img/illustration-bar-chart.jpg" alt="" width="360" height="510" loading="lazy"></div>
-    <div class="s-find-grid">
-      <article class="s-find s-reveal"><span class="s-num">1</span><h3>Impact economies are built through both policy and practice.</h3><p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p><div class="s-evid"></div></article>
-      <article class="s-find s-reveal" data-d="1"><span class="s-num">2</span><h3>Progress does not follow one path.</h3><p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p><div class="s-evid"></div></article>
-      <article class="s-find s-reveal" data-d="2"><span class="s-num">3</span><h3>Measurement is the connective tissue.</h3><p>Countries with stronger enabling conditions are more likely to see impact behaviours take hold across markets.</p><div class="s-evid"></div></article>
-    </div>
+    </details>
   </div>
 </section>
 
@@ -479,7 +403,7 @@ function togglePanel5() {
     <div class="s-foot-grid">
       <div><img class="s-flogo" src="./brand/logo/gsg-impact-lilac-white.png" alt="GSG Impact" width="132" height="56"><p>The Impact Economy Index tracks how countries are building the conditions for an impact economy.</p></div>
       <div><h4>Index</h4><ul><li><a href="#framework">Framework</a></li><li><a href="#about">Global Insights</a></li><li><a href="#explore">Explore</a></li><li><a href="#country">Country data</a></li><li><a href="#cases">Case Studies</a></li></ul></div>
-      <div><h4>Resources</h4><ul><li><a href="#download">Download the methodology</a></li><li><a href="#download">2026 Report</a></li><li><a href="#" data-iei-csv>Download data (CSV)</a></li></ul></div>
+      <div><h4>Resources</h4><ul><li><a href="#download">Download the methodology</a></li><li><a href="#download">2026 Report</a></li><li><a href="#explore" data-iei-csv>Download data (CSV)</a></li></ul></div>
       <div><h4>GSG Impact</h4><ul><li><a href="https://gsgimpact.org/" rel="noopener">GSG Impact</a></li><li><a href="https://gsgimpact.org/contact" rel="noopener">Contact</a></li><li><a href="#" data-tbc title="Link to be confirmed">Press <span class="s-tbc">(TBC)</span></a></li><li><a href="#" data-tbc title="Link to be confirmed">Privacy policy <span class="s-tbc">(TBC)</span></a></li></ul></div>
     </div>
     <div class="s-ver" id="dataVersion"></div>
@@ -489,176 +413,27 @@ function togglePanel5() {
 
 
 
-<!-- The Side Panel -->
-    <div class="slide-panel" id="slidePanel4">
-        <div class="panel-header">
-            <h2>Environmental Performance Index</h2>
-                    <!-- Close icon button -->
-                    <button class="close-btn" onclick="togglePanel4()">×</button>
-        </div>
-        <div class="panel-content">
-        <p>The Environmental Performance Index (EPI) is a method of quantifying and numerically marking the environmental performance of a state's policies, highlighting the degradation of the planet's life-supporting systems on which humanity depends. A world economy that continues to rely heavily on fossil fuels translates into ongoing air and water pollution, acidification of the oceans, and rising concentrations of greenhouse gases in the atmosphere. These changes threaten the survival of species already suffering from widespread habitat loss, pushing them closer to extinction. Recent analyses show that humanity has already transgressed six out of nine critical planetary boundaries that define Earth's safe operating space — and is close to crossing a seventh.</p>
-        </div>
-</div>
-
-<!-- The Side Panel -->
-     <div class="slide-panel" id="slidePanel5">
-           <div class="panel-header">
-                                        <h2>Statistical Performance Indicators</h2>
-                                            <!-- Close icon button -->
-                                                <button class="close-btn" onclick="togglePanel5()">×</button>
-                                    </div>
-                                    <div class="panel-content">
-                                        <p>The SPI framework assesses the maturity and performance of national statistical systems in five key areas, called pillars.  The five pillars are: Data Use: Statistics have value only if they are used. So the first pillar is data use. A successful statistical system produces data that are used widely and frequently. Data Services: A range of services connects data users to producers and facilitate dialogues between them, thus building trust and a sense of value. Data Products: The dialogues between users and producers drive the design and range of statistical products and their accuracy, timeliness, frequency, comparability, and levels of disaggregation. The products signal whether countries are able to produce indicators related to the 17 Sustainable Development Goals. Data Sources: To create useful products, the statistical system needs to draw on sources inside and outside the government. Data collection thus goes beyond the typical censuses and surveys to include administrative and geospatial data as well as data generated by private firms and citizens. Data Infrastructure: A mature statistical system has well-developed hard infrastructure (legislation, governance, standards) and soft infrastructure (skills, partnerships) as well as the financial resources to deliver useful—and widely used—data products and services.Each of these pillars is supported by four or five dimensions and uses defined methods and indicators, all available as open data and open code. You can explore the data or learn more about the framework. </p>
-                                    </div>
-                                </div>
-
-
-
-
 <script src="./Impact Economy Index_files/viewportchecker.js"></script>
 
-<script>
-    function displayRole() {
-  var x = document.getElementById("role");
-  if (x.style.display === "block") {
-    x.style.display = "none";
-  } else {
-    x.style.display = "block";
-  }
-}
-function displayType() {
-  var x = document.getElementById("type");
-  if (x.style.display === "block") {
-    x.style.display = "none";
-  } else {
-    x.style.display = "block";
-  }
-}
-function displayRegion() {
-  var x = document.getElementById("region");
-  if (x.style.display === "block") {
-    x.style.display = "none";
-  } else {
-    x.style.display = "block";
-  }
-}
-function displayCountry() {
-  var x = document.getElementById("country1");
-  if (x.style.display === "block") {
-    x.style.display = "none";
-  } else {
-    x.style.display = "block";
-  }
-}
-function displayYear() {
-  var x = document.getElementById("year");
-  if (x.style.display === "block") {
-    x.style.display = "none";
-  } else {
-    x.style.display = "block";
-  }
-}
-
-</script>
-<script>
-var $filterCheckboxes = $('input[type="checkbox"]');
-var filterFunc = function() {
-  
-  var selectedFilters = {};
-
-  $filterCheckboxes.filter(':checked').each(function() {
-
-    if (!selectedFilters.hasOwnProperty(this.name)) {
-      selectedFilters[this.name] = [];
-    }
-
-    selectedFilters[this.name].push(this.value);
-  });
-
-  // create a collection containing all of the filterable elements
-  var $filteredResults = $('.flower');
-
-  // loop over the selected filter name -> (array) values pairs
-  $.each(selectedFilters, function(name, filterValues) {
-
-    // filter each .flower element
-    $filteredResults = $filteredResults.filter(function() {
-
-      var matched = false,
-        currentFilterValues = $(this).data('category').split(' ');
-
-      // loop over each category value in the current .flower's data-category
-      $.each(currentFilterValues, function(_, currentFilterValue) {
-
-        // if the current category exists in the selected filters array
-        // set matched to true, and stop looping. as we're ORing in each
-        // set of filters, we only need to match once
-
-        if ($.inArray(currentFilterValue, filterValues) != -1) {
-          matched = true;
-          return false;
-        }
-      });
-
-      // if matched is true the current .flower element is returned
-      return matched;
-
-    });
-  });
-
-  $('.flower').hide().filter($filteredResults).show();
-}
-
-$filterCheckboxes.on('change', filterFunc);  
-
-</script>
-
-<script>
-    function getPolicies() {
-  return document.getElementsByClassName('flower');
-}
-
-function randomDiv() {
-  var policy = getPolicies();
-
-  return policy[Math.floor(Math.random() * policy.length)];
-}
-  
-// randomDiv().style.display="inline-block";
-
-document.getElementById('search').addEventListener('keyup', function(e) {
-  var searchText = this.value;
-
-  Array.from(getPolicies()).forEach(function(flower) {
-    if (searchText.length === 0) {
-       flower.style.display = 'none';
-    } else {
-      var nameElement = flower.getElementsByTagName('h3')[0];
-    
-      if (nameElement && nameElement.innerText.indexOf(searchText) > -1) {
-        flower.style.display = 'inline-block';
-      } else {
-        flower.style.display = 'none';
-      }
-    }
-  });
-});</script>
 
 
 
 
 
 
-<script src="./data/iei-data.js?v=20261118a"></script>
-<script src="./data/iei-version.js?v=20261118a"></script>
-<script src="./site/iei-site.js?v=20261118a"></script>
-<script src="./data/iei-world.js?v=20261118a"></script>
-<script src="./explorer/iei-explorer.js?v=20261118a"></script>
-<script src="./data/iei-indicators.js?v=20261118a"></script>
-<script src="./data/iei-facts.js?v=20261118a"></script>
-<script src="./data/iei-cases.js?v=20261118a"></script>
-<script src="./cases/iei-cases.js?v=20261118a"></script>
-<script src="./country/iei-country.js?v=20261118a"></script>
+
+
+
+
+<script src="./data/iei-data.js?v=20261118c"></script>
+<script src="./data/iei-version.js?v=20261118c"></script>
+<script src="./site/iei-site.js?v=20261118c"></script>
+<script src="./data/iei-world.js?v=20261118c"></script>
+<script src="./explorer/iei-explorer.js?v=20261118c"></script>
+<script src="./data/iei-indicators.js?v=20261118c"></script>
+<script src="./data/iei-facts.js?v=20261118c"></script>
+<script src="./data/iei-cases.js?v=20261118c"></script>
+<script src="./cases/iei-cases.js?v=20261118c"></script>
+<script src="./country/iei-country.js?v=20261118c"></script>
 <div class="draft-flag" role="note" style="position:fixed;left:12px;bottom:12px;z-index:9999;background:#0F1428;color:#fff;font:700 12px/1 Urbanist,system-ui,sans-serif;padding:8px 12px;border-radius:99px;pointer-events:none;letter-spacing:.02em">Prototype · draft data</div>
 </body></html>

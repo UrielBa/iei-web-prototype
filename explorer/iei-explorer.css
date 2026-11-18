@@ -210,3 +210,9 @@ button.ix-leg-item:hover{background:var(--soft)}
 .ix .ix-drvwrap select{border-radius:999px;font-weight:700}
 .ix-drvwrap.is-active select{border-color:#0F1428;box-shadow:0 0 0 3px rgba(100,120,255,.25)}
 .ix-metrics{align-items:center}
+/* not in sample vs no data; small-country markers; coverage */
+.ix-c{fill:#E9E7E3}
+.ix-leg-out i{background:#E9E7E3 !important;border:1px solid #D9D6D1}
+.ix-leg-nd i{background:repeating-linear-gradient(45deg,#F1F0EE 0 3px,#B9B4AC 3px 4.5px) !important}
+.ix-c.ix-mk{stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke}
+.ix-cov{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:99px;border:1px dashed #9aa1bb;font:700 11px "Urbanist",sans-serif;color:#4b5064;white-space:nowrap}

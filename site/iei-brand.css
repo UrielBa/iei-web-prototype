@@ -76,3 +76,52 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 .s-ver li b{color:#fff;margin-right:6px}
 .s-def{background:linear-gradient(90deg,#0F1428 0%,#0F1428 60%,rgba(15,20,40,.9) 80%,rgba(15,20,40,.5) 100%),url("../brand/img/composition-05.jpg") right center/auto 100% no-repeat,#0F1428 !important}
 .s-form{background:#fff !important}
+
+/* How to read: collapsible band just above the explorer */
+.s-read{padding:28px 0 !important;background:#fff !important}
+.s-howto{border:1px solid var(--g-grey);border-radius:20px;background:var(--g-grey2)}
+.s-howto>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 18px;align-items:center;padding:18px 22px}
+.s-howto>summary::-webkit-details-marker{display:none}
+.s-howto .s-eyebrow{grid-column:1;margin:0 !important}
+.s-howto-t{grid-column:1;font:700 clamp(1.15rem,2vw,1.45rem)/1.25 "Urbanist",sans-serif;color:var(--g-navy)}
+.s-howto-h{grid-column:1;font:500 14px/1.4 "Urbanist",sans-serif;color:#4b5064}
+.s-howto-btn{grid-column:2;grid-row:1/4;padding:10px 18px;border-radius:99px;background:var(--g-navy);color:#fff;font:700 14px "Urbanist",sans-serif}
+.s-howto[open] .s-howto-btn{background:#fff;color:var(--g-navy);border:1.5px solid var(--g-navy)}
+.s-howto[open] .s-howto-btn::before{content:"Hide";}
+.s-howto[open] .s-howto-btn{font-size:0}.s-howto[open] .s-howto-btn::before{font-size:14px}
+.s-howto>summary:focus-visible{outline:3px solid var(--g-lilac);outline-offset:3px;border-radius:20px}
+.s-howto .s-read-grid{padding:0 22px 22px}
+.s-howto .s-rcard.s-reveal{opacity:1 !important;transform:none !important}
+@media(max-width:620px){.s-howto>summary{grid-template-columns:1fr}.s-howto-btn{grid-column:1;grid-row:auto;justify-self:start;margin-top:8px}}
+.s-scat{width:100%;height:auto;display:block;font:600 8px "Urbanist",sans-serif;fill:#6b7083}
+.s-scat .ax{font-weight:700;fill:#0F1428}
+.s-scleg{display:flex;flex-wrap:wrap;gap:4px 12px;margin:6px 0 2px;font:600 11.5px "Urbanist",sans-serif;color:#4b5064}
+.s-scleg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+
+/* Framework: compact by default, details on demand */
+#framework .lever-headrow{padding:48px 0 4px}
+#framework .lever-h2{font:700 clamp(1.7rem,3vw,2.4rem)/1.1 "Urbanist",sans-serif !important;letter-spacing:-.025em;margin:0}
+#framework .lever-intro{margin-top:6px !important;font-size:15px}
+#framework .lever-deck{margin-top:22px;padding-bottom:48px}
+#framework .lever-tab{min-height:0;padding:16px 18px 16px;border-radius:16px;border-bottom:1px solid rgba(255,255,255,.14)}
+#framework .lever-tab.is-active{padding-bottom:24px;border-radius:16px 16px 0 0;border-bottom:0}
+#framework .lever-num{display:flex;justify-content:space-between;align-items:center;letter-spacing:.18em}
+#framework .lever-n{font-style:normal;letter-spacing:0;font-size:12px;font-weight:600;opacity:.85}
+#framework .lever-title{font-size:1.12rem;margin:10px 0 6px}
+#framework .lever-tag{font-size:13px}
+#framework .lever-arrow{position:absolute;right:16px;bottom:12px;padding:0;font-size:22px;font-weight:600;transform:none !important}
+#framework .lever-tab.is-active .lever-arrow{transform:rotate(45deg) !important}
+#framework .lever-tag{padding-right:26px}
+#framework .lever-stage{padding:30px 34px 20px}
+#framework .lever-stage[data-active="1"],#framework .lever-stage[data-active="2"]{border-top-left-radius:20px}
+#framework .lever-grid{gap:36px}
+#framework .lever-bignum{display:none}
+#framework .lever-lead h3{font-size:1.7rem;margin:0 0 12px}
+#framework .lever-deck .lever-lead-text{font-size:1.02rem}
+#framework .lever-deck p,#framework .lever-deck li{font-size:14.5px}
+#framework .lever-drivers li{padding:9px 0}
+#framework .lever-foot{margin-top:22px;padding-top:14px}
+#framework .lever-close{margin-left:6px;padding:10px 16px;border-radius:99px;border:2px solid #0F1428;background:#0F1428;color:#fff;font:700 14px "Urbanist",sans-serif;cursor:pointer}
+#framework .lever-close:hover{background:transparent;color:#0F1428}
+#framework .lever-close:focus-visible{outline:3px solid #0F1428;outline-offset:3px}
+@media(max-width:991px){#framework .lever-tab.is-active{border-radius:16px;padding-bottom:16px}#framework .lever-stage{padding:22px 20px 18px}}

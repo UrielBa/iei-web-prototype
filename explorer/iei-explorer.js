@@ -178,6 +178,17 @@
   var land = svg.firstChild;
   var pathEl = {};
   Array.prototype.forEach.call(svg.querySelectorAll('.ix-c.has'), function (p) { pathEl[p.getAttribute('data-id')] = p; });
+  svg.insertAdjacentHTML('afterbegin', '<defs><pattern id="ixHatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#F1F0EE"/><line x1="0" y1="0" x2="0" y2="5" stroke="#B9B4AC" stroke-width="1.6"/></pattern></defs>');
+  var markEl = {};
+  Object.keys(pathEl).forEach(function (id) {
+    var bb; try { bb = pathEl[id].getBBox(); } catch (e) { return; }
+    if (!bb || Math.max(bb.width, bb.height) > 4) return;
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('class', 'ix-c has ix-mk'); c.setAttribute('data-id', id);
+    c.setAttribute('cx', (bb.x + bb.width / 2).toFixed(2)); c.setAttribute('cy', (bb.y + bb.height / 2).toFixed(2)); c.setAttribute('r', '3.4');
+    land.appendChild(c); markEl[id] = c;
+  });
+  function both(id) { return [pathEl[id], markEl[id]].filter(Boolean); }
 
   var view = { x: BASE.x, y: BASE.y, w: BASE.w, h: BASE.h }, anim = null;
   function applyView() {
@@ -275,24 +286,25 @@
   var hoverId = null;
   function setHover(id) {
     if (hoverId === id) return;
-    if (hoverId && pathEl[hoverId]) pathEl[hoverId].classList.remove('is-hover');
+    if (hoverId) both(hoverId).forEach(function (x) { x.classList.remove('is-hover'); });
     var old = tbody.querySelector('tr.is-hover'); if (old) old.classList.remove('is-hover');
     hoverId = id;
-    if (id && pathEl[id]) pathEl[id].classList.add('is-hover');
+    if (id) both(id).forEach(function (x) { x.classList.add('is-hover'); });
     if (id) { var tr = tbody.querySelector('tr[data-id="' + id + '"]'); if (tr) tr.classList.add('is-hover'); }
   }
 
+  function cov(c) { return c.d.filter(function (v) { return v != null; }).length; }
   /* ---------- painting ---------- */
   function paint() {
     var m = metric();
     C.forEach(function (c) {
       var el = pathEl[c.id];
-      el.style.fill = m.val(c) == null ? '#E2DFDA' : colour(m, m.val(c)).bg;
+      var fill = m.val(c) == null ? 'url(#ixHatch)' : colour(m, m.val(c)).bg;
       var off = !matches(c) || (state.tierFocus && m.id === 'score' && tierOf(c.score) !== state.tierFocus);
-      el.classList.toggle('dim', !!off);
+      both(c.id).forEach(function (x) { x.style.fill = fill; x.classList.toggle('dim', !!off); });
     });
     $('.ix-maptitle').textContent = m.name;
-    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (0–100)' : m.driver ? 'Driver score by country (0–100) · grey = no data' : 'Lever score by country (0–100)') + ' · ' + N + ' countries';
+    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (0–100)' : m.driver ? 'Driver score by country (0–100) · hatched = no data' : 'Lever score by country (0–100)') + ' · ' + N + ' countries';
     Array.prototype.forEach.call(root.querySelectorAll('.ix-metric'), function (b) {
       var on = b.getAttribute('data-m') === state.metric;
       b.classList.toggle('is-active', on);
@@ -309,9 +321,9 @@
     if (m.id === 'score') {
       el.innerHTML = '<div class="ix-leg-steps">' + META.tiers.map(function (t) {
         return '<button type="button" class="ix-leg-item" data-tier="' + t.name + '"><i style="background:' + TIER_BG[t.name] + '"></i><span><b>' + t.name + '</b> ' + TIER_RANGE[t.name] + '</span></button>';
-      }).join('') + '<span class="ix-leg-item ix-leg-nd"><i></i><span>No data</span></span></div>';
+      }).join('') + '<span class="ix-leg-item ix-leg-out"><i></i><span>Not in the Index</span></span></div>';
     } else {
-      el.innerHTML = '<div class="ix-leg-grad"><span>' + m.min + '</span><i style="background:linear-gradient(90deg,' + m.pal.join(',') + ')"></i><span>' + m.max + '</span></div><span class="ix-leg-item ix-leg-nd"><i></i><span>No data</span></span>';
+      el.innerHTML = '<div class="ix-leg-grad"><span>' + m.min + '</span><i style="background:linear-gradient(90deg,' + m.pal.join(',') + ')"></i><span>' + m.max + '</span></div><span class="ix-leg-item ix-leg-nd"><i></i><span>No data</span></span><span class="ix-leg-item ix-leg-out"><i></i><span>Not in the Index</span></span>';
     }
   }
   function paintSelection() {
@@ -319,6 +331,8 @@
     if (state.selected && pathEl[state.selected]) {
       pathEl[state.selected].classList.add('is-selected');
       land.appendChild(pathEl[state.selected]);
+      if (markEl[state.selected]) { markEl[state.selected].classList.add('is-selected'); land.appendChild(markEl[state.selected]); }
+      Object.keys(markEl).forEach(function (k) { if (k !== state.selected) land.appendChild(markEl[k]); });
     }
   }
 
@@ -431,7 +445,7 @@
     tbody.innerHTML = list.length ? list.map(function (c) {
       return '<tr class="ix-row' + (state.selected === c.id ? ' is-selected' : '') + '" data-id="' + c.id + '" tabindex="0" aria-label="' + esc(c.name) + ', total score ' + c.score + '">' +
         '<td class="ix-rk">' + (m.rank[c.id] == null ? '–' : m.rank[c.id]) + '</td>' +
-        '<td class="ix-nm">' + flag(c) + '<span>' + esc(c.name) + '</span></td>' +
+        '<td class="ix-nm">' + flag(c) + '<span>' + esc(c.name) + '</span>' + (cov(c) < 14 ? '<span class="ix-cov" title="' + cov(c) + ' of 14 drivers have data. Missing drivers are left out of the average, not scored as zero.">' + cov(c) + '/14 drivers</span>' : '') + '</td>' +
         '<td class="hide-sm ix-mut">' + esc(c.region) + '</td>' +
         '<td class="hide-md ix-mut">' + esc(c.income) + '</td>' +
         METRICS.map(function (mm) {

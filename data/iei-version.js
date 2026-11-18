@@ -5,6 +5,7 @@ window.IEI_VERSION = {
   source: 'IEI scoring workbook, November 2026 (54 economies, 14 drivers, 35 scored indicators)',
   status: 'Draft for validation. Scores may change after National Partner validation.',
   log: [
+    { date: '18 Nov 2026', text: 'Driver labels corrected: 1B now reads "public commitments" and 2A "through corporate supply chain responsibility". No scores changed.' },
     { date: '18 Nov 2026', text: 'Case studies linked to the score gaps in each country profile. Printable country profile added.' },
     { date: '17 Nov 2026', text: 'First selection of 26 case studies added (working draft), linked to levers, drivers and indicators.' },
     { date: '17 Nov 2026', text: 'Enabling-conditions and behaviour scores added for every country and driver.' },
