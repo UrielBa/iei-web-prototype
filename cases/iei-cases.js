@@ -55,7 +55,11 @@
       (k.tier ? '<span class="cs-tier" style="background:' + TBG[k.tier] + ';color:' + TFG[k.tier] + '">' + esc(k.tier) + '</span>' : '');
   }
   function levOf(k) { return parseInt(k.i[0].charAt(0), 10) || 1; }
-  function img(k, thumb) { return './brand/img/case-lever' + levOf(k) + (thumb ? '-thumb' : '') + '.jpg'; }
+  var PH = window.IEI_CASE_PHOTOS || {};
+  function photo(k) { return PH[String(k.id)] || null; }
+  function credit(ph) {
+    return '<span class="cp-credit">Photo: ' + esc(ph.a) + ' · ' + esc(ph.l) + ' · <a href="' + esc(ph.p) + '" target="_blank" rel="noopener">Wikimedia Commons</a></span>';
+  }
   function indName(id) {
     var I = (window.IEI_IND && window.IEI_IND.inds) || [], m = I.filter(function (x) { return x.id === id; })[0];
     return m ? m.name : (M.driverLabels[id] || '');
@@ -72,7 +76,7 @@
     });
     var lead = !glance && chunks.length ? chunks.shift() : null;
     return '<article class="cp-detail">' +
-      '<div class="cp-hero" style="background-image:url(' + img(k) + ')"><span class="cp-lev">Lever ' + L + ' · ' + esc(LEVN[L - 1]) + '</span></div>' +
+      (photo(k) ? '<figure class="cp-photo"><img src="' + esc(photo(k).u) + '" alt="' + esc(photo(k).c) + '" loading="lazy" referrerpolicy="no-referrer"><figcaption><span class="cp-cap">' + esc(photo(k).c) + '</span>' + credit(photo(k)) + '</figcaption></figure>' : '') +
       '<div class="cp-facts">' +
         '<div class="cp-fact"><span class="cp-fk">Country</span><span class="cp-fv">' + (k.flag ? '<img class="cp-flag" src="' + FLAGS + k.flag + '.svg" alt="">' : '') + esc(k.cn) + '</span>' +
           (c ? '<span class="cp-fs">IEI score ' + c.score + ' · <span class="cs-tier" style="background:' + TBG[c.tier] + ';color:' + TFG[c.tier] + '">' + esc(c.tier) + '</span></span>' : '<span class="cp-fs">Not scored in the Index</span>') + '</div>' +
@@ -89,7 +93,7 @@
       (k.c ? '<button type="button" class="cp-prof" data-c="' + k.c + '">View ' + esc(k.cn) + ' profile →</button>' : '') + '</div></div></article>';
   }
   function brief(k) {
-    return '<button type="button" class="cp-card" data-case="' + esc(k.id) + '"><img class="cp-thumb" src="' + img(k, true) + '" alt="" loading="lazy"><span class="cp-cbody"><span class="cs-top">' + countryLine(k) + '</span><b>' + esc(k.t) + '</b><span class="cp-b">' + esc(k.b) + '</span>' +
+    return '<button type="button" class="cp-card" data-case="' + esc(k.id) + '">' + (photo(k) ? '<img class="cp-thumb" src="' + esc(photo(k).u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : '') + '<span class="cp-cbody"><span class="cs-top">' + countryLine(k) + '</span><b>' + esc(k.t) + '</b><span class="cp-b">' + esc(k.b) + '</span>' +
       tags(k) + '<span class="cp-more">Read more →</span></span></button>';
   }
 
@@ -180,7 +184,7 @@
     });
     count.textContent = L.length + ' of ' + K.length + ' case studies';
     grid.innerHTML = L.length ? L.map(function (k) {
-      return '<article class="cs-card"><div class="cs-ban" style="background-image:url(' + img(k) + ')"></div><div class="cs-top">' + countryLine(k) + '</div><h3>' + esc(k.t) + '</h3><p>' + esc(k.b) + '</p>' + tags(k) +
+      return '<article class="cs-card">' + (photo(k) ? '<img class="cs-photo" src="' + esc(photo(k).u) + '" alt="' + esc(photo(k).c) + '" loading="lazy" referrerpolicy="no-referrer">' : '') + '<div class="cs-top">' + countryLine(k) + '</div><h3>' + esc(k.t) + '</h3><p>' + esc(k.b) + '</p>' + tags(k) +
         '<button type="button" class="cs-go" data-open-case="' + esc(k.id) + '">Read the case →</button></article>';
     }).join('') : '<p class="cs-none">No case studies match these filters.</p>';
   }
