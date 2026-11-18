@@ -156,3 +156,15 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 @media(max-width:991px){.s-def-list li:not(:last-child)::after{display:none}}
 @media(max-width:991px){.s-def-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.s-def-list{grid-template-columns:1fr}}
+/* insight chart tooltip */
+.s-find .s-dot{cursor:pointer;transition:r .12s}
+.s-find .s-dot.on,.s-find .s-dot:hover{r:6.5;stroke:#0F1428;stroke-width:1.4}
+.s-dtip{position:absolute;z-index:60;min-width:170px;max-width:240px;background:#0F1428;color:#fff;border-radius:14px;padding:10px 12px 10px;box-shadow:0 8px 24px rgba(15,20,40,.22);pointer-events:none;font:500 13px/1.35 "Urbanist",sans-serif}
+.s-dtip.pin{pointer-events:auto}
+.s-dtip-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.s-dtip-h img{width:24px;height:18px;border-radius:3px;object-fit:cover;flex:none}
+.s-dtip-h strong{font:700 15px/1.2 "Urbanist",sans-serif;color:#fff}
+.s-dtip-v{display:flex;flex-wrap:wrap;gap:4px 12px;color:#c9cee0}
+.s-dtip-v b{color:#fff;font-weight:700}
+.s-dtip-a{display:none;margin-top:8px;color:#77DAD9 !important;font:700 12.5px/1 "Urbanist",sans-serif;text-decoration:none}
+.s-dtip.pin .s-dtip-a{display:inline-block}

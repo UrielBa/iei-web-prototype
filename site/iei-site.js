@@ -82,7 +82,7 @@ function insights(){
   sc+='<line x1="'+sx(lo)+'" y1="'+sy(lo)+'" x2="'+sx(hi)+'" y2="'+sy(hi)+'" stroke="#0F1428" stroke-dasharray="3 3" opacity=".35"/>';
   sc+='<line x1="'+sx(me)+'" x2="'+sx(me)+'" y1="'+sy(lo)+'" y2="'+sy(hi)+'" stroke="#9AA0B2" stroke-width=".8"/><line y1="'+sy(mb)+'" y2="'+sy(mb)+'" x1="'+sx(lo)+'" x2="'+sx(hi)+'" stroke="#9AA0B2" stroke-width=".8"/>';
   sc+='<text class="ax" x="'+sx(hi)+'" y="'+(S-2)+'" text-anchor="end">Enabling conditions →</text><text class="ax" x="'+(pd+4)+'" y="'+(sy(hi)+9)+'">↑ Behaviour</text>';
-  P.forEach(function(c){sc+='<circle class="s-dot" tabindex="0" cx="'+sx(c.e).toFixed(1)+'" cy="'+sy(c.b).toFixed(1)+'" r="4.3" fill="'+(IC[c.income]||'#999')+'" stroke="#fff" stroke-width=".8"><title>'+esc(c.name)+': enabling '+Math.round(c.e)+', behaviour '+Math.round(c.b)+'</title></circle>'});
+  P.forEach(function(c){sc+='<circle class="s-dot" tabindex="0" cx="'+sx(c.e).toFixed(1)+'" cy="'+sy(c.b).toFixed(1)+'" r="4.3" fill="'+(IC[c.income]||'#999')+'" stroke="#fff" stroke-width=".8" data-c="'+c.id+'" data-k="eb" aria-label="'+esc(c.name)+'"></circle>'});
   sc+='</svg><div class="s-scleg">'+Object.keys(IC).filter(function(k){return P.some(function(c){return c.income===k})}).map(function(k){return '<span><i style="background:'+IC[k]+'"></i>'+IN[k]+'</span>'}).join('')+'</div>';
   var ahead=P.filter(function(c){return c.e>c.b}).length;
   var e1=sc+'<p class="s-cap">Enabling conditions and behaviour move together (r = '+rEB.toFixed(2)+'), but in '+ahead+' of '+P.length+' countries policies are ahead of practice (dots below the dashed line).<small>Each dot is a country, coloured by income group. Grey lines mark the averages. An association, not evidence of cause and effect.</small></p>';
@@ -96,7 +96,7 @@ function insights(){
   rows.forEach(function(r,ri){var cy=ri*rh+16;sv+='<text class="rl" x="0" y="'+(cy+3)+'">'+r[0]+'</text><text x="0" y="'+(cy+14)+'">n = '+r[1].length+' · mean '+avg(r[1].map(function(c){return c.score})).toFixed(0)+'</text>';
     var placed=[];r[1].sort(function(a,b){return a.score-b.score}).forEach(function(c){var x=X(c.score),off=0,k=0;
       while(placed.some(function(p){return Math.abs(p.x-x)<7&&Math.abs(p.o-off)<7})){k++;off=(k%2?1:-1)*Math.ceil(k/2)*7;if(k>8)break}
-      placed.push({x:x,o:off});sv+='<circle class="s-dot" tabindex="0" cx="'+x.toFixed(1)+'" cy="'+(cy+off*.9).toFixed(1)+'" r="4.2" fill="'+TC[tier(c.score)]+'"><title>'+esc(c.name)+' — '+c.score+'</title></circle>'})});
+      placed.push({x:x,o:off});sv+='<circle class="s-dot" tabindex="0" cx="'+x.toFixed(1)+'" cy="'+(cy+off*.9).toFixed(1)+'" r="4.2" fill="'+TC[tier(c.score)]+'" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'})});
   sv+='</svg>';
   var hi=rows.length?rows[0][1]:[],lo=rows.length?rows[rows.length-1][1]:[];
   var rng=function(a){return Math.min.apply(null,a.map(function(c){return c.score}))+'–'+Math.max.apply(null,a.map(function(c){return c.score}))};
@@ -107,6 +107,40 @@ function insights(){
     '<p class="s-cap">'+LN[lo4]+' is the weakest lever globally, '+(Math.max.apply(null,means)-means[lo4]).toFixed(0)+' points behind the strongest.<small>Average lever score across '+C.length+' countries.</small></p>';
   var ev=[e1,e2,e3];
   $$('.s-find').forEach(function(f,i){var h=$('.s-evid',f);if(h)h.innerHTML='<div class="s-evid-in"><p class="s-evid-t">In the data</p>'+ev[i]+'</div>'});
+  // country tooltip on the insight dots: flag, name, values; tap pins it with a link to the profile
+  (function(){
+    var T=function(x){return window.IEI_T?window.IEI_T(x):x},byId={};C.forEach(function(c){byId[c.id]=c});
+    var tip=document.createElement('div');tip.className='s-dtip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);
+    var cur=null,pinned=false;
+    function html(c,k){
+      var v=k==='eb'?'<span>'+esc(T('Enabling conditions'))+' <b>'+Math.round(c.e)+'</b></span><span>'+esc(T('Behaviour'))+' <b>'+Math.round(c.b)+'</b></span>'
+                    :'<span>'+esc(T('Score'))+' <b>'+c.score+'</b></span><span>'+esc(T(TN[tier(c.score)]))+'</span>';
+      return '<div class="s-dtip-h"><img src="./Impact Economy Index_files/flags/4x3/'+c.flag+'.svg" alt=""><strong>'+esc(T(c.name))+'</strong></div><div class="s-dtip-v">'+v+'</div>'+
+        '<a class="s-dtip-a" href="#country='+c.id+'" data-dtip-go="'+c.id+'">'+esc(T('Open full country profile ↗').replace(/\s*↗$/,''))+' →</a>';
+    }
+    function show(el){
+      var c=byId[el.getAttribute('data-c')];if(!c)return;
+      if(cur&&cur!==el)cur.classList.remove('on');cur=el;el.classList.add('on');
+      tip.innerHTML=html(c,el.getAttribute('data-k'));tip.hidden=false;tip.classList.toggle('pin',pinned);
+      var r=el.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight,x=r.left+r.width/2-w/2,y=r.top-h-10;
+      x=Math.max(8,Math.min(x,document.documentElement.clientWidth-w-8));if(y<8)y=r.bottom+10;
+      tip.style.left=(x+window.scrollX)+'px';tip.style.top=(y+window.scrollY)+'px';
+    }
+    function hide(){if(pinned)return;tip.hidden=true;if(cur)cur.classList.remove('on');cur=null}
+    document.addEventListener('mouseover',function(e){var d=e.target.closest&&e.target.closest('.s-find .s-dot');if(d&&!pinned)show(d)});
+    document.addEventListener('mouseout',function(e){var d=e.target.closest&&e.target.closest('.s-find .s-dot');if(d)hide()});
+    document.addEventListener('focusin',function(e){var d=e.target.closest&&e.target.closest('.s-find .s-dot');if(d){pinned=false;show(d)}});
+    document.addEventListener('focusout',function(e){var d=e.target.closest&&e.target.closest('.s-find .s-dot');if(d&&!pinned)hide()});
+    document.addEventListener('click',function(e){
+      var go=e.target.closest&&e.target.closest('[data-dtip-go]');
+      if(go){e.preventDefault();pinned=false;hide();tip.hidden=true;location.hash='country='+go.getAttribute('data-dtip-go');var t=document.getElementById('country')||document.getElementById('ieiCountry');if(t)t.scrollIntoView({behavior:'smooth'});return}
+      var d=e.target.closest&&e.target.closest('.s-find .s-dot');
+      if(d){pinned=true;show(d);return}
+      if(pinned&&!(e.target.closest&&e.target.closest('.s-dtip'))){pinned=false;hide()}
+    });
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!tip.hidden){pinned=false;hide()}});
+    window.addEventListener('scroll',function(){if(!tip.hidden&&!pinned)hide()},{passive:true});
+  })();
 }
 insights();
 
