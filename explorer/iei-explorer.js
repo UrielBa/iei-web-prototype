@@ -501,7 +501,7 @@
     }));
     var blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
     var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'impact-economy-index-scores.csv';
+    a.href = URL.createObjectURL(blob); a.download = 'impact-economy-index-scores' + (window.IEI_VERSION ? '_' + window.IEI_VERSION.label.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '') + '.csv';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   }

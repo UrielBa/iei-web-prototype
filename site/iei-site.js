@@ -119,3 +119,8 @@ if(form){
   $$('input,select',form).forEach(function(f){f.addEventListener('input',function(){f.classList.remove('bad')})});
 }
 })();
+/* data version line and change log */
+(function(){var V=window.IEI_VERSION;if(!V)return;function e(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+document.querySelectorAll('[data-ver-line]').forEach(function(el){el.innerHTML='Data: <b>'+e(V.label)+'</b> · updated '+e(V.updated)+' · <a href="#dataVersion">What changed</a>'});
+var box=document.getElementById('dataVersion');if(box)box.innerHTML='<details><summary>Data version: '+e(V.label)+' · updated '+e(V.updated)+'</summary><p>'+e(V.source)+'. '+e(V.status)+'</p><ul>'+V.log.map(function(x){return '<li><b>'+e(x.date)+'</b> '+e(x.text)+'</li>'}).join('')+'</ul></details>';
+document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('a[href="#dataVersion"]');if(a&&box){var d=box.querySelector('details');if(d)d.open=true}});})();

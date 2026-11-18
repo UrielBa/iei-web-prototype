@@ -444,7 +444,7 @@ input{
 .bar-wrapper {
             flex-grow: 1;
             background-color: #5a5a5a;
-            border-radius:0;
+            border-radius: 4px;
             overflow: hidden;
             margin-right: 10px;
         }
@@ -515,7 +515,7 @@ input{
 .lever-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;position:relative;z-index:1}
 .lever-green{--c:#3DCC7D}.lever-acqua{--c:#77DAD9}.lever-orange{--c:#FFBD87}.lever-pink{--c:#F094B5}
 .lever-tab{position:relative;display:flex;flex-direction:column;min-height:200px;padding:20px 20px 22px;text-align:left;font:inherit;color:#fff;cursor:pointer;
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-top:5px solid var(--c);border-bottom:0;border-radius:0;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-top:5px solid var(--c);border-bottom:0;border-radius:16px 16px 0 0;
   transition:transform .28s cubic-bezier(.2,.8,.2,1),background .28s ease,color .28s ease,border-color .28s ease}
 .lever-tab:hover{transform:none;background:rgba(255,255,255,.1)}
 .lever-tab:focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -527,7 +527,7 @@ input{
 .lever-tab:hover .lever-arrow{transform:translate(4px,-4px)}
 .lever-tab.is-active .lever-arrow{transform:rotate(135deg)}
 
-.lever-stage{--c:#3DCC7D;position:relative;overflow:hidden;background:var(--c);color:#0b0b0b;border-radius:0;padding:48px 48px 28px;transition:background .35s ease}
+.lever-stage{--c:#3DCC7D;position:relative;overflow:hidden;background:var(--c);color:#0b0b0b;border-radius:20px;padding:48px 48px 28px;transition:background .35s ease}
 .lever-stage[data-active="0"]{--c:#3DCC7D;border-top-left-radius:0}
 .lever-stage[data-active="1"]{--c:#77DAD9}
 .lever-stage[data-active="2"]{--c:#FFBD87}
@@ -540,9 +540,9 @@ input{
 .lever-drivers li{display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-top:1px solid rgba(0,0,0,.2)}
 .lever-drivers li:last-child{border-bottom:1px solid rgba(0,0,0,.2)}
 .lever-badge{flex:0 0 30px;height:30px;border-radius:50%;background:#0b0b0b;color:var(--c);font-family:"Urbanist",sans-serif;font-weight:700;font-size:13px;display:grid;place-items:center;margin-top:-2px}
-.lever-badge-wide{flex-basis:38px;border-radius:0}
+.lever-badge-wide{flex-basis:38px;border-radius:15px}
 .lever-closing{margin-top:20px;font-weight:600}
-.lever-official{margin-top:26px;padding:18px 22px;background:rgba(0,0,0,.08);border-radius:0}
+.lever-official{margin-top:26px;padding:18px 22px;background:rgba(0,0,0,.08);border-radius:14px}
 .lever-label{font-family:"Urbanist",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:11px !important;margin:0 0 4px}
 .lever-foot{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:20px;border-top:1px solid rgba(0,0,0,.2)}
 .lever-count{font-family:"Urbanist",sans-serif;font-size:14px;letter-spacing:.12em}
@@ -560,10 +560,10 @@ input{
 
 @media (max-width:991px){
   .lever-tabs{grid-template-columns:repeat(2,1fr)}
-  .lever-tab{min-height:150px;border-radius:0;border-bottom:1px solid rgba(255,255,255,.14)}
+  .lever-tab{min-height:150px;border-radius:16px;border-bottom:1px solid rgba(255,255,255,.14)}
   .lever-tab.is-active{margin-bottom:0;padding-bottom:22px}
   .lever-stage{margin-top:12px;padding:30px 22px 22px}
-  .lever-stage[data-active]{border-radius:0}
+  .lever-stage[data-active]{border-radius:20px}
   .lever-grid{grid-template-columns:1fr;gap:24px}
   .lever-bignum{font-size:72px}
   .lever-lead h3{font-size:1.8rem}

@@ -10,6 +10,7 @@
   var TFG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#0F1428', 'Advanced': '#fff' };
   var LEVN = M.levers.map(function (l) { return l.name; });
   var REGMAP = { 'Europe': 'Europe & Middle East', 'Africa': 'Africa', 'Asia': 'Asia Pacific', 'Americas': 'Latin America' };
+  var SICON = { 'Policymaker': 'government', 'Investor': 'investors', 'Philanthropy & DFI': 'blended-finance', 'Corporate': 'supply-demand', 'Ecosystem builder': 'community', 'Civil society & consumers': 'social-demand' };
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function uniq(a) { return Array.from(new Set(a)).sort(); }
   function safeUrl(u) { return /^https?:\/\//i.test(u) ? u : ''; }
@@ -41,10 +42,12 @@
     return ['Indicator ' + s.v, m ? m.name : ''];
   }
   window.IEI_CASES_COUNT = function (scope) { return match(scope).length; };
+  window.IEI_CASES_MATCH = function (scope) { return match(scope); };
 
   /* ---------- card + detail html ---------- */
   function tags(k) {
-    return '<div class="cs-tags">' + '<span class="cs-st">' + esc(k.s) + '</span>' +
+    var ic = SICON[k.s];
+    return '<div class="cs-tags">' + '<span class="cs-st">' + (ic ? '<img src="./brand/icons/' + ic + '.png" alt="">' : '') + esc(k.s) + '</span>' +
       k.i.map(function (id) { return '<span class="cs-dr" style="--a:' + LEVC[parseInt(id.charAt(0), 10) - 1] + '">' + esc(id) + '</span>'; }).join('') + '</div>';
   }
   function countryLine(k) {
@@ -125,6 +128,8 @@
     }
   }, true);
   document.addEventListener('click', function (e) {
+    var o = e.target.closest && e.target.closest('[data-case-open]');
+    if (o) { e.preventDefault(); open(o.getAttribute('data-case-scope') || 'ALL', o, o.getAttribute('data-case-open')); return; }
     var b = e.target.closest && e.target.closest('[data-cases]');
     if (b) { e.preventDefault(); open(b.getAttribute('data-cases'), b); }
   });

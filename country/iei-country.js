@@ -247,6 +247,7 @@
     report.innerHTML =
       '<div class="ic-card ic-head">' +
       '  <div class="ic-hl">' + flag(c, 'ic-hflag') + '<div><h3 class="ic-name">' + esc(c.name) + '</h3><p class="ic-sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div></div>' +
+      '  <div class="ic-share"><button type="button" class="ic-sh" data-share="link">Copy link</button><button type="button" class="ic-sh" data-share="print">Printable profile (PDF)</button><span class="ic-shmsg" aria-live="polite"></span></div>' +
       '  <div class="ic-nav"><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
       '  <button type="button" class="ic-step" data-step="1" aria-label="Next country"' + (idx < 0 || idx >= f.length - 1 ? ' disabled' : '') + '>→</button></div>' +
       '</div>' +
@@ -435,10 +436,63 @@
       return '<li><div class="ic-gl1"><span class="ic-iid" style="--a:' + LEV[k].accent + '">' + esc(m.id) + '</span><b>' + esc(m.name) + '</b><em class="ic-d ' + (d > 0 ? 'up' : 'down') + '">' + sgn(d) + '</em></div>' +
         '<p><i>' + esc(c.name) + ':</i> ' + esc(x.cf || 'No detail available') + '</p>' + (x.gf ? '<p><i>' + esc(gName(bn)) + ':</i> ' + esc(x.gf) + '</p>' : '') +
         (withAct && act ? '<p class="ic-gact"><i>How to close the gap:</i> ' + esc(act) + '</p>' : '') +
+        (withAct ? gapCases(m, c) : '') +
         '<button type="button" class="ic-mlink" data-ind="' + esc(m.id) + '">More detail</button></li>';
     }
     return '<div class="ic-gaps"><div class="ic-gcol"><h5><i class="down"></i>Where it falls behind ' + esc(bn.short) + '</h5>' + (behind.length ? '<ul>' + behind.map(function (r) { return li(r, true); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points below the comparison.</p>') + '</div>' +
       '<div class="ic-gcol"><h5><i class="up"></i>Where it leads</h5>' + (ahead.length ? '<ul>' + ahead.map(function (r) { return li(r, false); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points above the comparison.</p>') + '</div></div>';
+  }
+  function gapCases(m, c) {
+    if (!window.IEI_CASES_MATCH) return '';
+    var scope = 'I:' + m.id, L = window.IEI_CASES_MATCH(scope).filter(function (k) { return k.c !== c.id; });
+    if (!L.length) { scope = 'D:' + m.driver; L = window.IEI_CASES_MATCH(scope).filter(function (k) { return k.c !== c.id; }); }
+    if (!L.length) return '';
+    var k = L[0];
+    return '<div class="ic-gcase"><span class="ic-gck">Learn from ' + esc(k.cn) + '</span><button type="button" class="ic-gcb" data-case-open="' + esc(String(k.id)) + '" data-case-scope="' + scope + '">' + esc(k.t) + '</button>' +
+      (L.length > 1 ? '<button type="button" class="ic-gcm" data-cases="' + scope + '">+' + (L.length - 1) + ' more</button>' : '') + '</div>';
+  }
+  function printProfile(c, bn, url) {
+    var V = window.IEI_VERSION || {}, abs = function (p) { return new URL(p, location.href).href; };
+    var tr = rankIn(function (x) { return x.score; }, c), refT = avg(bn.list, function (x) { return x.score; });
+    function bar(v, ref, col) { return '<div class="bar"><span style="width:' + (v || 0) + '%;background:' + col + '"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%"></u>') + '</div>'; }
+    function dd(d) { return d == null ? '' : '<em class="' + (d >= 5 ? 'up' : d <= -5 ? 'dn' : '') + '">' + sgn(d) + '</em>'; }
+    var levs = LEV.map(function (L, k) { var ref = avg(bn.list, function (x) { return x.l[k]; }); return '<div class="lev"><p><i style="background:' + L.accent + '"></i>' + esc(L.short) + '</p><b>' + c.l[k] + '</b>' + dd(Math.round(c.l[k] - ref)) + bar(c.l[k], ref, L.accent) + '</div>'; }).join('');
+    var eb = (c.e == null) ? '' : [['e', 'Enabling conditions', '#3CC8C0'], ['b', 'Behaviour', '#5B6CFF']].map(function (r) { var v = c[r[0]], ref = avg(bn.list, function (x) { return x[r[0]]; }); return '<div class="ebr"><span>' + r[1] + '</span>' + bar(v, ref, r[2]) + '<b>' + Math.round(v) + '</b>' + dd(Math.round(v - ref)) + '</div>'; }).join('');
+    var rows = DID.map(function (id, i) {
+      var v = c.d[i], ref = avg(bn.list, function (x) { return x.d[i]; }), k = driverLever[id];
+      return '<tr><td><span class="did" style="background:' + LEV[k].accent + '">' + id + '</span></td><td>' + esc(DLAB[id]) + '</td><td class="b">' + (v == null ? '<span class="na">No data</span>' : bar(v, ref, LEV[k].accent)) + '</td><td class="n">' + (v == null ? '–' : v) + '</td><td class="n">' + (ref == null ? '–' : Math.round(ref)) + '</td><td class="n">' + ((v == null || ref == null) ? '' : dd(Math.round(v - ref))) + '</td></tr>';
+    }).join('');
+    var gl = INDS.filter(function (m) { return !m.star && FACTS[m.id]; }).map(function (m) { return { m: m, x: explain(m, c, bn) }; }).filter(function (r) { return r.x.d != null && r.x.d <= -5; }).sort(function (a, b) { return a.x.d - b.x.d; }).slice(0, 4);
+    var gaps = gl.map(function (r) {
+      var m = r.m, act = FACTS[m.id].act, cs = '';
+      if (window.IEI_CASES_MATCH) { var L = window.IEI_CASES_MATCH('I:' + m.id).filter(function (k) { return k.c !== c.id; }); if (!L.length) L = window.IEI_CASES_MATCH('D:' + m.driver).filter(function (k) { return k.c !== c.id; }); if (L.length) cs = '<p class="cs"><i>Learn from ' + esc(L[0].cn) + ':</i> ' + esc(L[0].t) + '</p>'; }
+      return '<li><p class="gh"><span class="did" style="background:' + LEV[parseInt(m.id.charAt(0), 10) - 1].accent + '">' + esc(m.id) + '</span><b>' + esc(m.name) + '</b>' + dd(Math.round(r.x.d)) + '</p><p>' + esc(r.x.cf || '') + '</p>' + (act ? '<p><i>How to close the gap:</i> ' + esc(act) + '</p>' : '') + cs + '</li>';
+    }).join('');
+    var css = '@font-face{font-family:Urbanist;src:url(' + abs('brand/fonts/Urbanist-Variable.woff2') + ') format("woff2");font-weight:100 900}@font-face{font-family:Urbanist;font-style:italic;src:url(' + abs('brand/fonts/Urbanist-Italic-Variable.woff2') + ') format("woff2");font-weight:100 900}' +
+      '@page{size:A4;margin:14mm 14mm 16mm}*{box-sizing:border-box}body{margin:0;font:500 10.5pt/1.45 Urbanist,sans-serif;color:#0F1428;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+      '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0F1428;padding-bottom:10px;margin-bottom:14px}.top img{height:34px}.top .r{text-align:right;font-size:9pt;color:#4b5064}' +
+      'h1{font:700 24pt/1.1 Urbanist;margin:0}h2{font:600 12pt Urbanist;color:#2942B5;margin:11px 0 6px}.sub{color:#4b5064;margin:2px 0 0}.it{font-style:italic}' +
+      '.hero{display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:center;background:#F1F0EE;border-radius:14px;padding:10px 14px}.hero p{margin:3px 0}.big{font:700 38pt/1 Urbanist}.tier{display:inline-block;padding:3px 10px;border-radius:99px;font:700 9pt Urbanist;margin-top:6px}' +
+      '.levs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.lev{border:1px solid #D9D6D1;border-radius:12px;padding:10px}.lev p{margin:0 0 4px;font:700 9pt Urbanist;display:flex;gap:6px;align-items:center}.lev i{width:8px;height:8px;border-radius:50%;display:inline-block}.lev b{font:700 17pt Urbanist;margin-right:6px}' +
+      '.bar{position:relative;height:7px;border-radius:99px;background:#E2DFDA;margin-top:6px}.bar span{position:absolute;left:0;top:0;bottom:0;border-radius:99px}.bar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:#0F1428}' +
+      'em{font-style:normal;font:700 8.5pt Urbanist;padding:1px 6px;border-radius:99px;background:#E2DFDA}em.up{background:#D3F4E1}em.dn{background:#FBE0EA}' +
+      '.ebr{display:grid;grid-template-columns:140px 1fr 34px 46px;gap:10px;align-items:center;margin:4px 0}.ebr .bar{margin:0}' +
+      'table{width:100%;border-collapse:collapse;font-size:8.3pt;line-height:1.25}th{text-align:left;font:700 8.5pt Urbanist;color:#4b5064;border-bottom:1px solid #D9D6D1;padding:4px}td{padding:2.5px 4px;border-bottom:1px solid #EEECE8;vertical-align:middle}td.b{width:22%}td.b .bar{margin:0}td.n{text-align:right;white-space:nowrap}.did{display:inline-block;padding:1px 5px;border-radius:5px;font:700 8pt Urbanist}.na{color:#8a8f9e;font-size:8pt}' +
+      'ul.g{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}ul.g li{border:1px solid #D9D6D1;border-radius:12px;padding:9px 11px;break-inside:avoid}ul.g p{margin:3px 0;font-size:9pt}.gh{display:flex;gap:6px;align-items:center}.cs{color:#2942B5}' +
+      '.foot{margin-top:14px;border-top:1px solid #D9D6D1;padding-top:8px;font-size:8pt;color:#4b5064}.pg{break-before:page}@media screen{body{max-width:820px;margin:20px auto;padding:0 20px}}';
+    var html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(c.name) + ' · Impact Economy Index profile</title><style>' + css + '</style></head><body>' +
+      '<div class="top"><img src="' + abs('brand/logo/gsg-impact-lilac-navy.png') + '" alt="GSG Impact"><div class="r"><b>Impact Economy Index · Country profile</b><br>Data: ' + esc(V.label || '') + (V.updated ? ' · updated ' + esc(V.updated) : '') + '</div></div>' +
+      '<div class="hero"><div><div class="big">' + c.score + '</div><span class="tier" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span></div>' +
+      '<div><h1>' + esc(c.name) + '</h1><p class="sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p><p>Rank <b>#' + tr.r + '</b> of ' + N + '. Total score ' + c.score + ' out of 100, ' + sgn(Math.round(c.score - refT)) + ' against the comparison (' + esc(bn.label) + ', ' + Math.round(refT) + ').</p>' +
+      '<p class="sub it">The total is the average of 14 equally weighted drivers. The marker on each bar shows the comparison.</p></div></div>' +
+      '<h2>The four levers</h2><div class="levs">' + levs + '</div>' + (eb ? '<h2>Enabling conditions and behaviour</h2>' + eb : '') +
+      '<h2>All 14 drivers</h2><table><thead><tr><th></th><th>Driver</th><th></th><th class="n">Score</th><th class="n">Comparison</th><th class="n">Gap</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      (gaps ? '<h2 class="pg">Where ' + esc(c.name) + ' falls behind, and what would help</h2><ul class="g">' + gaps + '</ul>' : '') +
+      '<div class="foot">Comparison: ' + esc(bn.label) + '. ' + esc(V.status || '') + ' Online profile: ' + esc(url) + '<br>Source: GSG Impact, Impact Economy Index. ' + esc(V.source || '') + '.</div>' +
+      '<script>window.addEventListener("load",function(){(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})});<\/script></body></html>';
+    var w = window.open('', '_blank');
+    if (!w) { alert('Please allow pop-ups to open the printable profile.'); return; }
+    w.document.open(); w.document.write(html); w.document.close();
   }
   function indCard(c, bn) {
     if (!INDS.length) return '';
@@ -595,6 +649,14 @@
     if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); return; }
     if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
     if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }
+    if ((b = t.closest('[data-share]'))) {
+      var kind = b.getAttribute('data-share'), url = location.href.split('#')[0] + '#' + PAGE_HASH + state.sel, msg = root.querySelector('.ic-shmsg');
+      if (kind === 'link') {
+        var done = function () { if (msg) { msg.textContent = 'Link copied'; setTimeout(function () { msg.textContent = ''; }, 2500); } };
+        try { navigator.clipboard.writeText(url).then(done, function () { window.prompt('Copy this link', url); }); } catch (er) { window.prompt('Copy this link', url); }
+      } else printProfile(byId[state.sel], benchFor(byId[state.sel]), url);
+      return;
+    }
     if ((b = t.closest('[data-expand]'))) {
       var allOpen = DID.every(function (id) { return state.open[id]; });
       DID.forEach(function (id) { state.open[id] = !allOpen; });
