@@ -132,3 +132,11 @@ if(form){
 document.querySelectorAll('[data-ver-line]').forEach(function(el){el.innerHTML='Data: <b>'+e(V.label)+'</b> · updated '+e(V.updated)+' · <a href="#dataVersion">What changed</a>'});
 var box=document.getElementById('dataVersion');if(box)box.innerHTML='<details><summary>Data version: '+e(V.label)+' · updated '+e(V.updated)+'</summary><p>'+e(V.source)+'. '+e(V.status)+'</p><ul>'+V.log.map(function(x){return '<li><b>'+e(x.date)+'</b> '+e(x.text)+'</li>'}).join('')+'</ul></details>';
 document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('a[href="#dataVersion"]');if(a&&box){var d=box.querySelector('details');if(d)d.open=true}});})();
+/* shared view state in the URL hash: #country=ARG&cmp=region&vs=BRA&open=1A,2B&map=i1A.1 */
+window.IEI_HASH=(function(){
+  function get(){var h=location.hash.replace(/^#/,''),o={};if(h.indexOf('=')<0)return o;h.split('&').forEach(function(p){var i=p.indexOf('=');if(i>0)o[decodeURIComponent(p.slice(0,i))]=decodeURIComponent(p.slice(i+1))});return o}
+  function str(o){var k=['country','cmp','vs','open','map','lang'];return Object.keys(o).filter(function(x){return o[x]!=null&&o[x]!==''}).sort(function(a,b){return k.indexOf(a)-k.indexOf(b)}).map(function(x){return encodeURIComponent(x)+'='+encodeURIComponent(o[x]).replace(/%2C/g,',')}).join('&')}
+  function set(patch){var o=get();for(var k in patch)o[k]=patch[k];var s=str(o);try{history.replaceState(null,'',location.pathname+location.search+(s?'#'+s:''))}catch(e){}}
+  function url(){return location.href.split('#')[0]+(location.hash||'')}
+  return {get:get,set:set,url:url};
+})();

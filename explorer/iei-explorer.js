@@ -55,6 +55,20 @@
     M[m.id] = m;
   });
 
+  var IND = (window.IEI_IND && window.IEI_IND.inds || []).filter(function (x) { return !x.star; });
+  IND.forEach(function (ind) {
+    var lk = parseInt(ind.id.charAt(0), 10) - 1, base = METRICS[lk + 1], vals = window.IEI_IND.vals;
+    var m = { id: 'i' + ind.id, driver: true, ind: true, name: 'Indicator ' + ind.id + ' · ' + ind.name, short: 'Indicator ' + ind.id, accent: base.accent, ink: base.ink, pal: base.pal,
+      val: function (c) { var e = (vals[c.id] || {})[ind.id]; return (e && e.s != null) ? Math.round(e.s) : null; } };
+    var v = C.map(m.val).filter(function (x) { return x != null; });
+    if (!v.length) return;
+    m.min = Math.min.apply(null, v); m.max = Math.max.apply(null, v);
+    m.avg = v.reduce(function (a, b) { return a + b; }, 0) / v.length;
+    m.rank = {};
+    C.forEach(function (c) { var x = m.val(c); m.rank[c.id] = x == null ? null : 1 + v.filter(function (y) { return y > x; }).length; });
+    M[m.id] = m;
+  });
+
   function hex2rgb(h) { h = h.replace('#', ''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
   function lerp(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
   function rgbCss(c) { return 'rgb(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ')'; }
@@ -117,8 +131,9 @@
     METRICS.map(function (m) {
       return '<button type="button" class="ix-metric" data-m="' + m.id + '" style="--a:' + m.accent + ';--on:' + m.ink + '" aria-pressed="false"><i class="ix-dot"></i>' + esc(m.id === 'score' ? 'Total score' : m.name) + '</button>';
     }).join('') +
-    '      <label class="ix-sel ix-drvwrap"><span class="ix-sr">Map a single driver</span><select class="ix-drvsel"><option value="">Or map a single driver…</option>' +
-    META.levers.map(function (L) { return '<optgroup label="' + esc(L.name) + '">' + L.drivers.map(function (id) { return '<option value="d' + id + '">' + id + ' · ' + esc(META.driverLabels[id]) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select></label>' +
+    '      <label class="ix-sel ix-drvwrap"><span class="ix-sr">Map a single driver or indicator</span><select class="ix-drvsel"><option value="">Or map a driver or indicator…</option>' +
+    META.levers.map(function (L) { return '<optgroup label="Drivers · ' + esc(L.name) + '">' + L.drivers.map(function (id) { return '<option value="d' + id + '">' + id + ' · ' + esc(META.driverLabels[id]) + '</option>'; }).join('') + '</optgroup>'; }).join('') +
+    META.levers.map(function (L, k) { var li = IND.filter(function (x) { return parseInt(x.id.charAt(0), 10) === k + 1 && M['i' + x.id]; }); return li.length ? '<optgroup label="Indicators · ' + esc(L.name) + '">' + li.map(function (x) { return '<option value="i' + x.id + '">' + x.id + ' · ' + esc(x.name) + '</option>'; }).join('') + '</optgroup>' : ''; }).join('') + '</select></label>' +
     '    </div>' +
     '    <div class="ix-filters">' +
     '      <label class="ix-search"><span class="ix-sr">Search countries</span><input type="search" class="ix-q" placeholder="Search a country…" autocomplete="off"></label>' +
@@ -158,6 +173,7 @@
       var mm = c.metric ? M[c.metric] : null;
       return '<th scope="col" class="' + (c.cls || '') + (mm ? ' ix-th-m' : '') + '" data-k="' + c.k + '" aria-sort="none"><button type="button">' + (mm ? '<i class="ix-dot" style="--a:' + (mm.id === 'score' ? '#6478ff' : mm.accent) + '"></i>' : '') + '<span>' + esc(c.label) + '</span><span class="ix-sort" aria-hidden="true"></span></button></th>';
     }).join('') +
+    '<th scope="col" class="ix-th-m ix-th-sel" data-k="score" aria-sort="none" hidden><button type="button"><i class="ix-dot"></i><span class="ix-sel-l"></span><span class="ix-sort" aria-hidden="true"></span></button></th>' +
     '    </tr></thead><tbody></tbody></table></div>' +
     '    <div class="ix-pager"><span class="ix-pageinfo" aria-live="polite"></span><div class="ix-pagebtns">' +
     '      <button type="button" class="ix-ghost ix-pg" data-pg="prev" aria-label="Previous page">←</button>' +
@@ -304,13 +320,14 @@
       both(c.id).forEach(function (x) { x.style.fill = fill; x.classList.toggle('dim', !!off); });
     });
     $('.ix-maptitle').textContent = m.name;
-    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (0–100)' : m.driver ? 'Driver score by country (0–100) · hatched = no data' : 'Lever score by country (0–100)') + ' · ' + N + ' countries';
+    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (0–100)' : m.ind ? 'Indicator score by country (1–100) · hatched = no data' : m.driver ? 'Driver score by country (0–100) · hatched = no data' : 'Lever score by country (0–100)') + ' · ' + N + ' countries';
     Array.prototype.forEach.call(root.querySelectorAll('.ix-metric'), function (b) {
       var on = b.getAttribute('data-m') === state.metric;
       b.classList.toggle('is-active', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     var ds = $('.ix-drvsel'); if (ds) ds.value = m.driver ? m.id : '';
+    var sth = $('.ix-th-sel'); if (sth) { sth.hidden = !m.driver; sth.setAttribute('data-k', m.id); sth.querySelector('.ix-dot').style.setProperty('--a', m.accent); sth.querySelector('.ix-sel-l').textContent = m.short; }
     $('.ix-drvwrap').classList.toggle('is-active', !!m.driver);
     if (legendFor !== state.metric) renderLegend();
   }
@@ -452,8 +469,8 @@
           var v = mm.val(c), col = colour(mm, v);
           return '<td class="ix-h' + (mm.id === state.metric ? ' is-active' : '') + '" style="background:' + col.bg + ';color:' + col.fg + '">' + v + '</td>' +
             (mm.id === 'score' ? '<td class="ix-tcell"><span class="ix-badge sm" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span></td>' : '');
-        }).join('') + '</tr>';
-    }).join('') : '<tr><td colspan="10" class="ix-empty">No countries match these filters.</td></tr>';
+        }).join('') + (m.driver ? (function () { var v = m.val(c); if (v == null) return '<td class="ix-h is-active ix-nd-cell">No data</td>'; var col = colour(m, v); return '<td class="ix-h is-active" style="background:' + col.bg + ';color:' + col.fg + '">' + v + '</td>'; })() : '') + '</tr>';
+    }).join('') : '<tr><td colspan="11" class="ix-empty">No countries match these filters.</td></tr>';
     $('.ix-count').textContent = 'Showing ' + (list.length ? from + '–' + (from + list.length - 1) : 0) + ' of ' + full.length + (full.length === N ? '' : ' (filtered from ' + N + ')') + ' countries · ranks follow ' + m.name.toLowerCase();
     $('.ix-pageinfo').textContent = state.all ? 'All ' + full.length + ' countries shown' : 'Page ' + (state.page + 1) + ' of ' + pages;
     $('.ix-pager').classList.toggle('is-single', full.length <= PAGE);
@@ -470,8 +487,10 @@
 
   /* ---------- actions ---------- */
   function refresh() { state.page = 0; paint(); renderTable(); }
-  function setMetric(id) {
+  function setMetric(id, silent) {
+    if (!M[id]) id = 'score';
     state.metric = id;
+    if (!silent && window.IEI_HASH) window.IEI_HASH.set({ map: id === 'score' ? '' : id });
     state.sort = { key: id, dir: -1 };
     state.tierFocus = null;
     refresh();
@@ -548,7 +567,7 @@
       var k = b.getAttribute('data-k');
       if (state.sort.key === k) state.sort.dir *= -1;
       else state.sort = { key: k, dir: (k === 'name' || k === 'region' || k === 'income') ? 1 : -1 };
-      if (M[k] && state.metric !== k) { state.metric = k; state.tierFocus = null; paint(); if (!state.selected) renderOverview(); }
+      if (M[k] && state.metric !== k) { state.metric = k; state.tierFocus = null; if (window.IEI_HASH) window.IEI_HASH.set({ map: k === 'score' ? '' : k }); paint(); if (!state.selected) renderOverview(); }
       state.page = 0;
       return renderTable();
     }
@@ -591,6 +610,8 @@
   var cnt = document.getElementById('ieiCount');
   if (cnt) cnt.textContent = N;
   applyView();
+  var H0 = window.IEI_HASH ? window.IEI_HASH.get() : {};
+  if (H0.map && M[H0.map]) { state.metric = H0.map; state.sort = { key: H0.map, dir: -1 }; if (!H0.country) setTimeout(function () { var s = document.getElementById('explore'); if (s) s.scrollIntoView(); }, 300); }
   paint();
   renderTable();
   renderPanel();

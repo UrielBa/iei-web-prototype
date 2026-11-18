@@ -42,8 +42,20 @@
 
   var regions = Array.from(new Set(C.map(function (c) { return c.region; }))).sort();
   var incomes = ['High Income', 'Upper Middle Income', 'Lower Middle Income', 'Low Income'].filter(function (i) { return C.some(function (c) { return c.income === i; }); });
-  var fromHash = (location.hash.indexOf('#' + PAGE_HASH) === 0) ? location.hash.slice(PAGE_HASH.length + 1).toUpperCase() : '';
+  var H0 = window.IEI_HASH ? window.IEI_HASH.get() : {};
+  var fromHash = (H0.country || '').toUpperCase();
   var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', open: {}, q: '', tier: '', region: '', income: '' };
+  if (['income', 'tier', 'region', 'all', 'best', 'country'].indexOf(H0.cmp) >= 0) state.bench = H0.cmp;
+  if (H0.vs && byId[H0.vs.toUpperCase()]) { state.bench = 'country'; state.benchId = H0.vs.toUpperCase(); }
+  if (H0.open === 'all') DID.forEach(function (d) { state.open[d] = true; });
+  else if (H0.open) H0.open.split(',').forEach(function (d) { if (DID.indexOf(d) >= 0) state.open[d] = true; });
+  var armed = !!fromHash;
+  function syncHash(force) {
+    if (!window.IEI_HASH || (!armed && !force)) return;
+    armed = true;
+    var open = DID.filter(function (d) { return state.open[d]; });
+    window.IEI_HASH.set({ country: state.sel, cmp: state.bench === 'income' || state.bench === 'country' ? '' : state.bench, vs: state.bench === 'country' ? state.benchId : '', open: open.length && open.length < DID.length ? open.join(',') : (open.length === DID.length ? 'all' : '') });
+  }
 
   function filtered() {
     return C.filter(function (c) {
@@ -175,7 +187,8 @@
     else base = C.filter(function (x) { return x.id !== c.id && x[kind] === c[kind]; }).sort(function (a, b) { return Math.abs(a.score - c.score) - Math.abs(b.score - c.score); }).slice(0, 5).map(function (x) { return x.id; });
     state.peers = base; render();
   }
-  function render() {
+  function render() { renderCore(); syncHash(); }
+  function renderCore() {
     var c = byId[state.sel], bn = benchFor(c);
     var refTotal = avg(bn.list, function (x) { return x.score; });
     var tr = rankIn(function (x) { return x.score; }, c);
@@ -247,7 +260,7 @@
     report.innerHTML =
       '<div class="ic-card ic-head">' +
       '  <div class="ic-hl">' + flag(c, 'ic-hflag') + '<div><h3 class="ic-name">' + esc(c.name) + '</h3><p class="ic-sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div></div>' +
-      '  <div class="ic-share"><button type="button" class="ic-sh" data-share="link">Copy link</button><button type="button" class="ic-sh" data-share="print">Printable profile (PDF)</button><span class="ic-shmsg" aria-live="polite"></span></div>' +
+      '  <div class="ic-share"><button type="button" class="ic-sh" data-share="link">Copy link</button><button type="button" class="ic-sh" data-share="print">Printable profile (PDF)</button><button type="button" class="ic-sh" data-share="embed" aria-expanded="false">Embed</button><span class="ic-shmsg" aria-live="polite"></span></div>' +
       '  <div class="ic-nav"><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
       '  <button type="button" class="ic-step" data-step="1" aria-label="Next country"' + (idx < 0 || idx >= f.length - 1 ? ' disabled' : '') + '>→</button></div>' +
       '</div>' +
@@ -283,7 +296,7 @@
     if (!byId[id]) return;
     state.sel = id;
     if (state.bench === 'country' && state.benchId === id) state.benchId = '';
-    try { history.replaceState(null, '', '#' + PAGE_HASH + id); } catch (e) { }
+    syncHash(true);
     render();
     var on = list.querySelector('.is-on');
     if (on && scroll !== false) {
@@ -623,7 +636,7 @@
 
   function toggleDrv(tr) {
     var id = tr.getAttribute('data-drv'), open = !state.open[id], dx = tr.parentNode.querySelector('tr.ic-dx[data-for="' + id + '"]');
-    state.open[id] = open; tr.setAttribute('aria-expanded', open);
+    state.open[id] = open; tr.setAttribute('aria-expanded', open); syncHash(true);
     if (!dx) return;
     if (open) dx.firstChild.innerHTML = driverPanel(id, byId[state.sel], benchFor(byId[state.sel]));
     dx.hidden = !open;
@@ -650,17 +663,32 @@
     if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
     if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }
     if ((b = t.closest('[data-share]'))) {
-      var kind = b.getAttribute('data-share'), url = location.href.split('#')[0] + '#' + PAGE_HASH + state.sel, msg = root.querySelector('.ic-shmsg');
+      var kind = b.getAttribute('data-share'), url = (syncHash(true), window.IEI_HASH ? window.IEI_HASH.url() : location.href), msg = root.querySelector('.ic-shmsg');
       if (kind === 'link') {
         var done = function () { if (msg) { msg.textContent = 'Link copied'; setTimeout(function () { msg.textContent = ''; }, 2500); } };
         try { navigator.clipboard.writeText(url).then(done, function () { window.prompt('Copy this link', url); }); } catch (er) { window.prompt('Copy this link', url); }
+      } else if (kind === 'embed') {
+        var box = root.querySelector('.ic-embed');
+        if (box) { box.remove(); b.setAttribute('aria-expanded', 'false'); return; }
+        var lang = (new URLSearchParams(location.search)).get('lang');
+        var src = new URL('embed.html?c=' + state.sel + (lang ? '&lang=' + lang : ''), location.href).href;
+        var code = '<iframe src="' + src + '" width="100%" height="480" style="border:0;max-width:520px" title="Impact Economy Index: ' + byId[state.sel].name + '" loading="lazy"></iframe>';
+        box = document.createElement('div'); box.className = 'ic-embed';
+        box.innerHTML = '<p><b>Embed this country card</b> on a National Partner or partner website. Copy the code below into the page.</p><textarea readonly rows="3" aria-label="Embed code"></textarea><div class="ic-embed-a"><button type="button" class="ic-sh" data-embed-copy>Copy code</button><a class="ic-sh" href="' + src + '" target="_blank" rel="noopener">Preview card ↗</a></div>';
+        box.querySelector('textarea').value = code;
+        root.querySelector('.ic-head').after(box); b.setAttribute('aria-expanded', 'true');
       } else printProfile(byId[state.sel], benchFor(byId[state.sel]), url);
+      return;
+    }
+    if ((b = t.closest('[data-embed-copy]'))) {
+      var ta = root.querySelector('.ic-embed textarea'), m2 = root.querySelector('.ic-shmsg');
+      try { navigator.clipboard.writeText(ta.value).then(function () { if (m2) { m2.textContent = 'Code copied'; setTimeout(function () { m2.textContent = ''; }, 2500); } }); } catch (er) { ta.select(); }
       return;
     }
     if ((b = t.closest('[data-expand]'))) {
       var allOpen = DID.every(function (id) { return state.open[id]; });
       DID.forEach(function (id) { state.open[id] = !allOpen; });
-      render(); return;
+      armed = true; render(); return;
     }
     if ((b = t.closest('tr.ic-dr[data-drv]'))) { toggleDrv(b); return; }
     if ((b = t.closest('[data-ind]'))) { openModal(b.getAttribute('data-ind'), b); return; }
@@ -679,17 +707,17 @@
   $('.ic-fregion').addEventListener('change', function (e) { state.region = e.target.value; renderList(); });
   report.addEventListener('change', function (e) {
     if (e.target.classList.contains('ic-bsel')) {
-      state.bench = e.target.value;
+      state.bench = e.target.value; armed = true;
       if (state.bench === 'country' && (!state.benchId || state.benchId === state.sel)) {
         var o = C.filter(function (x) { return x.id !== state.sel; }).sort(function (a, b) { return b.score - a.score; })[0]; state.benchId = o ? o.id : '';
       }
       render();
     }
     if (e.target.classList.contains('ic-padd') && e.target.value && state.peers.length < 5) { state.peers = state.peers.concat(e.target.value); render(); return; }
-    if (e.target.classList.contains('ic-bcsel')) { state.benchId = e.target.value; render(); }
+    if (e.target.classList.contains('ic-bcsel')) { state.benchId = e.target.value; armed = true; render(); }
   });
   window.addEventListener('hashchange', function () {
-    if (location.hash.indexOf('#' + PAGE_HASH) === 0) { var id = location.hash.slice(PAGE_HASH.length + 1).toUpperCase(); if (byId[id] && id !== state.sel) pick(id); }
+    var h = window.IEI_HASH ? window.IEI_HASH.get() : {}, id = (h.country || '').toUpperCase(); if (byId[id] && id !== state.sel) pick(id);
   });
   window.IEI_OPEN_COUNTRY = function (id) {
     if (!byId[id]) return;

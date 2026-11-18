@@ -171,7 +171,7 @@
       var v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '">' + esc(l) + '</option>';
     }).join('') + '</select></label>';
   }
-  var drvOpts = M.driverIds.map(function (id) { return [id, id + ' · ' + M.driverLabels[id].replace(/ \(e\.g\..*$/, '').slice(0, 60)]; });
+  var drvOpts = M.driverIds.map(function (id) { return [id, id + ' · ' + M.driverLabels[id].replace(/ \(e\.g\..*$/, '')]; });
   root.innerHTML = '<div class="cs-bar">' + sel('country', 'Country', uniq(K.map(function (k) { return k.cn; }))) + sel('stake', 'Stakeholder', uniq(K.map(function (k) { return k.s; }))) +
     sel('driver', 'Driver', drvOpts) + sel('tier', 'Tier', M.tiers.map(function (t) { return t.name; })) + sel('region', 'Region', uniq(K.map(function (k) { return k.region; }))) +
     '<button type="button" class="cs-reset">Reset</button></div><p class="cs-count" aria-live="polite"></p><div class="cs-grid"></div>' +

@@ -216,3 +216,4 @@ button.ix-leg-item:hover{background:var(--soft)}
 .ix-leg-nd i{background:repeating-linear-gradient(45deg,#F1F0EE 0 3px,#B9B4AC 3px 4.5px) !important}
 .ix-c.ix-mk{stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke}
 .ix-cov{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:99px;border:1px dashed #9aa1bb;font:700 11px "Urbanist",sans-serif;color:#4b5064;white-space:nowrap}
+.ix-nd-cell{background:repeating-linear-gradient(45deg,#F1F0EE 0 4px,#E2DFDA 4px 6px) !important;color:#6b7083 !important;font-size:11px !important}
