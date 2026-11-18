@@ -177,3 +177,51 @@ window.IEI_HASH=(function(){
   function url(){return location.href.split('#')[0]+(location.hash||'')}
   return {get:get,set:set,url:url};
 })();
+/* ---- interactive framework pyramid ---- */
+(function(){
+  function init(){
+    var root=document.querySelector('.s-pyr');if(!root||root.__init)return;root.__init=1;
+    var D=window.IEI_DATA,M=D&&D.meta,C=D&&D.countries||[],I=window.IEI_IND||{inds:[],vals:{}};if(!M)return;
+    var T=function(x){return window.IEI_T?window.IEI_T(x):x};
+    var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+    var LC=['#3DCC7D','#77DAD9','#F094B5','#FFBD87'],LOGIC=[['Better information','Long-term risks, costs and opportunities become visible.'],['Demand signals impact','Governments, businesses and consumers buy what creates value.'],['Capital follows','Funders make that demand investable and finance it.'],['Coordination accelerates','Institutions cut barriers, align incentives and set standards.']];
+    var DID=M.driverIds,mean=function(a){a=a.filter(function(v){return v!=null&&!isNaN(v)});return a.length?a.reduce(function(s,v){return s+v},0)/a.length:null};
+    var dAvg={};DID.forEach(function(id,i){dAvg[id]=mean(C.map(function(c){return c.d[i]}))});
+    var lAvg=M.levers.map(function(L){return mean(C.map(function(c){return mean(L.drivers.map(function(d){return c.d[DID.indexOf(d)]}))}))});
+    var iAvg=function(id){return mean(Object.keys(I.vals).map(function(k){var e=I.vals[k][id];return e&&e.s}))};
+    var lev=function(id){return +String(id).charAt(0)-1};
+    var hint=T('Hover a code to see what it measures; select it to see it on the map.');
+    function cap(){return '<p class="s-pyr-cap" aria-live="polite">'+esc(hint)+'</p>'}
+    var X={};
+    X[1]='<blockquote class="s-pyr-q">'+esc(T('An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making.'))+'</blockquote>'+
+      '<div class="s-pyr-flow">'+LOGIC.map(function(l,k){return '<span style="--c:'+LC[k]+'">'+esc(T(l[0]))+'</span>'}).join('<i aria-hidden="true">→</i>')+'</div>';
+    X[2]='<div class="s-pyr-levs">'+M.levers.map(function(L,k){return '<button type="button" class="s-pyr-lev" data-lev="'+k+'" style="--c:'+LC[k]+'"><span class="n">0'+(k+1)+'</span><b>'+esc(T(L.name))+'</b><em>'+esc(T(LOGIC[k][0]))+'</em><span class="m"><span>'+esc(T('Global average'))+'</span><strong>'+(lAvg[k]==null?'–':lAvg[k].toFixed(1))+'</strong></span><span class="d">'+esc(T(L.drivers.length+' drivers'))+'</span></button>'}).join('')+'</div>';
+    X[3]='<div class="s-pyr-drv">'+M.levers.map(function(L,k){return '<div class="g" style="--c:'+LC[k]+'"><span class="gl">'+esc(T(L.name))+'</span><div>'+L.drivers.map(function(d){var a=dAvg[d];return '<button type="button" class="s-pyr-chip" data-map="d'+d+'" data-cap="'+esc(d+' · '+T(M.driverLabels[d]))+(a==null?'':' · '+esc(T('Global average'))+' '+a.toFixed(1))+'"><span>'+d+'</span><i style="width:'+(a||0).toFixed(0)+'%"></i></button>'}).join('')+'</div></div>'}).join('')+'</div>'+cap();
+    var byD={};I.inds.forEach(function(m){(byD[m.driver]=byD[m.driver]||[]).push(m)});
+    var TY={E:'Enabling condition',B:'Behaviour',L:'Leading-edge impact model'};
+    X[4]='<div class="s-pyr-ind">'+DID.map(function(d){var k=lev(d);return '<div class="col" style="--c:'+LC[k]+'"><span class="cd">'+d+'</span><div class="dots">'+(byD[d]||[]).map(function(m){var a=m.star?null:iAvg(m.id),t=T(TY[m.type]||'')+(m.key?' · '+T('Key impact model'):'');
+      return '<button type="button" class="s-pyr-dot t'+(m.star?'L':m.type)+(m.key?' k':'')+'"'+(m.star?'':' data-map="i'+m.id+'"')+' data-cap="'+esc(m.id+' · '+T(m.name)+' · '+t)+(a==null?'':' · '+esc(T('Global average'))+' '+a.toFixed(1))+'" aria-label="'+esc(m.id+' '+T(m.name))+'">'+(m.star?'★':'')+'</button>'}).join('')+'</div></div>'}).join('')+'</div>'+
+      '<p class="s-pyr-leg"><span><i class="tE"></i>'+esc(T('Enabling condition'))+'</span><span><i class="tB"></i>'+esc(T('Behaviour'))+'</span><span><i class="tE k"></i>'+esc(T('Key impact model'))+'</span><span><i class="tL">★</i>'+esc(T('Leading-edge impact model'))+'</span></p>'+cap();
+    var rows=[].slice.call(root.querySelectorAll('.s-pyr-row')),cur=0,det=root.querySelector('.s-pyr-detail');
+    function open(n){
+      if(cur===n)return;cur=n;
+      rows.forEach(function(r){var on=+r.getAttribute('data-l')===n;r.classList.toggle('on',on);r.querySelector('.s-pyr-shape').setAttribute('aria-expanded',on?'true':'false')});
+      root.classList.add('has-on');det.setAttribute('data-l',n);
+      var dd=rows[n-1].querySelector('.s-pyr-txt>p');det.innerHTML='<div class="s-pyr-dx"><p class="s-pyr-dd">'+(dd?dd.innerHTML:'')+'</p>'+X[n]+'</div>';
+    }
+    rows.forEach(function(r){var n=+r.getAttribute('data-l');
+      r.querySelector('.s-pyr-shape').addEventListener('click',function(){open(n)});
+      r.querySelector('.s-pyr-txt>p').addEventListener('click',function(){open(n)});
+      r.querySelector('.s-pyr-shape').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open(n)}});
+    });
+    root.addEventListener('mouseover',function(e){var b=e.target.closest('[data-cap]');if(!b)return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=b.getAttribute('data-cap');c.classList.add('live')}});
+    root.addEventListener('focusin',function(e){var b=e.target.closest('[data-cap]');if(!b)return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=b.getAttribute('data-cap');c.classList.add('live')}});
+    root.addEventListener('mouseout',function(e){var b=e.target.closest('[data-cap]');if(!b||(e.relatedTarget&&b.contains(e.relatedTarget)))return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=hint;c.classList.remove('live')}});
+    root.addEventListener('click',function(e){
+      var lv=e.target.closest('.s-pyr-lev');if(lv){var t=document.getElementById('lever-tab-'+lv.getAttribute('data-lev'));if(t){if(t.getAttribute('aria-expanded')!=='true')t.click();var dk=document.getElementById('leverDeck');if(dk)dk.scrollIntoView({behavior:'smooth',block:'start'})}return}
+      var mp=e.target.closest('[data-map]');if(mp){var sel=document.querySelector('.ix-drvsel');if(sel){sel.value=mp.getAttribute('data-map');sel.dispatchEvent(new Event('change',{bubbles:true}));var ex=document.getElementById('explore');if(ex)ex.scrollIntoView({behavior:'smooth',block:'start'})}}
+    });
+    open(2);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
