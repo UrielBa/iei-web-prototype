@@ -135,3 +135,9 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 .s-lang select:focus-visible{outline:2px solid #6478FF;outline-offset:2px}
 .s-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .s-langnote{font:italic 500 13px/1.45 "Urbanist",sans-serif;color:#4b5064;background:#F1F0EE;border-radius:12px;padding:9px 14px;margin:0 0 14px}
+/* right-to-left languages: keep the layout, let each text block take its own direction */
+.iei-rtl p,.iei-rtl h1,.iei-rtl h2,.iei-rtl h3,.iei-rtl h4,.iei-rtl li,.iei-rtl dt,.iei-rtl dd,.iei-rtl label,.iei-rtl summary,.iei-rtl td,.iei-rtl th,.iei-rtl button,.iei-rtl a,.iei-rtl span,.iei-rtl option{unicode-bidi:plaintext}
+.s-lang select{max-width:170px}
+/* long translated words must not push the lever tabs past the screen edge */
+.lever-tab{min-width:0;overflow-wrap:anywhere}
+.lever-tab *{min-width:0;overflow-wrap:anywhere}
