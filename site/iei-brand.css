@@ -242,3 +242,27 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 .s-pyr-m{display:none}
 @media (max-width:767px){.s-pyr-row.r1 .s-pyr-l{display:none}.s-pyr-m{display:block;color:#fff;font:700 11px/1.2 "Urbanist",sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}}
 .s-lang select{field-sizing:content;max-width:190px}
+
+/* ---- brand alignment with gsgimpact.org (Nov 2026) ---- */
+:root{--g-web:#4A5FE8;--g-web-dk:#2942B5;--g-ink:#131313}
+/* buttons: pill, 2px web-blue outline; primary filled web-blue with arrow */
+.s-btn{border:2px solid var(--g-web) !important;color:var(--g-ink) !important;font-weight:600 !important;background:#fff}
+.s-btn:hover{background:#EEF0FF !important}
+.s-btn.primary{background:var(--g-web) !important;color:#fff !important}
+.s-btn.primary::after{content:"→";font-weight:600;transition:transform .2s}
+.s-btn.primary:hover{background:var(--g-web-dk) !important;border-color:var(--g-web-dk) !important}
+.s-btn.primary:hover::after{transform:translateX(3px)}
+#sDl .s-btn,.s-dl .s-btn:not(.primary){background:transparent;color:#fff !important}
+/* headings: lighter weight, italic web-blue emphasis */
+.s-hero h1{font-weight:400 !important;letter-spacing:-.02em !important;color:var(--g-ink) !important}
+.s-hero h1 em{font-weight:400 !important;color:var(--g-web) !important}
+.s-ins h2,.s-read h2,.s-cases h2,#framework .lever-h2,#explore h2{font-weight:400 !important;letter-spacing:-.015em !important}
+.s-dl h2{font-weight:400 !important;letter-spacing:-.015em !important}
+.s-eyebrow{color:var(--g-web) !important}
+/* signature leaf shape for illustrations */
+.s-illu{border-radius:100% 100% 100% 0 !important;object-fit:cover}
+/* key figures: blue-to-ink gradient tiles with light numerals */
+.s-ins .s-stat{background:linear-gradient(0deg,rgba(0,0,0,.9),#6478F0) !important;border:0 !important;color:#fff}
+.s-ins .s-stat b{color:#fff !important;font-weight:400 !important;letter-spacing:-.02em}
+.s-ins .s-stat span{color:rgba(255,255,255,.82) !important;font-weight:500}
+.s-link.is-active,.s-link:hover{background:#EEF0FF !important;color:var(--g-web-dk) !important}

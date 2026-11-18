@@ -106,17 +106,57 @@
   }
 
   /* ---------- benchmark ticks: comparison + Global + Best in class ---------- */
-  function ticks(bn, fn, cmp) {
+  function tk(cls, label, v, own) {
+    return '<u' + (cls ? ' class="' + cls + '"' : '') + ' style="left:' + v.toFixed(1) + '%" tabindex="0" data-tl="' + esc(label) + '" data-tv="' + v.toFixed(1) + '"' + (own != null ? ' data-to="' + own + '"' : '') + ' aria-label="' + esc(label) + ': ' + Math.round(v) + '"></u>';
+  }
+  function ticks(bn, fn, cmp, own) {
     var out = '';
-    if (cmp != null) out += '<u style="left:' + cmp.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(cmp) + '"></u>';
-    if (state.bench !== 'all') { var g = avg(C, fn); if (g != null) out += '<u class="g" style="left:' + g.toFixed(1) + '%" title="Global average: ' + Math.round(g) + '"></u>'; }
-    if (state.bench !== 'best') { var b = avg(bestList(), fn); if (b != null) out += '<u class="b" style="left:' + b.toFixed(1) + '%" title="Best in class (provisional, top 5): ' + Math.round(b) + '"></u>'; }
+    if (cmp != null) out += tk('', bn.label, cmp, own);
+    if (state.bench !== 'all') { var g = avg(C, fn); if (g != null) out += tk('g', 'Global average', g, own); }
+    if (state.bench !== 'best') { var b = avg(bestList(), fn); if (b != null) out += tk('b', 'Best in class (provisional): top 5 countries', b, own); }
     return out;
   }
   function tickKey() {
     return '<p class="ic-tkey"><span><i></i>' + (state.bench === 'country' ? 'Selected country' : 'Comparison group') + '</span>' + (state.bench !== 'all' ? '<span><i class="g"></i>Global average</span>' : '') +
       (state.bench !== 'best' ? '<span><i class="b"></i>Best in class <em>(TBD · top 5 for now)</em></span>' : '') + '</p>';
   }
+
+
+  /* friendly tooltip for benchmark markers and radar points */
+  (function () {
+    var T = function (x) { return window.IEI_T ? window.IEI_T(x) : x; };
+    var tip = document.createElement('div'); tip.className = 'ic-tip'; tip.setAttribute('role', 'tooltip'); tip.hidden = true; document.body.appendChild(tip);
+    var on = null;
+    function diff(d) { d = Math.round(d); return d === 0 ? '<b class="eq">=</b>' : '<b class="' + (d > 0 ? 'up' : 'dn') + '">' + (d > 0 ? '+' : '−') + Math.abs(d) + '</b>'; }
+    function html(el) {
+      var c = byId[state.sel], name = c ? T(c.name) : '';
+      if (el.matches('.ic-rh')) {
+        var k = +el.getAttribute('data-k'), v = +el.getAttribute('data-v'), r = el.getAttribute('data-r'), bn = benchFor(c);
+        return '<p class="ic-tip-h"><i style="background:' + LEV[k].accent + '"></i>' + esc(T(LEV[k].name)) + '</p>' +
+          '<p class="ic-tip-big">' + v + '<small>' + esc(name) + '</small></p>' +
+          (r === '' ? '' : '<p class="ic-tip-r">' + esc(T(bn.label)) + ' <b>' + Math.round(+r) + '</b> ' + diff(v - r) + '</p>');
+      }
+      var cls = el.classList.contains('g') ? 'g' : el.classList.contains('b') ? 'b' : 'c', v2 = +el.getAttribute('data-tv'), o = el.getAttribute('data-to');
+      return '<p class="ic-tip-h"><i class="mk ' + cls + '"></i>' + esc(T(el.getAttribute('data-tl'))) + '</p>' +
+        '<p class="ic-tip-big">' + Math.round(v2) + '</p>' +
+        (o == null || o === '' ? '' : '<p class="ic-tip-r">' + esc(name) + ' <b>' + Math.round(+o) + '</b> ' + diff(+o - v2) + '</p>');
+    }
+    function show(el) {
+      on = el; tip.innerHTML = html(el); tip.hidden = false;
+      var anchor = el.matches('.ic-rh') && el.ownerSVGElement ? el.ownerSVGElement.querySelectorAll('.ic-rd')[+el.getAttribute('data-k')] || el : el;
+      var r = anchor.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, x = r.left + r.width / 2 - w / 2, y = r.top - h - 10;
+      x = Math.max(8, Math.min(x, document.documentElement.clientWidth - w - 8)); if (y < 8) y = r.bottom + 10;
+      tip.style.left = (x + window.scrollX) + 'px'; tip.style.top = (y + window.scrollY) + 'px';
+      if (el.matches('.ic-rh')) { var svg = el.ownerSVGElement; if (svg) svg.setAttribute('data-hk', el.getAttribute('data-k')); }
+    }
+    function hide() { tip.hidden = true; if (on && on.ownerSVGElement) on.ownerSVGElement.removeAttribute('data-hk'); on = null; }
+    var SEL = '.ic-bar u[data-tl], .ic-rh';
+    document.addEventListener('mouseover', function (e) { var el = e.target.closest && e.target.closest(SEL); if (el) show(el); });
+    document.addEventListener('mouseout', function (e) { var el = e.target.closest && e.target.closest(SEL); if (el && (!e.relatedTarget || !el.contains(e.relatedTarget))) hide(); });
+    document.addEventListener('focusin', function (e) { var el = e.target.closest && e.target.closest(SEL); if (el) show(el); });
+    document.addEventListener('focusout', function (e) { var el = e.target.closest && e.target.closest(SEL); if (el) hide(); });
+    window.addEventListener('scroll', function () { if (!tip.hidden) hide(); }, { passive: true });
+  })();
 
   /* ---------- radar ---------- */
   function radar(c, bn) {
@@ -129,9 +169,11 @@
     var lab = [['Accountability', 'text-anchor:middle', 0, -14], ['Procurement', 'text-anchor:end', 4, -12], ['Capital', 'text-anchor:middle', 0, 24], ['Coordination', 'text-anchor:start', -4, -12]].map(function (l, i) {
       var p = pt(i, 100); return '<text x="' + (p[0] + l[2]).toFixed(1) + '" y="' + (p[1] + l[3]).toFixed(1) + '" style="' + l[1] + '" class="ic-rl">' + l[0] + '</text>';
     }).join('');
-    var dots = c.l.map(function (v, i) { var p = pt(i, v); return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4.5" fill="' + LEV[i].accent + '" stroke="#0F1428" stroke-width="1.5"/>'; }).join('');
+    var dots = c.l.map(function (v, i) { var p = pt(i, v); return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4.5" fill="' + LEV[i].accent + '" stroke="#0F1428" stroke-width="1.5" class="ic-rd"/>'; }).join('');
+    var bdots = ref.map(function (v, i) { if (v == null) return ''; var p = pt(i, v); return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3" class="ic-rbd"/>'; }).join('');
+    var hits = c.l.map(function (v, i) { var p = pt(i, Math.max(v, ref[i] || 0) * 0.5 + 50); return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="30" class="ic-rh" tabindex="0" data-k="' + i + '" data-v="' + v + '" data-r="' + (ref[i] == null ? '' : ref[i].toFixed(1)) + '" aria-label="' + esc(LEV[i].name) + ': ' + v + '"/>'; }).join('');
     return '<svg class="ic-radar" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="Radar chart of ' + esc(c.name) + ' lever scores versus ' + esc(bn.label) + '">' +
-      rings + axes + '<polygon points="' + poly(ref) + '" class="ic-rb"/><polygon points="' + poly(c.l) + '" class="ic-rc"/>' + dots + lab + '</svg>';
+      rings + axes + '<polygon points="' + poly(ref) + '" class="ic-rb"/><polygon points="' + poly(c.l) + '" class="ic-rc"/>' + bdots + dots + lab + hits + '</svg>';
   }
 
   /* ---------- report ---------- */
@@ -231,7 +273,7 @@
     var levCards = levers.map(function (x) {
       return '<div class="ic-lev" style="--a:' + x.L.accent + '"><p class="ic-lname"><i></i>' + esc(x.L.short) + '</p>' +
         '<p class="ic-lval">' + x.v + '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em></p>' +
-        '<div class="ic-bar"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.l[x.k]; }, x.ref) + '</div>' +
+        '<div class="ic-bar"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.l[x.k]; }, x.ref, x.v) + '</div>' +
         '<p class="ic-lmeta">Rank #' + x.rk.r + ' of ' + x.rk.n + ' · comparison ' + Math.round(x.ref) + '</p>' + cbtn('L:' + (x.k + 1), 'for this lever') + '</div>';
     }).join('');
 
@@ -250,7 +292,7 @@
       return head + '<tr class="ic-dr" tabindex="0" role="button" data-drv="' + x.id + '" aria-expanded="' + isOpen + '" aria-label="' + x.id + ' ' + esc(DLAB[x.id]) + ': show indicators"><td class="ic-c1"><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span></td>' +
         '<td class="ic-c2"><span class="ic-dtxt">' + esc(DLAB[x.id]) + '</span><span class="ic-chev" aria-hidden="true"></span></td>' +
         '<td class="ic-c3">' + (x.v == null ? '<span class="ic-na">No data</span>' :
-          '<div class="ic-bar thin" style="--a:' + LEV[x.k].accent + '"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.d[x.i]; }, x.ref) + '</div>') + '</td>' +
+          '<div class="ic-bar thin" style="--a:' + LEV[x.k].accent + '"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.d[x.i]; }, x.ref, x.v) + '</div>') + '</td>' +
         '<td class="ic-c4">' + (x.v == null ? '–' : '<b>' + x.v + '</b>' + (x.d == null ? '' : '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em>')) +
         '<span class="ic-rk">' + (x.rk ? '#' + x.rk.r + '/' + x.rk.n : '') + '</span></td></tr>' +
         '<tr class="ic-dx" data-for="' + x.id + '"' + (isOpen ? '' : ' hidden') + '><td colspan="4">' + (isOpen ? driverPanel(x.id, c, bn) : '') + '</td></tr>';
@@ -413,7 +455,7 @@
       '<div class="ic-ixm"><span class="ic-iname">' + esc(m.name) + '</span>' + typeTag(m) + '<span class="ic-ival">' + esc(f1) + '</span>' + f2 + cbtn('I:' + m.id, 'for this indicator') + '</div>' +
       '<div class="ic-ixs">' + cell + '</div>' +
       '<button type="button" class="ic-mbtn" data-ind="' + esc(m.id) + '" aria-label="Why this score and how to improve it: ' + esc(m.name) + '">Details</button>' +
-      ((m.star || s == null) ? '' : '<div class="ic-ixb"><div class="ic-bar thin" style="--a:' + LEV[k].accent + '"><span style="width:' + s + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div></div>') + '</div>';
+      ((m.star || s == null) ? '' : '<div class="ic-ixb"><div class="ic-bar thin" style="--a:' + LEV[k].accent + '"><span style="width:' + s + '%"></span>' + (ref == null ? '' : tk('', bn.label, ref, s)) + '</div></div>') + '</div>';
   }
   function driverPanel(id, c, bn) {
     var di = DID.indexOf(id), de = (c.de && c.de[di]) || [null, null];
@@ -427,7 +469,7 @@
     if (c.e == null && c.b == null) return '';
     function row(key, label, cls, v) {
       var ref = avg(bn.list, function (x) { return x[key]; }), rk = rankIn(function (x) { return x[key]; }, c), d = (v == null || ref == null) ? null : Math.round(v - ref);
-      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"></u>') + '</div>' +
+      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span>' + (ref == null ? '' : tk('', bn.label, ref, v == null ? null : Math.round(v))) + '</div>' +
         '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + '<span class="ic-rk">' + (rk ? '#' + rk.r + '/' + rk.n : '') + '</span></p></div>';
     }
     var diff = (c.e != null && c.b != null) ? c.e - c.b : null;

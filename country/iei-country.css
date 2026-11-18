@@ -369,3 +369,35 @@ html.icm-open{overflow:hidden}
 .ic-embed textarea{width:100%;resize:vertical;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:#0F1428;color:#fff;font:500 12.5px/1.45 ui-monospace,Menlo,Consolas,monospace;padding:10px 12px}
 .ic-embed-a{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .ic-embed-a a.ic-sh{text-decoration:none}
+
+/* benchmark markers: higher contrast, larger hit area, capped */
+.ic-bar u{top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:#fff;border-radius:2px;box-shadow:0 0 0 1.5px #0F1428,0 1px 6px rgba(0,0,0,.45);cursor:pointer;z-index:2;outline:none;transition:transform .15s}
+.ic-bar.thin u{top:-6px;bottom:-6px}
+.ic-bar u::before{content:"";position:absolute;left:50%;top:-5px;width:8px;height:8px;border-radius:50%;background:inherit;transform:translateX(-50%);box-shadow:0 0 0 1.5px #0F1428}
+.ic-bar u::after{content:"";position:absolute;left:-8px;right:-8px;top:-8px;bottom:-4px}
+.ic-bar u:hover,.ic-bar u:focus-visible{transform:scale(1.25);z-index:3}
+.ic-bar u.g{background:#9AA6FF;border-left:0;width:3px;margin-left:-1.5px;border-radius:2px}
+.ic-bar u.b{background:#F5B942;width:3px;margin-left:-1.5px}
+.ic-tkey i{width:4px;height:14px;box-shadow:0 0 0 1.5px #0F1428;position:relative}
+.ic-tkey i.g{background:#9AA6FF;border-left:0;width:4px}
+.ic-key u{width:3px;height:14px;box-shadow:0 0 0 1.5px #0F1428}
+
+/* radar hover */
+.ic-radar .ic-rh{fill:transparent;cursor:pointer;outline:none}
+.ic-radar .ic-rbd{fill:#fff;stroke:#0F1428;stroke-width:1}
+.ic-radar[data-hk] .ic-rd{opacity:.45}
+.ic-radar[data-hk="0"] .ic-rd:nth-of-type(1),.ic-radar[data-hk="1"] .ic-rd:nth-of-type(2),.ic-radar[data-hk="2"] .ic-rd:nth-of-type(3),.ic-radar[data-hk="3"] .ic-rd:nth-of-type(4){opacity:1;r:7}
+
+/* shared tooltip */
+.ic-tip{position:absolute;z-index:90;min-width:180px;max-width:260px;background:#fff;color:#0F1428;border-radius:16px;padding:12px 14px;box-shadow:0 14px 34px rgba(5,8,20,.35);pointer-events:none;font-family:"Urbanist",sans-serif}
+.ic-tip p{margin:0 !important}
+.ic-tip-h{display:flex;align-items:center;gap:8px;font:700 12px/1.3 "Urbanist",sans-serif !important;color:#4b5064 !important;letter-spacing:.02em}
+.ic-tip-h i{width:10px;height:10px;border-radius:50%;flex:none}
+.ic-tip-h i.mk{width:4px;height:14px;border-radius:2px;box-shadow:0 0 0 1.5px #0F1428;background:#fff}
+.ic-tip-h i.mk.g{background:#9AA6FF}.ic-tip-h i.mk.b{background:#F5B942}
+.ic-tip-big{display:flex;align-items:baseline;gap:8px;font:800 30px/1.1 "Urbanist",sans-serif !important;letter-spacing:-.02em;margin-top:4px !important}
+.ic-tip-big small{font:600 12px/1 "Urbanist",sans-serif;color:#5d6479;letter-spacing:0}
+.ic-tip-r{display:flex;align-items:center;gap:6px;margin-top:6px !important;padding-top:7px;border-top:1px solid #ECEAE6;font:600 12.5px/1.3 "Urbanist",sans-serif !important;color:#4b5064 !important}
+.ic-tip-r b{color:#0F1428}
+.ic-tip-r b.up,.ic-tip-r b.dn,.ic-tip-r b.eq{margin-left:auto;padding:2px 8px;border-radius:99px;font-size:12px}
+.ic-tip-r b.up{background:#DDF7E8;color:#16794A}.ic-tip-r b.dn{background:#FCE3EC;color:#A2224F}.ic-tip-r b.eq{background:#EEF0FF;color:#2942B5}
