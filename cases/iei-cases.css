@@ -73,3 +73,34 @@
 .icm .cs-pill{display:inline-flex;margin-top:6px;padding:8px 14px;border-radius:999px;border:1.5px solid #0F1428;background:#fff;color:#0F1428;font:700 13px "Urbanist",sans-serif;cursor:pointer}
 .icm .cs-pill:hover{background:#0F1428;color:#fff}
 @media(max-width:620px){.cp{padding:0;align-items:flex-end}.cp-box{border-radius:24px 24px 0 0;max-height:92vh;padding:24px 20px 28px}.cp-meta{grid-template-columns:1fr}}
+
+/* ---- case detail: readable layout with brand imagery ---- */
+.cp-box{width:min(820px,100%)}
+.cp-hero{height:150px;border-radius:18px;background:#F1F0EE center/cover no-repeat;position:relative;margin-bottom:18px}
+.cp-lev{position:absolute;left:14px;bottom:12px;padding:6px 12px;border-radius:99px;background:rgba(15,20,40,.82);color:#fff;font:700 12.5px "Urbanist",sans-serif}
+.cp-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.cp-fact{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border:1px solid #D9D6D1;border-radius:14px;background:#fff}
+.cp-fk{display:block;font:italic 600 12.5px "Urbanist",sans-serif;color:#2942B5;margin-bottom:2px}
+.cp-fv{display:flex;align-items:center;gap:8px;font:700 15px/1.3 "Urbanist",sans-serif;color:#0F1428}
+.cp-fs{font:500 13px/1.4 "Urbanist",sans-serif;color:#4b5064;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cp-flag{width:24px;height:18px;border-radius:3px;object-fit:cover}
+.cp-ico{width:22px;height:22px;object-fit:contain}
+.cp-glance{padding:16px 18px;border-radius:14px;background:#F1F0EE;margin-bottom:20px}
+.cp-glance p{margin:0;font:600 17px/1.5 "Urbanist",sans-serif;color:#0F1428}
+.cp-text{margin:0 0 20px;max-width:64ch}
+.cp-text p{margin:0 0 14px;font:500 16px/1.7 "Urbanist",sans-serif;color:#2a3150}
+.cp-text .cp-lead{font-weight:600;color:#0F1428}
+.cp-inds{margin:0 0 18px;padding-top:14px;border-top:1px solid #E2DFDA}
+.cp-inds ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+.cp-inds li{display:flex;align-items:center;gap:10px;font:600 14.5px/1.35 "Urbanist",sans-serif;color:#0F1428}
+.cp-src{padding:14px 16px;border-radius:14px;border:1px solid #D9D6D1}
+.cp-src p{margin:0 0 12px;font:500 13.5px/1.5 "Urbanist",sans-serif;color:#4b5064;overflow-wrap:anywhere}
+/* list cards with thumbnail */
+.cp-card{flex-direction:row !important;gap:14px !important;align-items:flex-start}
+.cp-thumb{flex:0 0 84px;width:84px;height:84px;border-radius:12px;object-fit:cover}
+.cp-cbody{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+/* section cards with banner */
+.cs-card{padding-top:0 !important;overflow:hidden}
+.cs-ban{height:84px;margin:0 -22px 4px;background:#F1F0EE center/cover no-repeat}
+@media(max-width:620px){.cp-facts{grid-template-columns:1fr}.cp-hero{height:110px}.cp-thumb{flex-basis:56px;width:56px;height:56px}.cp-text p{font-size:15.5px}}
+.cp-inds li,.cp li{padding:0 !important}

@@ -481,14 +481,14 @@
       'ul.g{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}ul.g li{border:1px solid #D9D6D1;border-radius:12px;padding:9px 11px;break-inside:avoid}ul.g p{margin:3px 0;font-size:9pt}.gh{display:flex;gap:6px;align-items:center}.cs{color:#2942B5}' +
       '.foot{margin-top:14px;border-top:1px solid #D9D6D1;padding-top:8px;font-size:8pt;color:#4b5064}.pg{break-before:page}@media screen{body{max-width:820px;margin:20px auto;padding:0 20px}}';
     var html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(c.name) + ' · Impact Economy Index profile</title><style>' + css + '</style></head><body>' +
-      '<div class="top"><img src="' + abs('brand/logo/gsg-impact-lilac-navy.png') + '" alt="GSG Impact"><div class="r"><b>Impact Economy Index · Country profile</b><br>Data: ' + esc(V.label || '') + (V.updated ? ' · updated ' + esc(V.updated) : '') + '</div></div>' +
+      '<div class="top"><img src="' + abs('brand/logo/gsg-impact-lilac-navy.png') + '" alt="GSG Impact"><div class="r"><b>Impact Economy Index · Country profile</b><br>Draft for validation</div></div>' +
       '<div class="hero"><div><div class="big">' + c.score + '</div><span class="tier" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span></div>' +
       '<div><h1>' + esc(c.name) + '</h1><p class="sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p><p>Rank <b>#' + tr.r + '</b> of ' + N + '. Total score ' + c.score + ' out of 100, ' + sgn(Math.round(c.score - refT)) + ' against the comparison (' + esc(bn.label) + ', ' + Math.round(refT) + ').</p>' +
       '<p class="sub it">The total is the average of 14 equally weighted drivers. The marker on each bar shows the comparison.</p></div></div>' +
       '<h2>The four levers</h2><div class="levs">' + levs + '</div>' + (eb ? '<h2>Enabling conditions and behaviour</h2>' + eb : '') +
       '<h2>All 14 drivers</h2><table><thead><tr><th></th><th>Driver</th><th></th><th class="n">Score</th><th class="n">Comparison</th><th class="n">Gap</th></tr></thead><tbody>' + rows + '</tbody></table>' +
       (gaps ? '<h2 class="pg">Where ' + esc(c.name) + ' falls behind, and what would help</h2><ul class="g">' + gaps + '</ul>' : '') +
-      '<div class="foot">Comparison: ' + esc(bn.label) + '. ' + esc(V.status || '') + ' Online profile: ' + esc(url) + '<br>Source: GSG Impact, Impact Economy Index. ' + esc(V.source || '') + '.</div>' +
+      '<div class="foot">Comparison: ' + esc(bn.label) + '. ' + (V.status ? esc(V.status) + ' ' : '') + 'Online profile: ' + esc(url) + '<br>Source: GSG Impact, Impact Economy Index' + (V.source ? '. ' + esc(V.source) : '') + '.</div>' +
       '<script>window.addEventListener("load",function(){(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})});<\/script></body></html>';
     var w = window.open('', '_blank');
     if (!w) { alert('Please allow pop-ups to open the printable profile.'); return; }

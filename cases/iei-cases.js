@@ -54,19 +54,43 @@
     return '<span class="cs-co">' + (k.flag ? '<img src="' + FLAGS + k.flag + '.svg" alt="">' : '') + esc(k.cn) + '</span>' +
       (k.tier ? '<span class="cs-tier" style="background:' + TBG[k.tier] + ';color:' + TFG[k.tier] + '">' + esc(k.tier) + '</span>' : '');
   }
+  function levOf(k) { return parseInt(k.i[0].charAt(0), 10) || 1; }
+  function img(k, thumb) { return './brand/img/case-lever' + levOf(k) + (thumb ? '-thumb' : '') + '.jpg'; }
+  function indName(id) {
+    var I = (window.IEI_IND && window.IEI_IND.inds) || [], m = I.filter(function (x) { return x.id === id; })[0];
+    return m ? m.name : (M.driverLabels[id] || '');
+  }
   function detail(k) {
-    var link = safeUrl(k.url);
-    return '<article class="cp-detail"><div class="cs-top">' + countryLine(k) + '</div><h3>' + esc(k.t) + '</h3>' + tags(k) +
-      '<div class="cp-text">' + k.x.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') + '</div>' +
-      '<dl class="cp-meta"><dt>Most useful for</dt><dd>' + esc(k.s) + (k.sa ? ' · also ' + esc(k.sa) : '') + '</dd>' +
-      '<dt>Region · income</dt><dd>' + esc(k.region) + ' · ' + esc(k.inc) + '</dd>' +
-      (k.src ? '<dt>Source</dt><dd>' + esc(k.src) + '</dd>' : '') + '</dl>' +
+    var link = safeUrl(k.url), c = k.c && byId[k.c], L = levOf(k), ic = SICON[k.s];
+    var paras = k.x.slice(), glance = null;
+    if (k.b && k.b.slice(-1) !== '…' && paras.length && paras[0].indexOf(k.b) === 0) { glance = k.b; paras[0] = paras[0].slice(k.b.length).trim(); if (!paras[0]) paras.shift(); }
+    var chunks = [];
+    paras.forEach(function (p) {
+      var sent = p.split(/(?<=[.!?])\s+(?=[A-Z“"(])/), buf = [];
+      sent.forEach(function (x) { buf.push(x.trim()); if (buf.length === 3) { chunks.push(buf.join(' ')); buf = []; } });
+      if (buf.length) chunks.push(buf.join(' '));
+    });
+    var lead = !glance && chunks.length ? chunks.shift() : null;
+    return '<article class="cp-detail">' +
+      '<div class="cp-hero" style="background-image:url(' + img(k) + ')"><span class="cp-lev">Lever ' + L + ' · ' + esc(LEVN[L - 1]) + '</span></div>' +
+      '<div class="cp-facts">' +
+        '<div class="cp-fact"><span class="cp-fk">Country</span><span class="cp-fv">' + (k.flag ? '<img class="cp-flag" src="' + FLAGS + k.flag + '.svg" alt="">' : '') + esc(k.cn) + '</span>' +
+          (c ? '<span class="cp-fs">IEI score ' + c.score + ' · <span class="cs-tier" style="background:' + TBG[c.tier] + ';color:' + TFG[c.tier] + '">' + esc(c.tier) + '</span></span>' : '<span class="cp-fs">Not scored in the Index</span>') + '</div>' +
+        '<div class="cp-fact"><span class="cp-fk">Most useful for</span><span class="cp-fv">' + (ic ? '<img class="cp-ico" src="./brand/icons/' + ic + '.png" alt="">' : '') + esc(k.s) + '</span>' + (k.sa ? '<span class="cp-fs">Also ' + esc(k.sa) + '</span>' : '') + '</div>' +
+        '<div class="cp-fact"><span class="cp-fk">Region · income</span><span class="cp-fv">' + esc(k.region) + '</span><span class="cp-fs">' + esc(k.inc) + '</span></div>' +
+      '</div>' +
+      (glance ? '<div class="cp-glance"><span class="cp-fk">At a glance</span><p>' + esc(glance) + '</p></div>' : '') +
+      '<div class="cp-text">' + (lead ? '<p class="cp-lead">' + esc(lead) + '</p>' : '') + chunks.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') + '</div>' +
+      '<div class="cp-inds"><span class="cp-fk">Where it shows up in the Index</span><ul>' + k.i.map(function (id) {
+        return '<li><span class="cs-dr" style="--a:' + LEVC[parseInt(id.charAt(0), 10) - 1] + '">' + esc(id) + '</span>' + esc(indName(id)) + '</li>';
+      }).join('') + '</ul></div>' +
+      '<div class="cp-src">' + (k.src ? '<p><span class="cp-fk">Source</span>' + esc(k.src) + '</p>' : '') +
       '<div class="cp-actions">' + (link ? '<a class="cp-link" href="' + esc(link) + '" target="_blank" rel="noopener">Open source ↗</a>' : '') +
-      (k.c ? '<button type="button" class="cp-prof" data-c="' + k.c + '">View ' + esc(k.cn) + ' profile →</button>' : '') + '</div></article>';
+      (k.c ? '<button type="button" class="cp-prof" data-c="' + k.c + '">View ' + esc(k.cn) + ' profile →</button>' : '') + '</div></div></article>';
   }
   function brief(k) {
-    return '<button type="button" class="cp-card" data-case="' + esc(k.id) + '"><span class="cs-top">' + countryLine(k) + '</span><b>' + esc(k.t) + '</b><span class="cp-b">' + esc(k.b) + '</span>' +
-      tags(k) + '<span class="cp-more">Read more →</span></button>';
+    return '<button type="button" class="cp-card" data-case="' + esc(k.id) + '"><img class="cp-thumb" src="' + img(k, true) + '" alt="" loading="lazy"><span class="cp-cbody"><span class="cs-top">' + countryLine(k) + '</span><b>' + esc(k.t) + '</b><span class="cp-b">' + esc(k.b) + '</span>' +
+      tags(k) + '<span class="cp-more">Read more →</span></span></button>';
   }
 
   /* ---------- popup ---------- */
@@ -156,7 +180,7 @@
     });
     count.textContent = L.length + ' of ' + K.length + ' case studies';
     grid.innerHTML = L.length ? L.map(function (k) {
-      return '<article class="cs-card"><div class="cs-top">' + countryLine(k) + '</div><h3>' + esc(k.t) + '</h3><p>' + esc(k.b) + '</p>' + tags(k) +
+      return '<article class="cs-card"><div class="cs-ban" style="background-image:url(' + img(k) + ')"></div><div class="cs-top">' + countryLine(k) + '</div><h3>' + esc(k.t) + '</h3><p>' + esc(k.b) + '</p>' + tags(k) +
         '<button type="button" class="cs-go" data-open-case="' + esc(k.id) + '">Read the case →</button></article>';
     }).join('') : '<p class="cs-none">No case studies match these filters.</p>';
   }

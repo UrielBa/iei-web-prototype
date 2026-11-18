@@ -353,3 +353,13 @@ html.icm-open{overflow:hidden}
 .ic-sh:focus-visible{outline:2px solid #6478FF;outline-offset:2px}
 .ic-shmsg{font:600 12.5px "Urbanist",sans-serif;color:#3DCC7D}
 @media(max-width:640px){.ic-share{order:3;width:100%;margin:10px 0 0}}
+/* gap case: neutral box (no coral/yellow tint) */
+.ic-gcase{background:rgba(255,255,255,.05) !important;border:1px solid rgba(255,255,255,.14) !important}
+.ic-gck{color:#77DAD9 !important}
+.ic-gcb{text-decoration-color:rgba(119,218,217,.6) !important}
+.ic-gcb:hover,.ic-gcm{color:#77DAD9 !important}
+/* gap case: neutral box (no coral/yellow tint) */
+.ic-gcase{background:rgba(255,255,255,.05) !important;border:1px solid rgba(255,255,255,.14) !important}
+.ic-gck{color:#77DAD9 !important}
+.ic-gcb{text-decoration-color:rgba(119,218,217,.6) !important}
+.ic-gcb:hover,.ic-gcm{color:#77DAD9 !important}

@@ -125,3 +125,7 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 #framework .lever-close:hover{background:transparent;color:#0F1428}
 #framework .lever-close:focus-visible{outline:3px solid #0F1428;outline-offset:3px}
 @media(max-width:991px){#framework .lever-tab.is-active{border-radius:16px;padding-bottom:16px}#framework .lever-stage{padding:22px 20px 18px}}
+.ic .cs-pill{border-color:#77DAD9 !important;color:#77DAD9 !important;background:transparent !important}
+.ic .cs-pill:hover{background:#77DAD9 !important;color:#0F1428 !important}
+.ic .cs-pill{border-color:#77DAD9 !important;color:#77DAD9 !important;background:transparent !important}
+.ic .cs-pill:hover{background:#77DAD9 !important;color:#0F1428 !important}
