@@ -75,10 +75,10 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
 <main class="wrap">
   <p class="eyebrow">Impact Economy Index</p>
   <h1>What-if simulator</h1>
-  <p class="lede">Change a country's indicator scores to see how its drivers, levers, total score, tier and rank would move. The calculation follows the Index method: indicators are averaged into drivers, and the total is the average of the 14 drivers. Results are illustrative only.</p>
+  <p class="lede">Change a country's indicator scores to see how its drivers, levers, total score, maturity stage and rank would move. The calculation follows the Index method: indicators are averaged into drivers, and the total is the average of the 14 drivers. Results are illustrative only.</p>
   <div class="controls">
     <label class="f"><span>Country</span><select id="sCountry"></select></label>
-    <label class="f"><span>Targets based on</span><select id="sBench"><option value="income">Same income group</option><option value="region">Same region</option><option value="tier">Same tier</option><option value="all">All countries</option></select></label>
+    <label class="f"><span>Targets based on</span><select id="sBench"><option value="income">Same income group</option><option value="region">Same region</option><option value="tier">Same stage</option><option value="all">All countries</option></select></label>
     <button class="btn" id="sReset" type="button">Reset all changes</button>
   </div>
   <div class="grid">
@@ -89,21 +89,21 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
     <aside class="card sum" id="sSum" aria-live="polite"></aside>
   </div>
 </main>
-<script src="data/iei-data.js?v=20261118g"></script>
-<script src="data/iei-indicators.js?v=20261118g"></script>
-<script src="data/iei-facts.js?v=20261118g"></script>
+<script src="data/iei-data.js?v=20261118m"></script>
+<script src="data/iei-indicators.js?v=20261118m"></script>
+<script src="data/iei-facts.js?v=20261118m"></script>
 <script>
 (function () {
   var D = window.IEI_DATA, I = window.IEI_IND, F = window.IEI_FACTS || {};
   var C = D.countries, META = D.meta, DID = META.driverIds, byId = {};
   C.forEach(function (c) { byId[c.id] = c; });
   var INDS = I.inds.filter(function (m) { return !m.star; });
-  var LC = ['#3DCC7D', '#77DAD9', '#FFBD87', '#F094B5'];
-  var TB = { 'Early stage': '#BFEDEC', 'Developing': '#77DAD9', 'Progressing': '#6478FF', 'Advanced': '#2942B5' };
+  var LC = ['#3DCC7D', '#77DAD9', '#F094B5', '#FFBD87'];
+  var TB = {}, TF = {}; META.tiers.forEach(function (t) { TB[t.name] = t.bg; TF[t.name] = t.fg; });
   var driverLever = {}; META.levers.forEach(function (L, k) { L.drivers.forEach(function (d) { driverLever[d] = k; }); });
   function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   function avg(a) { a = a.filter(function (x) { return x != null; }); return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : null; }
-  function tierOf(v) { var t = META.tiers; v = Math.round(v); for (var i = 0; i < t.length; i++) if (v >= t[i].min && v <= t[i].max) return t[i].name; return t[t.length - 1].name; }
+  function tierOf(v) { var t = META.tiers; v = Math.round(v); for (var i = t.length - 1; i > 0; i--) if (v >= t[i].min) return t[i].name; return t[0].name; }
   function sc(id, iso) { var e = (I.vals[iso] || {})[id]; return e && e.s != null ? e.s : null; }
   function catScore(m, code) { var f = +m.floor, c = +m.ceil; return Math.max(1, Math.min(100, 1 + 99 * (code - f) / ((c - f) || 1))); }
   function sgn(d) { d = Math.round(d * 10) / 10; return d === 0 ? '±0' : (d > 0 ? '+' : '−') + Math.abs(d).toFixed(Math.abs(d) < 10 && d % 1 ? 1 : 0); }
@@ -152,7 +152,7 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
         html += '<div class="drv"><h4><span>' + d + ' · ' + esc(META.driverLabels[d]) + '</span><span>' + (b == null ? '–' : Math.round(b)) + (n != null && b != null && Math.abs(n - b) > 0.05 ? ' → <b>' + Math.round(n) + '</b>' : '') + '</span></h4>';
         INDS.filter(function (m) { return m.driver === d; }).forEach(function (m) {
           var s0 = sc(m.id, c.id), cur = state.over[m.id] != null ? state.over[m.id] : s0, t = targets(m, c), ch = state.over[m.id] != null && Math.abs(state.over[m.id] - s0) > 0.01;
-          html += '<div class="ind' + (ch ? ' changed' : '') + '"><span class="id" style="background:' + LC[k] + '">' + m.id + '</span><span class="nm">' + esc(m.name) + (m.type ? '<small>' + (m.type === 'E' ? 'Enabling condition' : m.type === 'B' ? 'Behaviour' : 'Key impact') + (s0 != null ? ' · now ' + Math.round(s0) : '') + '</small>' : '') + '</span>' +
+          html += '<div class="ind' + (ch ? ' changed' : '') + '"><span class="id" style="background:' + LC[k] + '">' + m.id + '</span><span class="nm">' + esc(m.name) + (m.type ? '<small>' + (m.type === 'E' ? 'Enabling condition' : m.type === 'B' ? 'Behaviour' : 'Leading-edge impact model') + (s0 != null ? ' · now ' + Math.round(s0) : '') + '</small>' : '') + '</span>' +
             (s0 == null ? '<span class="na ctl">No data for this country</span><span></span>' :
               '<span class="ctl">' + control(m, cur, s0) + '</span><span class="val">' + Math.round(cur) + '</span>' +
               '<span class="acts">' + (t ? '<button type="button" data-set="' + m.id + '" data-v="' + t.avg + '">Match comparison average (' + Math.round(t.avg) + ')</button><button type="button" data-set="' + m.id + '" data-v="' + t.best + '">Match best in group (' + Math.round(t.best) + ')</button>' : '') + (ch ? '<button type="button" data-set="' + m.id + '" data-v="">Reset</button>' : '') + '</span>') + '</div>';
@@ -167,7 +167,7 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
     var changed = Object.keys(state.over).filter(function (id) { return Math.abs(state.over[id] - sc(id, c.id)) > 0.01; });
     document.getElementById('sSum').innerHTML = '<h2>' + esc(c.name) + '</h2>' +
       '<div class="tot">' + (changed.length ? '<span class="from">' + t0 + '</span>' : '') + '<span class="to">' + (changed.length ? t1 : t0) + '</span>' + (changed.length ? '<span class="d ' + (dlt > 0.05 ? 'up' : dlt < -0.05 ? 'down' : '') + '">' + sgn(dlt) + ' points</span>' : '') + '</div>' +
-      '<div class="row2">Tier: <span class="tier" style="background:' + TB[tier0] + ';color:' + (tier0 === 'Advanced' ? '#fff' : '#0F1428') + '">' + tier0 + '</span>' + (tier1 !== tier0 ? ' → <span class="tier" style="background:' + TB[tier1] + ';color:' + (tier1 === 'Advanced' ? '#fff' : '#0F1428') + '">' + tier1 + '</span>' : '') + '</div>' +
+      '<div class="row2">Maturity stage: <span class="tier" style="background:' + TB[tier0] + ';color:' + TF[tier0] + '">' + tier0 + '</span>' + (tier1 !== tier0 ? ' → <span class="tier" style="background:' + TB[tier1] + ';color:' + TF[tier1] + '">' + tier1 + '</span>' : '') + '</div>' +
       '<div class="row2">Rank: #' + r0 + (r1 !== r0 ? ' → <b>#' + r1 + '</b>' : '') + ' of ' + C.length + '</div>' +
       '<div class="levs">' + META.levers.map(function (L, k) {
         var b = base.l[k], n = now.l[k];

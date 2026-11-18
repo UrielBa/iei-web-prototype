@@ -13,13 +13,12 @@
   var LEV = [
     { name: META.levers[0].name, short: 'Accountability & Transparency', accent: '#3DCC7D', drivers: META.levers[0].drivers },
     { name: META.levers[1].name, short: 'Procurement & Demand', accent: '#77DAD9', drivers: META.levers[1].drivers },
-    { name: META.levers[2].name, short: 'Coordination & Support', accent: '#FFBD87', drivers: META.levers[2].drivers },
-    { name: META.levers[3].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', drivers: META.levers[3].drivers }
+    { name: META.levers[2].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', drivers: META.levers[2].drivers },
+    { name: META.levers[3].name, short: 'Coordination & Support', accent: '#FFBD87', drivers: META.levers[3].drivers }
   ];
   var DID = META.driverIds, DLAB = META.driverLabels;
   var driverLever = {}; LEV.forEach(function (L, k) { L.drivers.forEach(function (id) { driverLever[id] = k; }); });
-  var TIER_BG = { 'Early stage': '#BFEDEC', 'Developing': '#77DAD9', 'Progressing': '#6478FF', 'Advanced': '#2942B5' };
-  var TIER_FG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#0F1428', 'Advanced': '#FFFFFF' };
+  var TIER_BG = {}, TIER_FG = {}, TIER_RANGE = {}; META.tiers.forEach(function (t) { TIER_BG[t.name] = t.bg; TIER_FG[t.name] = t.fg; TIER_RANGE[t.name] = t.min + '–' + t.max; });
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function cbtn(scope, noun) {
@@ -66,7 +65,7 @@
   function bestList() { return C.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 5); }
   function benchFor(c) {
     var b = state.bench, list, label, short;
-    if (b === 'tier') { list = C.filter(function (x) { return x.tier === c.tier; }); label = 'Tier average · ' + c.tier; short = 'its tier average'; }
+    if (b === 'tier') { list = C.filter(function (x) { return x.tier === c.tier; }); label = 'Stage average · ' + c.tier; short = 'its stage average'; }
     else if (b === 'region') { list = C.filter(function (x) { return x.region === c.region; }); label = 'Region average · ' + c.region; short = 'its regional average'; }
     else if (b === 'country' && byId[state.benchId] && state.benchId !== c.id) { list = [byId[state.benchId]]; label = byId[state.benchId].name; short = byId[state.benchId].name; }
     else if (b === 'best') { list = bestList(); label = 'Best in class (provisional): top 5 countries'; short = 'the best-in-class group (top 5, provisional)'; }
@@ -79,12 +78,12 @@
   root.innerHTML =
     '<div class="ic">' +
     '  <div class="ic-intro"><h2 class="ic-h">Explore any of the ' + N + ' countries</h2>' +
-    '  <p class="ic-lede">Pick a country to see how it scores on the four levers and fourteen drivers, and compare it with its tier, income group, region or any other country.</p></div>' +
+    '  <p class="ic-lede">Pick a country to see how it scores on the four levers and fourteen drivers, and compare it with its maturity stage, income group, region or any other country.</p></div>' +
     '  <div class="ic-grid">' +
     '    <aside class="ic-rail" aria-label="Country selection">' +
     '      <label class="ic-field"><span class="ic-sr">Search countries</span><input type="search" class="ic-q" placeholder="Search a country…" autocomplete="off"></label>' +
     '      <div class="ic-filters">' +
-    '        <label class="ic-field"><span class="ic-sr">Tier</span><select class="ic-ftier"><option value="">All tiers</option>' + META.tiers.map(function (t) { return '<option>' + esc(t.name) + '</option>'; }).join('') + '</select></label>' +
+    '        <label class="ic-field"><span class="ic-sr">Stage</span><select class="ic-ftier"><option value="">All stages</option>' + META.tiers.map(function (t) { return '<option>' + esc(t.name) + '</option>'; }).join('') + '</select></label>' +
     '        <label class="ic-field"><span class="ic-sr">Income group</span><select class="ic-fincome"><option value="">All income groups</option>' + incomes.map(function (r) { return '<option>' + esc(r) + '</option>'; }).join('') + '</select></label>' +
     '        <label class="ic-field"><span class="ic-sr">Region</span><select class="ic-fregion"><option value="">All regions</option>' + regions.map(function (r) { return '<option>' + esc(r) + '</option>'; }).join('') + '</select></label>' +
     '      </div>' +
@@ -127,7 +126,7 @@
     var ref = LEV.map(function (_, k) { return avg(bn.list, function (x) { return x.l[k]; }); });
     var rings = [25, 50, 75, 100].map(function (g) { return '<polygon points="' + poly([g, g, g, g]) + '" class="ic-rg"/>'; }).join('');
     var axes = [0, 1, 2, 3].map(function (i) { var p = pt(i, 100); return '<line x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '" class="ic-ax"/>'; }).join('');
-    var lab = [['Accountability', 'text-anchor:middle', 0, -14], ['Procurement', 'text-anchor:start', 12, 4], ['Coordination', 'text-anchor:middle', 0, 24], ['Capital', 'text-anchor:end', -12, 4]].map(function (l, i) {
+    var lab = [['Accountability', 'text-anchor:middle', 0, -14], ['Procurement', 'text-anchor:end', 4, -12], ['Capital', 'text-anchor:middle', 0, 24], ['Coordination', 'text-anchor:start', -4, -12]].map(function (l, i) {
       var p = pt(i, 100); return '<text x="' + (p[0] + l[2]).toFixed(1) + '" y="' + (p[1] + l[3]).toFixed(1) + '" style="' + l[1] + '" class="ic-rl">' + l[0] + '</text>';
     }).join('');
     var dots = c.l.map(function (v, i) { var p = pt(i, v); return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4.5" fill="' + LEV[i].accent + '" stroke="#0F1428" stroke-width="1.5"/>'; }).join('');
@@ -225,7 +224,7 @@
     var f = filtered(), idx = f.map(function (x) { return x.id; }).indexOf(c.id);
 
     var benchSel = '<div class="ic-bench"><label class="ic-field"><span class="ic-lbl">Compare with</span><select class="ic-bsel">' +
-      [['income', 'Same income group'], ['tier', 'Same tier'], ['region', 'Same region'], ['all', 'Global (all countries)'], ['best', 'Best in class (TBD)'], ['country', 'Another country…']].map(function (o) { return '<option value="' + o[0] + '"' + (state.bench === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
+      [['income', 'Same income group'], ['tier', 'Same stage'], ['region', 'Same region'], ['all', 'Global (all countries)'], ['best', 'Best in class (TBD)'], ['country', 'Another country…']].map(function (o) { return '<option value="' + o[0] + '"' + (state.bench === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
       (state.bench === 'country' ? '<label class="ic-field"><span class="ic-sr">Country to compare</span><select class="ic-bcsel">' + C.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (state.benchId === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') +
       '<p class="ic-bnote">' + esc(bn.label) + (bn.n > 1 ? ' · ' + bn.n + ' countries' : '') + '</p></div>';
 
@@ -378,7 +377,7 @@
   function neededValue(m, T) {
     var f = num(m.floor), t = num(m.ceil), meth = String(m.method || '').toLowerCase();
     if (m.pass) return T;
-    if (m.id === '1A.4') { var pts = [[0, 100], [0.1, 80], [0.5, 60], [1, 40], [1.5, 1]]; for (var i = 0; i < pts.length - 1; i++) { var a = pts[i], b = pts[i + 1]; if (T <= a[1] && T >= b[1]) return a[0] + (a[1] - T) / (a[1] - b[1]) * (b[0] - a[0]); } return null; }
+    if (m.id === '1.A.4') { var pts = [[0, 100], [0.1, 80], [0.5, 60], [1, 40], [1.5, 1]]; for (var i = 0; i < pts.length - 1; i++) { var a = pts[i], b = pts[i + 1]; if (T <= a[1] && T >= b[1]) return a[0] + (a[1] - T) / (a[1] - b[1]) * (b[0] - a[0]); } return null; }
     if (f == null || t == null) return null;
     if (meth === 'log') return f > 0 ? f * Math.pow(t / f, (T - 1) / 99) : null;
     return f + (T - 1) / 99 * (t - f);
@@ -398,8 +397,8 @@
     }
     return r;
   }
-  var TYPE = { E: ['Enabling', 'e'], B: ['Behaviour', 'b'], K: ['Key impact model', 'k'] };
-  function typeTag(m) { var t = TYPE[m.type]; return t ? '<em class="ic-ty ' + t[1] + '">' + t[0] + '</em>' : ''; }
+  var TYPE = { E: ['Enabling condition', 'e'], B: ['Behaviour', 'b'], L: ['Leading-edge impact model', 'k'] };
+  function typeTag(m) { var t = TYPE[m.type]; return (t ? '<em class="ic-ty ' + t[1] + '">' + t[0] + '</em>' : '') + (m.key ? '<em class="ic-ty k">Key impact model</em>' : ''); }
   function indItem(m, c, bn) {
     var k = parseInt(m.id.charAt(0), 10) - 1, x = explain(m, c, bn), e = x.e, s = e.s;
     var rk = m.star ? null : indRank(m, c), ref = m.star ? null : x.ref;
@@ -574,7 +573,7 @@
     } else {
       var g = m.pass ? null : goalDesc(m.method, m.floor, m.ceil);
       if (m.pass) sc += '<div class="icm-gp"><b>Direct 1–100 score</b><span>The source composite is already on the IEI 1–100 scale, so no further transformation is applied.</span></div>';
-      if (m.id === '1A.4') sc += '<div class="icm-gp"><b>Custom piecewise scale</b><span>Larger subsidies score lower; see the breakpoints below.</span></div>';
+      if (m.id === '1.A.4') sc += '<div class="icm-gp"><b>Custom piecewise scale</b><span>Larger subsidies score lower; see the breakpoints below.</span></div>';
       if (m.star) sc += p(m.rationale);
       else {
         if (g) sc += '<div class="icm-gp"><b>' + esc(g.kind) + '</b><span>Floor ' + fmt(g.f) + ' → score 1 · ceiling ' + fmt(g.t) + ' → score 100</span><code>' + esc(g.formula) + '</code>' + (g.note ? '<span>' + esc(g.note) + '</span>' : '') + '</div>';

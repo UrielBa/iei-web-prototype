@@ -5,9 +5,8 @@
   if (!D || !K) return;
   var FLAGS = './Impact Economy Index_files/flags/4x3/', C = D.countries, M = D.meta, byId = {};
   C.forEach(function (c) { byId[c.id] = c; });
-  var LEVC = ['#3DCC7D', '#77DAD9', '#FFBD87', '#F094B5'];
-  var TBG = { 'Early stage': '#BFEDEC', 'Developing': '#77DAD9', 'Progressing': '#6478FF', 'Advanced': '#2942B5' };
-  var TFG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#0F1428', 'Advanced': '#fff' };
+  var LEVC = ['#3DCC7D', '#77DAD9', '#F094B5', '#FFBD87'];
+  var TBG = {}, TFG = {}; M.tiers.forEach(function (t) { TBG[t.name] = t.bg; TFG[t.name] = t.fg; });
   var LEVN = M.levers.map(function (l) { return l.name; });
   var REGMAP = { 'Europe': 'Europe & Middle East', 'Africa': 'Africa', 'Asia': 'Asia Pacific', 'Americas': 'Latin America' };
   var SICON = { 'Policymaker': 'government', 'Investor': 'investors', 'Philanthropy & DFI': 'blended-finance', 'Corporate': 'supply-demand', 'Ecosystem builder': 'community', 'Civil society & consumers': 'social-demand' };
@@ -18,7 +17,7 @@
   K.forEach(function (k) {
     var c = k.c && byId[k.c];
     k.tier = c ? c.tier : ''; k.region = c ? c.region : (REGMAP[k.reg] || k.reg);
-    k.drivers = uniq(k.i.map(function (x) { return x.slice(0, 2); }));
+    k.drivers = uniq(k.i.map(function (x) { return x.slice(0, 3); }));
     k.flag = c ? c.flag : '';
   });
 
@@ -31,7 +30,7 @@
       if (s.t === 'L') return k.drivers.some(function (d) { return d.charAt(0) === String(s.v); });
       return false;
     });
-    function rank(k) { var i = k.i[0]; return (s.t === 'I' ? i === s.v : s.t === 'D' ? i.slice(0, 2) === s.v : i.charAt(0) === String(s.v)) ? 0 : 1; }
+    function rank(k) { var i = k.i[0]; return (s.t === 'I' ? i === s.v : s.t === 'D' ? i.slice(0, 3) === s.v : i.charAt(0) === String(s.v)) ? 0 : 1; }
     return out.map(function (k, n) { return { k: k, n: n }; }).sort(function (a, b) { return rank(a.k) - rank(b.k) || a.n - b.n; }).map(function (x) { return x.k; });
   }
   function title(scope) {
@@ -173,9 +172,9 @@
   }
   var drvOpts = M.driverIds.map(function (id) { return [id, id + ' · ' + M.driverLabels[id].replace(/ \(e\.g\..*$/, '')]; });
   root.innerHTML = '<div class="cs-bar">' + sel('country', 'Country', uniq(K.map(function (k) { return k.cn; }))) + sel('stake', 'Stakeholder', uniq(K.map(function (k) { return k.s; }))) +
-    sel('driver', 'Driver', drvOpts) + sel('tier', 'Tier', M.tiers.map(function (t) { return t.name; })) + sel('region', 'Region', uniq(K.map(function (k) { return k.region; }))) +
+    sel('driver', 'Driver', drvOpts) + sel('tier', 'Stage', M.tiers.map(function (t) { return t.name; })) + sel('region', 'Region', uniq(K.map(function (k) { return k.region; }))) +
     '<button type="button" class="cs-reset">Reset</button></div><p class="cs-count" aria-live="polite"></p><div class="cs-grid"></div>' +
-    '<p class="cs-note">Working draft: first selection of case studies (November 2026). Tier is shown for countries in the 54-economy sample.</p>';
+    '<p class="cs-note">Working draft: first selection of case studies (November 2026). Maturity stage is shown for countries in the 54-economy sample.</p>';
   var grid = root.querySelector('.cs-grid'), count = root.querySelector('.cs-count');
   function render() {
     var L = K.filter(function (k) {

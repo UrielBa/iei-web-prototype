@@ -1,6 +1,6 @@
 /* Case studies from IEI_Case_Selection_consolidated_261116.xlsx (cases marked 'Yes' in the 'Pre-selected for report' column). Working draft, Nov 2026.
-   Indicator codes are converted to the site numbering (report Lever 3 Capital = site 4; report Lever 4 Coordination = site 3).
-   c = IEI country id when the country is in the 54-economy sample. i = site indicator codes (first = primary). b = short text, x = full text paragraphs. */
+   Indicator codes follow the report numbering (Lever 3 Capital Allocation & Deployment, Lever 4 Coordination & Support).
+   c = IEI country id when the country is in the 54-economy sample. i = indicator codes (first = primary). b = short text, x = full text paragraphs. */
 window.IEI_CASES=[
 {
 "id": 108,
@@ -12,8 +12,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Corporate",
 "i": [
-"1A.1",
-"1A.2"
+"1.A.1",
+"1.A.2"
 ],
 "b": "The Corporate Sustainability Reporting Directive (CSRD) is the most comprehensive mandatory sustainability reporting regime in the world.",
 "x": [
@@ -35,7 +35,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Corporate",
 "i": [
-"1A.3"
+"1.A.3"
 ],
 "b": "Sweden introduced a carbon tax in 1991 and raised it to SEK 1,190 (about US$126) per tonne of CO2 by 2020, among the highest rates in the world. It raised SEK 22.2 billion in 2019, about 1% of tax revenue.",
 "x": [
@@ -54,8 +54,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "",
 "i": [
-"1A.4",
-"4C.2"
+"1.A.4",
+"3.C.2"
 ],
 "b": "In 2013 Egypt spent about US$21 billion on fuel subsidies, roughly 22% of the budget and 6% of GDP, and the richest fifth of households received 46% of the benefit while the poorest fifth received 9%.",
 "x": [
@@ -74,7 +74,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "",
 "i": [
-"1B.1"
+"1.B.1"
 ],
 "b": "Indonesia's Ministry of Finance has run a climate budget tagging system since 2016. It builds adaptation and resilience finance into government planning and budgeting, and tracks planned against actual climate-related spending.",
 "x": [
@@ -93,7 +93,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"1C.1"
+"1.C.1"
 ],
 "b": "Since 2024 about 200 of New Zealand's largest companies, insurers, banks and fund managers have been legally required to disclose climate-related risks and opportunities under the Aotearoa New Zealand Climate Standards, which are…",
 "x": [
@@ -112,8 +112,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"1C.1",
-"4A.1"
+"1.C.1",
+"3.A.1"
 ],
 "b": "South Africa was one of the first countries to write sustainability into the legal duties of pension fund trustees.",
 "x": [
@@ -135,8 +135,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "",
 "i": [
-"2B.1",
-"2B.2"
+"2.B.1",
+"2.B.2"
 ],
 "b": "Costa Rica has spent more than a decade building sustainable public procurement into the way the state buys.",
 "x": [
@@ -158,7 +158,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Corporate",
 "i": [
-"2B.1"
+"2.B.1"
 ],
 "b": "Peru has rewritten its public procurement law to make sustainability one of its founding principles.",
 "x": [
@@ -185,7 +185,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Corporate",
 "i": [
-"2B.2"
+"2.B.2"
 ],
 "b": "Introduced in 2018, Victoria's Social Procurement Framework was Australia's first whole-of-government policy to embed social and sustainable objectives in public procurement.",
 "x": [
@@ -204,8 +204,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Corporate",
 "i": [
-"2B.2",
-"2B.1"
+"2.B.2",
+"2.B.1"
 ],
 "b": "Chile uses public purchasing to open markets to firms that are usually left out. ChileCompra, the central procurement authority under the Ministry of Finance, runs Mercado Público, a single online platform through which the state…",
 "x": [
@@ -227,8 +227,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor; Philanthropy & DFI",
 "i": [
-"2B.3",
-"2B.4"
+"2.B.3",
+"2.B.4"
 ],
 "b": "Colombia has moved step by step from testing pay-for-results contracts to building them into government.",
 "x": [
@@ -251,8 +251,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"2B.4",
-"2B.3"
+"2.B.4",
+"2.B.3"
 ],
 "b": "The Better Futures Fund is the largest outcomes fund ever launched. Announced by the UK government in July 2025 and managed by the Department for Culture, Media and Sport, it commits £500 million over ten years to tackle child…",
 "x": [
@@ -275,7 +275,7 @@ window.IEI_CASES=[
 "s": "Civil society & consumers",
 "sa": "Corporate",
 "i": [
-"2C.2"
+"2.C.2"
 ],
 "b": "Swiss shoppers spent CHF 1,011 million on Fairtrade-certified products in 2024, up 4% on the year and above CHF 1 billion for the first time.",
 "x": [
@@ -294,7 +294,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"4A.1"
+"3.A.1"
 ],
 "b": "France has built the world's largest retail market for social investment by using regulation to route a small share of everyday savings into social enterprises.",
 "x": [
@@ -316,7 +316,7 @@ window.IEI_CASES=[
 "s": "Investor",
 "sa": "Philanthropy & DFI",
 "i": [
-"4A.1"
+"3.A.1"
 ],
 "b": "Ghana's pension funds hold around US$7 billion, yet almost none of it reaches the small businesses that create most jobs.",
 "x": [
@@ -339,8 +339,8 @@ window.IEI_CASES=[
 "s": "Investor",
 "sa": "Policymaker",
 "i": [
-"4B.2",
-"4B.1"
+"3.B.2",
+"3.B.1"
 ],
 "b": "Malaysia has brought together Islamic finance and sustainable finance, two of the fastest-growing segments of global capital markets.",
 "x": [
@@ -363,7 +363,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"4B.3"
+"3.B.3"
 ],
 "b": "In 2014 the UK became the first country to introduce a tax incentive designed specifically for social investment.",
 "x": [
@@ -385,7 +385,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"4C"
+"3.C"
 ],
 "b": "In 2016 the Indian government committed INR 10,000 crore (about USD 1.2 billion) to a Fund of Funds for Startups managed by SIDBI, the state-owned MSME development bank.",
 "x": [
@@ -404,7 +404,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"4C.1"
+"3.C.1"
 ],
 "b": "Nigeria has used government borrowing to fund climate projects and to build a green bond market at home. In December 2017 it issued NGN 10.69 billion of green bonds, the first sovereign green bond in Africa.",
 "x": [
@@ -423,7 +423,7 @@ window.IEI_CASES=[
 "s": "Philanthropy & DFI",
 "sa": "Investor",
 "i": [
-"4D.2"
+"3.D.2"
 ],
 "b": "Fundación Bancolombia, the corporate foundation of Colombia's largest commercial bank, has a 50-year mandate focused on rural development.",
 "x": [
@@ -442,7 +442,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Corporate",
 "i": [
-"4E.1"
+"3.E.1"
 ],
 "b": "The first national adoption of the benefit corporation model: a company structure that pursues both profit and common benefit.",
 "x": [
@@ -461,8 +461,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Corporate",
 "i": [
-"4E.2",
-"4E.1"
+"3.E.2",
+"3.E.1"
 ],
 "b": "Requires local governments to plan support for social enterprises, including tax reductions and exemptions.",
 "x": [
@@ -481,7 +481,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Ecosystem builder",
 "i": [
-"3A.1"
+"4.A.1"
 ],
 "b": "Brazil has one of the world's most ambitious national strategies for the impact economy. The National Impact Economy Strategy (Enimpacto), set by presidential decree in 2023, is backed by a ten-year plan for 2023–2032 with…",
 "x": [
@@ -509,7 +509,7 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Ecosystem builder",
 "i": [
-"3A.1"
+"4.A.1"
 ],
 "b": "Portugal is one of the few countries with a dedicated national strategy to grow social innovation and impact investment, and one of the longest-running.",
 "x": [
@@ -528,8 +528,8 @@ window.IEI_CASES=[
 "s": "Policymaker",
 "sa": "Investor",
 "i": [
-"3B.1",
-"4B.4"
+"4.B.1",
+"3.B.4"
 ],
 "b": "Spain has created a public fund to build its impact investment market. The Social Impact Fund (Fondo de Impacto Social, FIS) was approved in June 2024 with €400 million from Spain's Recovery, Transformation and Resilience Plan,…",
 "x": [
@@ -551,7 +551,7 @@ window.IEI_CASES=[
 "s": "Civil society & consumers",
 "sa": "Policymaker",
 "i": [
-"3C.1"
+"4.C.1"
 ],
 "b": "Research by the Green Finance Institute and the University of Leeds finds that 19 UK councils raised more than £30 million through Community Municipal Investments: direct financing of local authorities by citizens and…",
 "x": [
@@ -562,4 +562,4 @@ window.IEI_CASES=[
 }
 ];
 /* Case photos: openly licensed images from Wikimedia Commons (hotlinked), with author and licence for attribution. */
-window.IEI_CASE_PHOTOS={"7": {"u": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Banjir_Jakarta_2013.jpeg", "p": "https://commons.wikimedia.org/wiki/File:Banjir_Jakarta_2013.jpeg", "l": "CC BY-SA 3.0", "a": "Thedonz at Indonesian Wikipedia", "c": "Flooding in Jakarta, 2013: adaptation to floods is a priority of the National Adaptation Plan"}, "11": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/New_Zealand_Exchange_1.jpg/960px-New_Zealand_Exchange_1.jpg", "p": "https://commons.wikimedia.org/wiki/File:New_Zealand_Exchange_1.jpg", "l": "CC BY-SA 3.0", "a": "Ulrich Lange", "c": "New Zealand's stock exchange, Wellington: listed issuers are among the entities that must report"}, "19": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Ministerio_de_Econom%C3%ADa_y_Finanzas_%28MEF%29.jpg/960px-Ministerio_de_Econom%C3%ADa_y_Finanzas_%28MEF%29.jpg", "p": "https://commons.wikimedia.org/wiki/File:Ministerio_de_Econom%C3%ADa_y_Finanzas_(MEF).jpg", "l": "CC BY-SA 4.0", "a": "Carlos Conislla", "c": "Ministry of Economy and Finance, Lima, which leads Peru's public procurement system"}, "32": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3e/ADIC_Centro_Social.jpg/960px-ADIC_Centro_Social.jpg", "p": "https://commons.wikimedia.org/wiki/File:ADIC_Centro_Social.jpg", "l": "CC BY-SA 4.0", "a": "Paulo David Santos Costa", "c": "A community social centre in Portugal: social-sector organisations are the programme's main recipients"}, "39": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Small_business_owner%2C_Taste_of_Ghana_Festival_2023.jpg/960px-Small_business_owner%2C_Taste_of_Ghana_Festival_2023.jpg", "p": "https://commons.wikimedia.org/wiki/File:Small_business_owner,_Taste_of_Ghana_Festival_2023.jpg", "l": "CC BY 4.0", "a": "Pambelle12", "c": "Ghanaian small-business owner: SMEs are the end recipients of Ci-Gaba's capital"}, "103": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/%E2%80%98La_Econom%C3%ADa_Social_para_una_Recuperaci%C3%B3n_Inclusiva%2C_Sostenible_y_Justa%E2%80%99_%2850678556796%29.jpg/960px-%E2%80%98La_Econom%C3%ADa_Social_para_una_Recuperaci%C3%B3n_Inclusiva%2C_Sostenible_y_Justa%E2%80%99_%2850678556796%29.jpg", "p": "https://commons.wikimedia.org/wiki/File:%E2%80%98La_Econom%C3%ADa_Social_para_una_Recuperaci%C3%B3n_Inclusiva,_Sostenible_y_Justa%E2%80%99_(50678556796).jpg", "l": "CC BY-SA 2.0", "a": "Castilla-La Mancha regional government", "c": "Spanish conference on the social economy in the recovery plan, the plan that finances the fund"}, "108": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Voting_session_at_the_European_Parliament_-_54007268622.jpg/960px-Voting_session_at_the_European_Parliament_-_54007268622.jpg", "p": "https://commons.wikimedia.org/wiki/File:Voting_session_at_the_European_Parliament_-_54007268622.jpg", "l": "CC BY 2.0", "a": "European Parliament", "c": "Plenary vote in the European Parliament, which co-legislates EU reporting rules such as the CSRD"}, "130": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Pal%C3%A1cio_do_Planalto_em_2020.jpg/960px-Pal%C3%A1cio_do_Planalto_em_2020.jpg", "p": "https://commons.wikimedia.org/wiki/File:Pal%C3%A1cio_do_Planalto_em_2020.jpg", "l": "CC BY 2.0", "a": "Senado Federal", "c": "Palácio do Planalto, Brasília: Enimpacto was set by presidential decree"}, "136": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/BIOPAP_S.r.l._Societ%C3%A0_Benefit_-_Headquarters.jpg/960px-BIOPAP_S.r.l._Societ%C3%A0_Benefit_-_Headquarters.jpg", "p": "https://commons.wikimedia.org/wiki/File:BIOPAP_S.r.l._Societ%C3%A0_Benefit_-_Headquarters.jpg", "l": "CC0", "a": "LIUCmar22", "c": "Headquarters of BIOPAP, an Italian company registered as a Società Benefit"}, "140": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/BOGOTA_CITY.jpg/960px-BOGOTA_CITY.jpg", "p": "https://commons.wikimedia.org/wiki/File:BOGOTA_CITY.jpg", "l": "CC BY-SA 4.0", "a": "Kevin Castañeda Villamil", "c": "Bogotá, one of the three cities where Empleando Futuro trained and placed job seekers"}, "145": {"u": "https://upload.wikimedia.org/wikipedia/commons/6/63/Dudley_Food_Bank_-_geograph.org.uk_-_5028887.jpg", "p": "https://commons.wikimedia.org/wiki/File:Dudley_Food_Bank_-_geograph.org.uk_-_5028887.jpg", "l": "CC BY-SA 2.0", "a": "Gordon Griffiths", "c": "Food bank in Dudley, England: the fund targets child poverty by paying for results"}, "146": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/The_Lamarsh_Lion_Community_Pub_-_geograph.org.uk_-_7471083.jpg/960px-The_Lamarsh_Lion_Community_Pub_-_geograph.org.uk_-_7471083.jpg", "p": "https://commons.wikimedia.org/wiki/File:The_Lamarsh_Lion_Community_Pub_-_geograph.org.uk_-_7471083.jpg", "l": "CC BY-SA 2.0", "a": "Glyn Baker", "c": "Community-owned pub in Lamarsh, Essex: community businesses could raise money under SITR"}, "148": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Seoul_City_Hall_from_Plaza.jpg/960px-Seoul_City_Hall_from_Plaza.jpg", "p": "https://commons.wikimedia.org/wiki/File:Seoul_City_Hall_from_Plaza.jpg", "l": "CC BY-SA 4.0", "a": "Tristan Surtel", "c": "Seoul City Hall: the law requires local governments to plan support for social enterprises"}, "151": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Mini-Grid_Bayelsa.jpg/960px-Mini-Grid_Bayelsa.jpg", "p": "https://commons.wikimedia.org/wiki/File:Mini-Grid_Bayelsa.jpg", "l": "CC BY-SA 4.0", "a": "Rupumped", "c": "Solar mini-grid in Bayelsa State: renewable energy is one of the project types the green bonds fund"}, "155": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Sungai-Sungai_Sabah_Solar-Panel-Station-02.jpg/960px-Sungai-Sungai_Sabah_Solar-Panel-Station-02.jpg", "p": "https://commons.wikimedia.org/wiki/File:Sungai-Sungai_Sabah_Solar-Panel-Station-02.jpg", "l": "CC BY-SA 3.0", "a": "CEphoto, Uwe Aranas", "c": "Solar power in Sabah, the state where the first green sukuk financed a 50 MW plant"}, "156": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Mernda_line_Level_Crossing_Removal_Project_elevated_rail_between_Preston_and_Bell%2C_Melbourne_2023.jpg/960px-Mernda_line_Level_Crossing_Removal_Project_elevated_rail_between_Preston_and_Bell%2C_Melbourne_2023.jpg", "p": "https://commons.wikimedia.org/wiki/File:Mernda_line_Level_Crossing_Removal_Project_elevated_rail_between_Preston_and_Bell,_Melbourne_2023.jpg", "l": "CC BY-SA 4.0", "a": "Gracchus250", "c": "Level Crossing Removal Project, Melbourne: Victorian state infrastructure is bought under the framework"}, "158": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Recoleccion_SJO.jpg/960px-Recoleccion_SJO.jpg", "p": "https://commons.wikimedia.org/wiki/File:Recoleccion_SJO.jpg", "l": "CC BY-SA 4.0", "a": "Aleat88", "c": "Recycling collection in San José: sustainable consumption is one strand of the national policy"}, "159": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/De_compras_en_Angelm%C3%B3.jpg/960px-De_compras_en_Angelm%C3%B3.jpg", "p": "https://commons.wikimedia.org/wiki/File:De_compras_en_Angelm%C3%B3.jpg", "l": "CC BY-SA 4.0", "a": "Mellodya", "c": "Small traders in Angelmó, Puerto Montt: the policy aims to open public purchasing to smaller firms"}, "162": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/JSE_2020.jpg/960px-JSE_2020.jpg", "p": "https://commons.wikimedia.org/wiki/File:JSE_2020.jpg", "l": "CC BY-SA 4.0", "a": "Nabucco Fisico", "c": "Johannesburg Stock Exchange, where much of South Africa's pension capital is invested"}, "178": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/R%C3%A9sidence_S%C3%A8ze_d%27Habitat_%26_Humanisme%2C_au_39_rue_De_S%C3%A8ze_%28Lyon%29.jpg/960px-R%C3%A9sidence_S%C3%A8ze_d%27Habitat_%26_Humanisme%2C_au_39_rue_De_S%C3%A8ze_%28Lyon%29.jpg", "p": "https://commons.wikimedia.org/wiki/File:R%C3%A9sidence_S%C3%A8ze_d%27Habitat_%26_Humanisme,_au_39_rue_De_S%C3%A8ze_(Lyon).jpg", "l": "CC0", "a": "Benoît Prieur", "c": "Habitat et Humanisme residence, Lyon: affordable housing is a typical solidarity-fund investment"}, "196": {"u": "https://upload.wikimedia.org/wikipedia/commons/3/37/Solar_Farm_View_-_geograph.org.uk_-_6511144.jpg", "p": "https://commons.wikimedia.org/wiki/File:Solar_Farm_View_-_geograph.org.uk_-_6511144.jpg", "l": "CC BY-SA 2.0", "a": "Gordon Griffiths", "c": "Solar farm in England: local clean energy is a typical use of Community Municipal Investments"}, "201": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Startup_Payanam_Team.jpg/960px-Startup_Payanam_Team.jpg", "p": "https://commons.wikimedia.org/wiki/File:Startup_Payanam_Team.jpg", "l": "CC BY-SA 4.0", "a": "VMDHINESH", "c": "Indian start-up founders: the fund of funds backs the venture funds that invest in them"}, "209": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Kneading_%22trama%22_in_the_fields_of_Cundinamarca%2C_Colombia.jpg/960px-Kneading_%22trama%22_in_the_fields_of_Cundinamarca%2C_Colombia.jpg", "p": "https://commons.wikimedia.org/wiki/File:Kneading_%22trama%22_in_the_fields_of_Cundinamarca,_Colombia.jpg", "l": "CC BY-SA 4.0", "a": "SeñorFrodo", "c": "Rural food producers in Cundinamarca: rural development is the foundation's focus"}, "244": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Misr_gas_station_in_Safeya_Zaghloul_Street%2C_Alexandria_at_night.jpg/960px-Misr_gas_station_in_Safeya_Zaghloul_Street%2C_Alexandria_at_night.jpg", "p": "https://commons.wikimedia.org/wiki/File:Misr_gas_station_in_Safeya_Zaghloul_Street,_Alexandria_at_night.jpg", "l": "CC BY 4.0", "a": "Marsupium", "c": "Fuel station in Alexandria: petrol, diesel and kerosene prices rose sharply in 2014"}, "246": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Hedemora_district_heating_plant_by_night.jpg/960px-Hedemora_district_heating_plant_by_night.jpg", "p": "https://commons.wikimedia.org/wiki/File:Hedemora_district_heating_plant_by_night.jpg", "l": "CC BY 3.0", "a": "Calle Eklund/V-wolf", "c": "District heating plant in Hedemora, Sweden: heating is one of the sectors where the carbon tax applies"}, "247": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Fairtrade-m%C3%A4rkta_bananer.jpg/960px-Fairtrade-m%C3%A4rkta_bananer.jpg", "p": "https://commons.wikimedia.org/wiki/File:Fairtrade-m%C3%A4rkta_bananer.jpg", "l": "CC BY-SA 4.0", "a": "Juliamh123", "c": "Fairtrade-certified bananas, one of the products driving Swiss Fairtrade sales"}};
+window.IEI_CASE_PHOTOS={"7": {"u": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Banjir_Jakarta_2013.jpeg", "p": "https://commons.wikimedia.org/wiki/File:Banjir_Jakarta_2013.jpeg", "l": "CC BY-SA 3.0", "a": "Thedonz at Indonesian Wikipedia", "c": "Flooding in Jakarta, 2013: the kind of climate risk the National Adaptation Plan responds to"}, "11": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/New_Zealand_Exchange_1.jpg/960px-New_Zealand_Exchange_1.jpg", "p": "https://commons.wikimedia.org/wiki/File:New_Zealand_Exchange_1.jpg", "l": "CC BY-SA 3.0", "a": "Ulrich Lange", "c": "New Zealand's stock exchange, Wellington: listed issuers are among the entities that must report"}, "19": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Ministerio_de_Econom%C3%ADa_y_Finanzas_%28MEF%29.jpg/960px-Ministerio_de_Econom%C3%ADa_y_Finanzas_%28MEF%29.jpg", "p": "https://commons.wikimedia.org/wiki/File:Ministerio_de_Econom%C3%ADa_y_Finanzas_(MEF).jpg", "l": "CC BY-SA 4.0", "a": "Carlos Conislla", "c": "Ministry of Economy and Finance, Lima, which leads Peru's public procurement system"}, "32": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3e/ADIC_Centro_Social.jpg/960px-ADIC_Centro_Social.jpg", "p": "https://commons.wikimedia.org/wiki/File:ADIC_Centro_Social.jpg", "l": "CC BY-SA 4.0", "a": "Paulo David Santos Costa", "c": "A community social centre in Portugal: social-sector organisations are the programme's main recipients"}, "39": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/Small_business_owner%2C_Taste_of_Ghana_Festival_2023.jpg/960px-Small_business_owner%2C_Taste_of_Ghana_Festival_2023.jpg", "p": "https://commons.wikimedia.org/wiki/File:Small_business_owner,_Taste_of_Ghana_Festival_2023.jpg", "l": "CC BY 4.0", "a": "Pambelle12", "c": "Ghanaian small-business owner: SMEs are the end recipients of Ci-Gaba's capital"}, "103": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/%E2%80%98La_Econom%C3%ADa_Social_para_una_Recuperaci%C3%B3n_Inclusiva%2C_Sostenible_y_Justa%E2%80%99_%2850678556796%29.jpg/960px-%E2%80%98La_Econom%C3%ADa_Social_para_una_Recuperaci%C3%B3n_Inclusiva%2C_Sostenible_y_Justa%E2%80%99_%2850678556796%29.jpg", "p": "https://commons.wikimedia.org/wiki/File:%E2%80%98La_Econom%C3%ADa_Social_para_una_Recuperaci%C3%B3n_Inclusiva,_Sostenible_y_Justa%E2%80%99_(50678556796).jpg", "l": "CC BY-SA 2.0", "a": "Castilla-La Mancha regional government", "c": "Spanish conference on the social economy in the recovery plan, the plan that finances the fund"}, "108": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Voting_session_at_the_European_Parliament_-_54007268622.jpg/960px-Voting_session_at_the_European_Parliament_-_54007268622.jpg", "p": "https://commons.wikimedia.org/wiki/File:Voting_session_at_the_European_Parliament_-_54007268622.jpg", "l": "CC BY 2.0", "a": "European Parliament", "c": "Plenary vote in the European Parliament, which co-legislates EU reporting rules such as the CSRD"}, "130": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Pal%C3%A1cio_do_Planalto_em_2020.jpg/960px-Pal%C3%A1cio_do_Planalto_em_2020.jpg", "p": "https://commons.wikimedia.org/wiki/File:Pal%C3%A1cio_do_Planalto_em_2020.jpg", "l": "CC BY 2.0", "a": "Senado Federal", "c": "Palácio do Planalto, Brasília: Enimpacto was set by presidential decree"}, "136": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/BIOPAP_S.r.l._Societ%C3%A0_Benefit_-_Headquarters.jpg/960px-BIOPAP_S.r.l._Societ%C3%A0_Benefit_-_Headquarters.jpg", "p": "https://commons.wikimedia.org/wiki/File:BIOPAP_S.r.l._Societ%C3%A0_Benefit_-_Headquarters.jpg", "l": "CC0", "a": "LIUCmar22", "c": "Headquarters of BIOPAP, an Italian company registered as a Società Benefit"}, "140": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/BOGOTA_CITY.jpg/960px-BOGOTA_CITY.jpg", "p": "https://commons.wikimedia.org/wiki/File:BOGOTA_CITY.jpg", "l": "CC BY-SA 4.0", "a": "Kevin Castañeda Villamil", "c": "Bogotá, one of the three cities where Empleando Futuro trained and placed job seekers"}, "145": {"u": "https://upload.wikimedia.org/wikipedia/commons/6/63/Dudley_Food_Bank_-_geograph.org.uk_-_5028887.jpg", "p": "https://commons.wikimedia.org/wiki/File:Dudley_Food_Bank_-_geograph.org.uk_-_5028887.jpg", "l": "CC BY-SA 2.0", "a": "Gordon Griffiths", "c": "Food bank in Dudley, England: the fund targets child poverty by paying for results"}, "146": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/The_Lamarsh_Lion_Community_Pub_-_geograph.org.uk_-_7471083.jpg/960px-The_Lamarsh_Lion_Community_Pub_-_geograph.org.uk_-_7471083.jpg", "p": "https://commons.wikimedia.org/wiki/File:The_Lamarsh_Lion_Community_Pub_-_geograph.org.uk_-_7471083.jpg", "l": "CC BY-SA 2.0", "a": "Glyn Baker", "c": "Community-owned pub in Lamarsh, Essex: community businesses could raise money under SITR"}, "148": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Seoul_City_Hall_from_Plaza.jpg/960px-Seoul_City_Hall_from_Plaza.jpg", "p": "https://commons.wikimedia.org/wiki/File:Seoul_City_Hall_from_Plaza.jpg", "l": "CC BY-SA 4.0", "a": "Tristan Surtel", "c": "Seoul City Hall: the law requires local governments to plan support for social enterprises"}, "151": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Mini-Grid_Bayelsa.jpg/960px-Mini-Grid_Bayelsa.jpg", "p": "https://commons.wikimedia.org/wiki/File:Mini-Grid_Bayelsa.jpg", "l": "CC BY-SA 4.0", "a": "Rupumped", "c": "Solar mini-grid in Bayelsa State: renewable energy is one of the project types the green bonds fund"}, "155": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Sungai-Sungai_Sabah_Solar-Panel-Station-02.jpg/960px-Sungai-Sungai_Sabah_Solar-Panel-Station-02.jpg", "p": "https://commons.wikimedia.org/wiki/File:Sungai-Sungai_Sabah_Solar-Panel-Station-02.jpg", "l": "CC BY-SA 3.0", "a": "CEphoto, Uwe Aranas", "c": "Solar power in Sabah, the state where the first green sukuk financed a 50 MW plant"}, "156": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Mernda_line_Level_Crossing_Removal_Project_elevated_rail_between_Preston_and_Bell%2C_Melbourne_2023.jpg/960px-Mernda_line_Level_Crossing_Removal_Project_elevated_rail_between_Preston_and_Bell%2C_Melbourne_2023.jpg", "p": "https://commons.wikimedia.org/wiki/File:Mernda_line_Level_Crossing_Removal_Project_elevated_rail_between_Preston_and_Bell,_Melbourne_2023.jpg", "l": "CC BY-SA 4.0", "a": "Gracchus250", "c": "Level Crossing Removal Project, Melbourne: Victorian state infrastructure is bought under the framework"}, "158": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Recoleccion_SJO.jpg/960px-Recoleccion_SJO.jpg", "p": "https://commons.wikimedia.org/wiki/File:Recoleccion_SJO.jpg", "l": "CC BY-SA 4.0", "a": "Aleat88", "c": "Recycling collection in San José: sustainable consumption is one strand of the national policy"}, "159": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/De_compras_en_Angelm%C3%B3.jpg/960px-De_compras_en_Angelm%C3%B3.jpg", "p": "https://commons.wikimedia.org/wiki/File:De_compras_en_Angelm%C3%B3.jpg", "l": "CC BY-SA 4.0", "a": "Mellodya", "c": "Small traders in Angelmó, Puerto Montt: the policy aims to open public purchasing to smaller firms"}, "162": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/JSE_2020.jpg/960px-JSE_2020.jpg", "p": "https://commons.wikimedia.org/wiki/File:JSE_2020.jpg", "l": "CC BY-SA 4.0", "a": "Nabucco Fisico", "c": "Johannesburg Stock Exchange: Regulation 28 governs how pension funds invest, including in listed shares"}, "178": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/R%C3%A9sidence_S%C3%A8ze_d%27Habitat_%26_Humanisme%2C_au_39_rue_De_S%C3%A8ze_%28Lyon%29.jpg/960px-R%C3%A9sidence_S%C3%A8ze_d%27Habitat_%26_Humanisme%2C_au_39_rue_De_S%C3%A8ze_%28Lyon%29.jpg", "p": "https://commons.wikimedia.org/wiki/File:R%C3%A9sidence_S%C3%A8ze_d%27Habitat_%26_Humanisme,_au_39_rue_De_S%C3%A8ze_(Lyon).jpg", "l": "CC0", "a": "Benoît Prieur", "c": "Habitat et Humanisme residence, Lyon: affordable housing is a typical solidarity-fund investment"}, "196": {"u": "https://upload.wikimedia.org/wikipedia/commons/3/37/Solar_Farm_View_-_geograph.org.uk_-_6511144.jpg", "p": "https://commons.wikimedia.org/wiki/File:Solar_Farm_View_-_geograph.org.uk_-_6511144.jpg", "l": "CC BY-SA 2.0", "a": "Gordon Griffiths", "c": "Solar farm in England: local clean energy is a typical use of Community Municipal Investments"}, "201": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Startup_Payanam_Team.jpg/960px-Startup_Payanam_Team.jpg", "p": "https://commons.wikimedia.org/wiki/File:Startup_Payanam_Team.jpg", "l": "CC BY-SA 4.0", "a": "VMDHINESH", "c": "Indian start-up founders: the fund of funds backs the venture funds that invest in them"}, "209": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Kneading_%22trama%22_in_the_fields_of_Cundinamarca%2C_Colombia.jpg/960px-Kneading_%22trama%22_in_the_fields_of_Cundinamarca%2C_Colombia.jpg", "p": "https://commons.wikimedia.org/wiki/File:Kneading_%22trama%22_in_the_fields_of_Cundinamarca,_Colombia.jpg", "l": "CC BY-SA 4.0", "a": "SeñorFrodo", "c": "Rural food producers in Cundinamarca: rural development is the foundation's focus"}, "244": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Misr_gas_station_in_Safeya_Zaghloul_Street%2C_Alexandria_at_night.jpg/960px-Misr_gas_station_in_Safeya_Zaghloul_Street%2C_Alexandria_at_night.jpg", "p": "https://commons.wikimedia.org/wiki/File:Misr_gas_station_in_Safeya_Zaghloul_Street,_Alexandria_at_night.jpg", "l": "CC BY 4.0", "a": "Marsupium", "c": "Fuel station in Alexandria: petrol, diesel and kerosene prices rose sharply in 2014"}, "246": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Hedemora_district_heating_plant_by_night.jpg/960px-Hedemora_district_heating_plant_by_night.jpg", "p": "https://commons.wikimedia.org/wiki/File:Hedemora_district_heating_plant_by_night.jpg", "l": "CC BY 3.0", "a": "Calle Eklund/V-wolf", "c": "District heating plant in Hedemora, Sweden: heating is one of the sectors where the carbon tax applies"}, "247": {"u": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Fairtrade-m%C3%A4rkta_bananer.jpg/960px-Fairtrade-m%C3%A4rkta_bananer.jpg", "p": "https://commons.wikimedia.org/wiki/File:Fairtrade-m%C3%A4rkta_bananer.jpg", "l": "CC BY-SA 4.0", "a": "Juliamh123", "c": "Fairtrade-certified bananas, one of the products driving Swiss Fairtrade sales"}};

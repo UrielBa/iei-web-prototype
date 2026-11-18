@@ -3,10 +3,10 @@
 'use strict';
 document.documentElement.classList.add('js');
 var D=window.IEI_DATA,C=D&&D.countries||[],T=D&&D.meta&&D.meta.tiers;
-var LC=['#3DCC7D','#77DAD9','#FFBD87','#F094B5'],LN=['Accountability & Transparency','Procurement & Demand','Coordination & Support','Capital Allocation & Deployment'];
-var TC=['#BFEDEC','#77DAD9','#6478FF','#2942B5'],TN=['Early stage','Developing','Progressing','Advanced'];
+var LC=['#3DCC7D','#77DAD9','#F094B5','#FFBD87'],LN=['Accountability & Transparency','Procurement & Demand','Capital Allocation & Deployment','Coordination & Support'];
+var ST=T||[],TC=ST.map(function(t){return t.bg}),TN=ST.map(function(t){return t.name}),TR=ST.map(function(t){return t.min+'–'+t.max});
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
-function tier(x){return x<40?0:x<50?1:x<60?2:3}
+function tier(x){for(var i=ST.length-1;i>0;i--)if(x>=ST[i].min)return i;return 0}
 function avg(a){return a.reduce(function(p,c){return p+c},0)/(a.length||1)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
@@ -38,12 +38,12 @@ if(C.length){
   var el=$('#sStats');
   if(el){
     var sc=C.map(function(c){return c.score}),n=C.length;
-    var counts=[0,0,0,0];C.forEach(function(c){counts[tier(c.score)]++});
-    var stats=[[n,'countries assessed'],['14','policy drivers across 4 levers'],[Math.round(avg(sc)),'average score out of 100'],[Math.min.apply(null,sc)+'–'+Math.max.apply(null,sc),'score range, lowest to highest']];
+    var counts=ST.map(function(){return 0});C.forEach(function(c){counts[tier(c.score)]++});
+    var stats=[[n,'countries assessed'],['14','drivers and 38 indicators across 4 levers'],[Math.round(avg(sc)),'average score on a 1–100 scale'],[Math.min.apply(null,sc)+'–'+Math.max.apply(null,sc),'score range, lowest to highest']];
     el.innerHTML=stats.map(function(s,i){return '<div class="s-stat s-reveal" data-d="'+(i%4)+'"><b data-n="'+esc(s[0])+'">'+esc(s[0])+'</b><span>'+esc(s[1])+'</span></div>'}).join('')+
-      '<div class="s-tiers s-reveal"><p>Countries by readiness tier</p><div class="s-tbar" role="img" aria-label="'+TN.map(function(t,i){return counts[i]+' '+t}).join(', ')+'">'+
+      '<div class="s-tiers s-reveal"><p>Countries by maturity stage</p><div class="s-tbar" role="img" aria-label="'+TN.map(function(t,i){return counts[i]+' '+t}).join(', ')+'">'+
       counts.map(function(k,i){return '<i style="flex:'+k+';background:'+TC[i]+'" title="'+TN[i]+': '+k+'"></i>'}).join('')+'</div><div class="s-tleg">'+
-      counts.map(function(k,i){return '<span><i style="background:'+TC[i]+'"></i>'+TN[i]+' <small>'+k+' · '+(i==0?'<40':i==1?'40–49':i==2?'50–59':'≥60')+'</small></span>'}).join('')+'</div></div>';
+      counts.map(function(k,i){return '<span><i style="background:'+TC[i]+'"></i>'+TN[i]+' <small>'+k+' · '+TR[i]+'</small></span>'}).join('')+'</div></div>';
     $$('.s-reveal',el).forEach(function(r){if('IntersectionObserver' in window)io.observe(r);else r.classList.add('s-in')});
     // count-up
     var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -60,52 +60,55 @@ $$('.s-chip').forEach(function(c){c.addEventListener('click',function(){
 })});
 
 /* ---- how to read: tier list ---- */
-(function(){var ul=$('#sTierList');if(!ul||!C.length)return;var k=[0,0,0,0];C.forEach(function(c){k[tier(c.score)]++});
-  var rg=['below 40','40–49','50–59','60 and above'];
-  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+t+'</b><span>'+rg[i]+'</span><em>'+k[i]+' countries</em></li>'}).join('')})();
+(function(){var ul=$('#sTierList');if(!ul||!C.length)return;var k=ST.map(function(){return 0});C.forEach(function(c){k[tier(c.score)]++});
+  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+ST[i].stage+'. '+t+'</b><span>'+TR[i]+'</span><em>'+k[i]+' '+(k[i]===1?'country':'countries')+'</em></li>'}).join('')})();
 
 /* ---- insights (evidence computed from data) ---- */
 function insights(){
   if(!C.length)return;
-  // F1: lever correlation heat (pairwise r)
-  function corr(a,b){var ma=avg(a),mb=avg(b),n=0,da=0,db=0;a.forEach(function(x,i){n+=(x-ma)*(b[i]-mb);da+=Math.pow(x-ma,2);db+=Math.pow(b[i]-mb,2)});return n/Math.sqrt(da*db)}
-  var L=[0,1,2,3].map(function(k){return C.map(function(c){return c.l[k]})});
-  var rs=[],pairs=[];for(var i=0;i<4;i++)for(var j=i+1;j<4;j++){var r=corr(L[i],L[j]);rs.push(r);pairs.push([i,j,r])}
-  // F1: enabling (x) vs behaviour (y), coloured by income group
-  var IC={'High Income':'#2942B5','Upper Middle Income':'#6478FF','Lower Middle Income':'#3DCC7D','Low Income':'#FFBD87'},IN={'High Income':'High','Upper Middle Income':'Upper-middle','Lower Middle Income':'Lower-middle','Low Income':'Low'};
-  var P=C.filter(function(c){return c.e!=null&&c.b!=null});
-  var ex=P.map(function(c){return c.e}),bx=P.map(function(c){return c.b}),rEB=corr(ex,bx),me=avg(ex),mb=avg(bx);
-  var lo=Math.floor(Math.min(Math.min.apply(null,ex),Math.min.apply(null,bx))/10)*10,hi=Math.ceil(Math.max(Math.max.apply(null,ex),Math.max.apply(null,bx))/10)*10;
-  var S=260,pd=30,sx=function(v){return pd+(v-lo)/(hi-lo)*(S-pd-8)},sy=function(v){return S-pd-(v-lo)/(hi-lo)*(S-pd-8)};
-  var sc='<svg class="s-scat" viewBox="0 0 '+S+' '+S+'" role="img" aria-label="Enabling conditions score against behaviour score for '+P.length+' countries">';
-  for(var t=lo;t<=hi;t+=10){sc+='<line x1="'+sx(t)+'" x2="'+sx(t)+'" y1="'+sy(lo)+'" y2="'+sy(hi)+'" stroke="#EEECE8"/><line y1="'+sy(t)+'" y2="'+sy(t)+'" x1="'+sx(lo)+'" x2="'+sx(hi)+'" stroke="#EEECE8"/><text x="'+sx(t)+'" y="'+(S-pd+14)+'" text-anchor="middle">'+t+'</text><text x="'+(pd-5)+'" y="'+(sy(t)+3)+'" text-anchor="end">'+t+'</text>'}
-  sc+='<line x1="'+sx(lo)+'" y1="'+sy(lo)+'" x2="'+sx(hi)+'" y2="'+sy(hi)+'" stroke="#0F1428" stroke-dasharray="3 3" opacity=".35"/>';
-  sc+='<line x1="'+sx(me)+'" x2="'+sx(me)+'" y1="'+sy(lo)+'" y2="'+sy(hi)+'" stroke="#9AA0B2" stroke-width=".8"/><line y1="'+sy(mb)+'" y2="'+sy(mb)+'" x1="'+sx(lo)+'" x2="'+sx(hi)+'" stroke="#9AA0B2" stroke-width=".8"/>';
-  sc+='<text class="ax" x="'+sx(hi)+'" y="'+(S-2)+'" text-anchor="end">Enabling conditions →</text><text class="ax" x="'+(pd+4)+'" y="'+(sy(hi)+9)+'">↑ Behaviour</text>';
-  P.forEach(function(c){sc+='<circle class="s-dot" tabindex="0" cx="'+sx(c.e).toFixed(1)+'" cy="'+sy(c.b).toFixed(1)+'" r="4.3" fill="'+(IC[c.income]||'#999')+'" stroke="#fff" stroke-width=".8" data-c="'+c.id+'" data-k="eb" aria-label="'+esc(c.name)+'"></circle>'});
-  sc+='</svg><div class="s-scleg">'+Object.keys(IC).filter(function(k){return P.some(function(c){return c.income===k})}).map(function(k){return '<span><i style="background:'+IC[k]+'"></i>'+IN[k]+'</span>'}).join('')+'</div>';
-  var ahead=P.filter(function(c){return c.e>c.b}).length;
-  var e1=sc+'<p class="s-cap">Enabling conditions and behaviour move together (r = '+rEB.toFixed(2)+'), but in '+ahead+' of '+P.length+' countries policies are ahead of practice (dots below the dashed line).<small>Each dot is a country, coloured by income group. Grey lines mark the averages. An association, not evidence of cause and effect.</small></p>';
-  // F2: tiers by income swarm-ish strip
+  var IND=window.IEI_IND||{inds:[],vals:{}},TT=function(x){return window.IEI_T?window.IEI_T(x):x};
+  function dotSvg(list,opt){// one-row swarm on the 1-100 scale with stage bands
+    var W=300,x0=6,x1=W-6,H=opt.h||92,cy=opt.cy||42,X=function(v){return x0+(v-1)/99*(x1-x0)};
+    var sv='<svg class="s-swarm s-stagestrip" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(opt.label)+'">';
+    ST.forEach(function(t,i){var a=X(t.min),b=X(Math.min(100,t.max+0.1));sv+='<rect x="'+a.toFixed(1)+'" y="4" width="'+(b-a).toFixed(1)+'" height="'+(cy*2-8)+'" fill="'+t.bg+'" opacity="'+(i>=4?'.13':'.3')+'"/><text x="'+((a+b)/2).toFixed(1)+'" y="'+(cy*2+10)+'" text-anchor="middle">'+esc(t.stage)+'</text>'});
+    [20,40,50,60,80].forEach(function(v){sv+='<line x1="'+X(v)+'" x2="'+X(v)+'" y1="4" y2="'+(cy*2-4)+'" stroke="#fff" stroke-width="1.2"/>'});
+    var placed=[];list.slice().sort(function(a,b){return a.score-b.score}).forEach(function(c){var x=X(c.score),off=0,k=0;
+      while(placed.some(function(p){return Math.abs(p.x-x)<7&&Math.abs(p.o-off)<7})){k++;off=(k%2?1:-1)*Math.ceil(k/2)*7;if(k>10)break}
+      placed.push({x:x,o:off});sv+='<circle class="s-dot" tabindex="0" cx="'+x.toFixed(1)+'" cy="'+(cy+off*.9).toFixed(1)+'" r="4.2" fill="'+TC[tier(c.score)]+'" stroke="#0F1428" stroke-opacity=".25" stroke-width=".6" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'});
+    return sv+'</svg>';
+  }
+  // M1: where the 54 countries sit across the six maturity stages
+  var cnt=ST.map(function(){return 0});C.forEach(function(c){cnt[tier(c.score)]++});
+  var e1=dotSvg(C,{label:'Country scores on the 1–100 scale, grouped by maturity stage',h:100,cy:44})+
+    '<p class="s-cap">No country has reached the Thriving stage (80 and above); the highest score is '+Math.max.apply(null,C.map(function(c){return c.score}))+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
+  // M2: indicator averages, foundations vs outcome-directing approaches
+  function iavg(id){var v=[];Object.keys(IND.vals).forEach(function(k){var e=IND.vals[k][id];if(e&&e.s!=null)v.push(e.s)});return v.length?avg(v):null}
+  var nm={};IND.inds.forEach(function(m){nm[m.id]=m.name});
+  var G=[['Foundations','#2942B5',['3.B.1','1.A.2','1.C.1','2.C.1']],['Directing capital and activity to outcomes','#F094B5',['2.B.3','3.E.3','3.B.4','3.E.4']]];
+  var e2='<div class="s-ibars">'+G.map(function(g){return '<p class="s-ibh"><i style="background:'+g[1]+'"></i>'+esc(g[0])+'</p>'+g[2].map(function(id){var m=iavg(id);if(m==null)return '';
+    return '<div class="s-bar" style="--c:'+g[1]+'"><span>'+esc(nm[id]||id)+'</span><b>'+m.toFixed(1)+'</b><div><span style="width:'+m.toFixed(1)+'%"></span></div></div>'}).join('')}).join('')+'</div>'+
+    '<p class="s-cap">Average indicator scores across '+C.length+' countries.<small>Foundations are the transparency, accountability and integrity mechanisms that make impact credible.</small></p>';
+  // M3: income groups
   var inc=[['High Income','High'],['Upper Middle Income','Upper-middle'],['Lower Middle Income','Lower-middle'],['Low Income','Low']],rows=[];
   inc.forEach(function(g){var cs=C.filter(function(c){return c.income===g[0]});if(cs.length)rows.push([g[1],cs])});
-  var W=300,x0=82,x1=W-8,min=25,max=80,rh=34,H=rows.length*rh+22;
+  var W=300,x0=82,x1=W-8,min=20,max=80,rh=34,H=rows.length*rh+22,LBL={GBR:1,FRA:1,FIN:1,RUS:1,SAU:1};
   function X(v){return x0+(v-min)/(max-min)*(x1-x0)}
   var sv='<svg class="s-swarm" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Country scores by income group">';
-  [40,50,60].forEach(function(t){sv+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="0" y2="'+(H-16)+'" stroke="#E2DFDA" stroke-dasharray="2 3"/><text x="'+X(t)+'" y="'+(H-4)+'" text-anchor="middle">'+t+'</text>'});
+  [20,40,50,60,80].forEach(function(t){sv+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="0" y2="'+(H-16)+'" stroke="#E2DFDA" stroke-dasharray="2 3"/><text x="'+X(t)+'" y="'+(H-4)+'" text-anchor="middle">'+t+'</text>'});
   rows.forEach(function(r,ri){var cy=ri*rh+16;sv+='<text class="rl" x="0" y="'+(cy+3)+'">'+r[0]+'</text><text x="0" y="'+(cy+14)+'">n = '+r[1].length+' · mean '+avg(r[1].map(function(c){return c.score})).toFixed(0)+'</text>';
     var placed=[];r[1].sort(function(a,b){return a.score-b.score}).forEach(function(c){var x=X(c.score),off=0,k=0;
       while(placed.some(function(p){return Math.abs(p.x-x)<7&&Math.abs(p.o-off)<7})){k++;off=(k%2?1:-1)*Math.ceil(k/2)*7;if(k>8)break}
-      placed.push({x:x,o:off});sv+='<circle class="s-dot" tabindex="0" cx="'+x.toFixed(1)+'" cy="'+(cy+off*.9).toFixed(1)+'" r="4.2" fill="'+TC[tier(c.score)]+'" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'})});
+      placed.push({x:x,o:off});sv+='<circle class="s-dot'+(LBL[c.id]?' hl':'')+'" tabindex="0" cx="'+x.toFixed(1)+'" cy="'+(cy+off*.9).toFixed(1)+'" r="4.2" fill="'+TC[tier(c.score)]+'" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'})});
   sv+='</svg>';
-  var hi=rows.length?rows[0][1]:[],lo=rows.length?rows[rows.length-1][1]:[];
-  var rng=function(a){return Math.min.apply(null,a.map(function(c){return c.score}))+'–'+Math.max.apply(null,a.map(function(c){return c.score}))};
-  var e2=sv+'<p class="s-cap">High-income economies span the whole scale ('+rng(rows[0][1])+'); every income group has overlap.<small>Each dot is a country, coloured by tier. Hover for the name.</small></p>';
-  // F3: lever means
-  var means=L.map(avg),lo4=means.indexOf(Math.min.apply(null,means));
-  var e3='<div class="s-bars">'+means.map(function(m,k){return '<div class="s-bar'+(k===lo4?' low':'')+'" style="--c:'+LC[k]+'"><span>'+LN[k]+'</span><b>'+m.toFixed(1)+'</b><div><span style="width:'+m.toFixed(1)+'%"></span></div></div>'}).join('')+'</div>'+
-    '<p class="s-cap">'+LN[lo4]+' is the weakest lever globally, '+(Math.max.apply(null,means)-means[lo4]).toFixed(0)+' points behind the strongest.<small>Average lever score across '+C.length+' countries.</small></p>';
-  var ev=[e1,e2,e3];
+  var by={};C.forEach(function(c){by[c.id]=c});
+  var adv=C.filter(function(c){return c.tier===TN[4]}),advHi=adv.filter(function(c){return c.income==='High Income'}).length;
+  var chip=function(id){var c=by[id];return c?'<button type="button" class="s-cchip" data-c="'+c.id+'" data-dtip-go="'+c.id+'"><img src="./Impact Economy Index_files/flags/4x3/'+c.flag+'.svg" alt="">'+esc(TT(c.name))+' <b>'+c.score+'</b></button>':''};
+  var e3=sv+'<div class="s-cchips"><span>'+esc(TT('Above income peers'))+'</span>'+['GBR','FRA','FIN'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below GDP-predicted score'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
+    '<p class="s-cap">'+(advHi===adv.length?'All '+adv.length+' Advanced countries are high-income':advHi+' of '+adv.length+' Advanced countries are high-income')+', yet high-income economies range from '+Math.min.apply(null,rows[0][1].map(function(c){return c.score}))+' to '+Math.max.apply(null,rows[0][1].map(function(c){return c.score}))+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
+  // M4: outcome comparisons from the report (SPI, EPI and WEF data are not part of this site)
+  var e4='<div class="s-cchips"><span>'+esc(TT('Above what social outcomes alone would predict'))+'</span>'+['KEN','ZAF'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below the broader trendline'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
+    '<p class="s-cap">Index scores compared with the Social Progress Index.<small>Source: Impact Economy Index 2026 report. The Index measures conditions that may contribute to growth quality and social progress over time, not the outcomes themselves.</small></p>';
+  var ev=[e1,e2,e3,e4];
   $$('.s-find').forEach(function(f,i){var h=$('.s-evid',f);if(h)h.innerHTML='<div class="s-evid-in"><p class="s-evid-t">In the data</p>'+ev[i]+'</div>'});
   // country tooltip on the insight dots: flag, name, values; tap pins it with a link to the profile
   (function(){
@@ -114,7 +117,7 @@ function insights(){
     var cur=null,pinned=false;
     function html(c,k){
       var v=k==='eb'?'<span>'+esc(T('Enabling conditions'))+' <b>'+Math.round(c.e)+'</b></span><span>'+esc(T('Behaviour'))+' <b>'+Math.round(c.b)+'</b></span>'
-                    :'<span>'+esc(T('Score'))+' <b>'+c.score+'</b></span><span>'+esc(T(TN[tier(c.score)]))+'</span>';
+                    :'<span>'+esc(T('Score'))+' <b>'+c.score+'</b></span><span>'+esc(T(TN[tier(c.score)]))+'</span><span>'+esc(T(c.income||''))+'</span>';
       return '<div class="s-dtip-h"><img src="./Impact Economy Index_files/flags/4x3/'+c.flag+'.svg" alt=""><strong>'+esc(T(c.name))+'</strong></div><div class="s-dtip-v">'+v+'</div>'+
         '<a class="s-dtip-a" href="#country='+c.id+'" data-dtip-go="'+c.id+'">'+esc(T('Open full country profile ↗').replace(/\s*↗$/,''))+' →</a>';
     }
@@ -142,7 +145,7 @@ function insights(){
     window.addEventListener('scroll',function(){if(!tip.hidden&&!pinned)hide()},{passive:true});
   })();
 }
-insights();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',insights);else insights();
 
 /* ---- download form ---- */
 var form=$('#sForm');

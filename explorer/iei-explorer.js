@@ -22,16 +22,14 @@
   WORLD.forEach(function (w) { worldById[w.i] = w; });
 
   /* ---------- metrics & colour ---------- */
-  var TIER_BG = { 'Early stage': '#BFEDEC', 'Developing': '#77DAD9', 'Progressing': '#6478FF', 'Advanced': '#2942B5' };
-  var TIER_FG = { 'Early stage': '#0F1428', 'Developing': '#0F1428', 'Progressing': '#0F1428', 'Advanced': '#FFFFFF' };
-  var TIER_RANGE = { 'Early stage': 'below 40', 'Developing': '40–49', 'Progressing': '50–59', 'Advanced': '60 and above' };
+  var TIER_BG = {}, TIER_FG = {}, TIER_RANGE = {}; META.tiers.forEach(function (t) { TIER_BG[t.name] = t.bg; TIER_FG[t.name] = t.fg; TIER_RANGE[t.name] = t.min + '–' + t.max; });
 
   var METRICS = [
     { id: 'score', name: 'Total score', short: 'Total', accent: '#0F1428', ink: '#FFFFFF', pal: ['#BFEDEC', '#6478FF', '#2942B5'], val: function (c) { return c.score; } },
     { id: 'l1', name: META.levers[0].name, short: 'Accountability & Transparency', accent: '#3DCC7D', ink: '#0F1428', pal: ['#E0F6EA', '#3DCC7D', '#0C6636'], val: function (c) { return c.l[0]; } },
     { id: 'l2', name: META.levers[1].name, short: 'Procurement & Demand', accent: '#77DAD9', ink: '#0F1428', pal: ['#E1F6F6', '#77DAD9', '#17787B'], val: function (c) { return c.l[1]; } },
-    { id: 'l3', name: META.levers[2].name, short: 'Coordination & Support', accent: '#FFBD87', ink: '#0F1428', pal: ['#FFEEDF', '#FFBD87', '#B4540C'], val: function (c) { return c.l[2]; } },
-    { id: 'l4', name: META.levers[3].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', ink: '#0F1428', pal: ['#FCE6EE', '#F094B5', '#992450'], val: function (c) { return c.l[3]; } }
+    { id: 'l3', name: META.levers[2].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', ink: '#0F1428', pal: ['#FCE6EE', '#F094B5', '#992450'], val: function (c) { return c.l[2]; } },
+    { id: 'l4', name: META.levers[3].name, short: 'Coordination & Support', accent: '#FFBD87', ink: '#0F1428', pal: ['#FFEEDF', '#FFBD87', '#B4540C'], val: function (c) { return c.l[3]; } }
   ];
   var M = {};
   METRICS.forEach(function (m) {
@@ -78,8 +76,8 @@
   }
   function tierOf(score) {
     var t = META.tiers;
-    for (var i = 0; i < t.length; i++) if (score >= t[i].min && score <= t[i].max) return t[i].name;
-    return t[t.length - 1].name;
+    for (var i = t.length - 1; i > 0; i--) if (score >= t[i].min) return t[i].name;
+    return t[0].name;
   }
   function colour(m, v) {
     if (m.id === 'score') { var t = tierOf(v); return { bg: TIER_BG[t], fg: TIER_FG[t] }; }
@@ -117,7 +115,7 @@
     { k: 'region', label: 'Region', cls: 'hide-sm' },
     { k: 'income', label: 'Income group', cls: 'hide-md' },
     { k: 'score', label: 'Total', metric: 'score' },
-    { k: 'tier', label: 'Tier' },
+    { k: 'tier', label: 'Stage' },
     { k: 'l1', label: 'Accountability & Transparency', metric: 'l1' },
     { k: 'l2', label: 'Procurement & Demand', metric: 'l2' },
     { k: 'l3', label: 'Coordination & Support', metric: 'l3' },
@@ -138,7 +136,7 @@
     '    <div class="ix-filters">' +
     '      <label class="ix-search"><span class="ix-sr">Search countries</span><input type="search" class="ix-q" placeholder="Search a country…" autocomplete="off"></label>' +
     '      <label class="ix-sel"><span class="ix-sr">Region</span><select class="ix-region"><option value="">All regions</option>' + regions.map(function (r) { return '<option>' + esc(r) + '</option>'; }).join('') + '</select></label>' +
-    '      <label class="ix-sel"><span class="ix-sr">Tier</span><select class="ix-tier"><option value="">All tiers</option>' + META.tiers.map(function (t) { return '<option value="' + esc(t.name) + '">' + esc(t.name) + '</option>'; }).join('') + '</select></label>' +
+    '      <label class="ix-sel"><span class="ix-sr">Stage</span><select class="ix-tier"><option value="">All stages</option>' + META.tiers.map(function (t) { return '<option value="' + esc(t.name) + '">' + esc(t.name) + '</option>'; }).join('') + '</select></label>' +
     '      <label class="ix-sel"><span class="ix-sr">Income group</span><select class="ix-income"><option value="">All income groups</option>' + incomes.map(function (r) { return '<option>' + esc(r) + '</option>'; }).join('') + '</select></label>' +
     '      <button type="button" class="ix-ghost ix-reset">Reset</button>' +
     '    </div>' +
@@ -320,7 +318,7 @@
       both(c.id).forEach(function (x) { x.style.fill = fill; x.classList.toggle('dim', !!off); });
     });
     $('.ix-maptitle').textContent = m.name;
-    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (0–100)' : m.ind ? 'Indicator score by country (1–100) · hatched = no data' : m.driver ? 'Driver score by country (0–100) · hatched = no data' : 'Lever score by country (0–100)') + ' · ' + N + ' countries';
+    $('.ix-mapsub').textContent = (m.id === 'score' ? 'Total score by country (1–100)' : m.ind ? 'Indicator score by country (1–100) · hatched = no data' : m.driver ? 'Driver score by country (1–100) · hatched = no data' : 'Lever score by country (1–100)') + ' · ' + N + ' countries';
     Array.prototype.forEach.call(root.querySelectorAll('.ix-metric'), function (b) {
       var on = b.getAttribute('data-m') === state.metric;
       b.classList.toggle('is-active', on);
@@ -365,7 +363,7 @@
     var tiers = '';
     if (m.id === 'score') {
       var counts = META.tiers.map(function (t) { return { t: t.name, n: C.filter(function (c) { return c.tier === t.name; }).length }; });
-      tiers = '<p class="ix-sub">Countries by tier</p><div class="ix-tierbar">' + counts.map(function (x) {
+      tiers = '<p class="ix-sub">Countries by maturity stage</p><div class="ix-tierbar">' + counts.map(function (x) {
         return '<span style="flex:' + x.n + ';background:' + TIER_BG[x.t] + ';color:' + TIER_FG[x.t] + '" title="' + x.t + ': ' + x.n + '">' + x.n + '</span>';
       }).join('') + '</div><div class="ix-tiernames">' + counts.map(function (x) { return '<span>' + x.t + '</span>'; }).join('') + '</div>';
     }
@@ -379,7 +377,7 @@
   }
   function ring(score, tier) {
     var r = 42, circ = 2 * Math.PI * r;
-    return '<svg class="ix-ring" viewBox="0 0 100 100" role="img" aria-label="Score ' + score + ' out of 100"><circle cx="50" cy="50" r="' + r + '" class="ix-ring-bg"/><circle cx="50" cy="50" r="' + r + '" class="ix-ring-fg" style="stroke:' + (tier === 'Early stage' ? '#77DAD9' : tier === 'Developing' ? '#4FC9C8' : tier === 'Progressing' ? '#6478FF' : '#2942B5') + ';stroke-dasharray:' + (circ * score / 100).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" class="ix-ring-t">' + score + '</text></svg>';
+    return '<svg class="ix-ring" viewBox="0 0 100 100" role="img" aria-label="Score ' + score + ' out of 100"><circle cx="50" cy="50" r="' + r + '" class="ix-ring-bg"/><circle cx="50" cy="50" r="' + r + '" class="ix-ring-fg" style="stroke:' + (({ 'Nascent': '#BFEDEC', 'Emerging': '#77DAD9', 'Early Developing': '#4FC9C8', 'Late Developing': '#6478FF', 'Advanced': '#2942B5', 'Thriving': '#0F1428' })[tier] || '#2942B5') + ';stroke-dasharray:' + (circ * score / 100).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" class="ix-ring-t">' + score + '</text></svg>';
   }
   function firstOther() { var o = C.filter(function (x) { return x.id !== state.selected; }).sort(function (a, b) { return b.score - a.score; }); return o.length ? o[0].id : ''; }
   function avgOf(list, fn) {
@@ -388,7 +386,7 @@
   }
   function benchFor(c) {
     var b = state.bench, list, label;
-    if (b === 'tier') { list = C.filter(function (x) { return x.tier === c.tier; }); label = 'Tier average (' + c.tier + ', ' + list.length + ')'; }
+    if (b === 'tier') { list = C.filter(function (x) { return x.tier === c.tier; }); label = 'Stage average (' + c.tier + ', ' + list.length + ')'; }
     else if (b === 'income') { list = C.filter(function (x) { return x.income === c.income; }); label = 'Income group average (' + c.income + ', ' + list.length + ')'; }
     else if (b === 'region') { list = C.filter(function (x) { return x.region === c.region; }); label = 'Region average (' + c.region + ', ' + list.length + ')'; }
     else if (b === 'country' && byId[state.benchId]) { list = [byId[state.benchId]]; label = byId[state.benchId].name; }
@@ -404,7 +402,7 @@
     var bn = benchFor(c);
     var benchUi = '<div class="ix-benchbar"><label><span class="ix-sub" style="margin:0">Compare with</span>' +
       '<select class="ix-bench" aria-label="Comparison group">' +
-      [['all', 'All countries'], ['tier', 'Same tier'], ['income', 'Same income group'], ['region', 'Same region'], ['country', 'Another country…']].map(function (o) { return '<option value="' + o[0] + '"' + (state.bench === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+      [['all', 'All countries'], ['tier', 'Same stage'], ['income', 'Same income group'], ['region', 'Same region'], ['country', 'Another country…']].map(function (o) { return '<option value="' + o[0] + '"' + (state.bench === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
       '</select></label>' +
       (state.bench === 'country' ? '<label><span class="ix-sr">Country to compare</span><select class="ix-benchc" aria-label="Country to compare">' +
         C.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (state.benchId === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>';
@@ -527,7 +525,7 @@
     refresh(); renderPanel(); flyTo(BASE);
   }
   function downloadCsv() {
-    var head = ['Country', 'ISO3', 'Total score', 'Tier'].concat(META.levers.map(function (l) { return l.name; }), ['Enabling conditions', 'Behaviour', 'Region', 'Income group'], META.driverIds.map(function (id) { return 'Driver ' + id + ' - ' + META.driverLabels[id]; }));
+    var head = ['Country', 'ISO3', 'Total score', 'Maturity stage'].concat(META.levers.map(function (l) { return l.name; }), ['Enabling conditions', 'Behaviour', 'Region', 'Income group'], META.driverIds.map(function (id) { return 'Driver ' + id + ' - ' + META.driverLabels[id]; }));
     var q = function (v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     var lines = [head.map(q).join(',')].concat(C.slice().sort(function (a, b) { return b.score - a.score; }).map(function (c) {
       return [c.name, c.id, c.score, c.tier].concat(c.l, [c.e, c.b, c.region, c.income], c.d).map(q).join(',');
@@ -597,6 +595,45 @@
     if (p) showTip(byId[p.getAttribute('data-id')], e); else hideTip();
   });
   $('.ix-q').addEventListener('input', function (e) { state.q = e.target.value.trim(); refresh(); });
+  /* country suggestions while typing: pick one to select it on the map */
+  (function () {
+    var q = $('.ix-q'), box = document.createElement('ul'), cur = -1, items = [];
+    box.className = 'ix-sug'; box.id = 'ixSug'; box.setAttribute('role', 'listbox'); box.hidden = true;
+    q.parentNode.appendChild(box);
+    q.setAttribute('role', 'combobox'); q.setAttribute('aria-autocomplete', 'list'); q.setAttribute('aria-controls', 'ixSug'); q.setAttribute('aria-expanded', 'false');
+    var TT = function (x) { return window.IEI_T ? window.IEI_T(x) : x; };
+    var fold = function (x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+    function close() { box.hidden = true; cur = -1; q.setAttribute('aria-expanded', 'false'); }
+    function draw() {
+      var v = fold(q.value.trim());
+      if (!v) { items = []; close(); return; }
+      var hits = C.map(function (c) { var n = TT(c.name), a = fold(n), b = fold(c.name), i = Math.min(a.indexOf(v) < 0 ? 99 : a.indexOf(v), b.indexOf(v) < 0 ? 99 : b.indexOf(v)); return { c: c, n: n, i: i }; })
+        .filter(function (h) { return h.i < 99; }).sort(function (x, y) { return (x.i === 0 ? 0 : 1) - (y.i === 0 ? 0 : 1) || x.n.localeCompare(y.n); }).slice(0, 8);
+      items = hits; cur = -1;
+      if (!hits.length) { close(); return; }
+      box.innerHTML = hits.map(function (h, k) {
+        return '<li role="option" id="ixSug' + k + '" data-id="' + h.c.id + '"><img src="./Impact Economy Index_files/flags/4x3/' + h.c.flag + '.svg" alt=""><span>' + esc(h.n) + '</span><b>' + h.c.score + '</b></li>';
+      }).join('');
+      box.hidden = false; q.setAttribute('aria-expanded', 'true');
+    }
+    function pick(id) {
+      close(); q.value = ''; state.q = ''; refresh();
+      if (state.selected !== id) select(id);
+      var m = $('.ix-mapwrap') || svg; if (m && m.scrollIntoView) m.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+    }
+    function hl() { Array.prototype.forEach.call(box.children, function (li, k) { li.classList.toggle('on', k === cur); }); if (cur >= 0) q.setAttribute('aria-activedescendant', 'ixSug' + cur); else q.removeAttribute('aria-activedescendant'); }
+    q.addEventListener('input', draw);
+    q.addEventListener('focus', draw);
+    q.addEventListener('keydown', function (e) {
+      if (box.hidden) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); cur = Math.min(items.length - 1, cur + 1); hl(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); cur = Math.max(0, cur - 1); hl(); }
+      else if (e.key === 'Enter') { e.preventDefault(); pick(items[cur >= 0 ? cur : 0].c.id); }
+      else if (e.key === 'Escape') close();
+    });
+    box.addEventListener('mousedown', function (e) { var li = e.target.closest('li[data-id]'); if (li) { e.preventDefault(); pick(li.getAttribute('data-id')); } });
+    q.addEventListener('blur', function () { setTimeout(close, 120); });
+  })();
   $('.ix-drvsel').addEventListener('change', function (e) { setMetric(e.target.value || 'score'); });
   $('.ix-region').addEventListener('change', function (e) { state.region = e.target.value; refresh(); });
   $('.ix-income').addEventListener('change', function (e) { state.income = e.target.value; refresh(); });

@@ -40,9 +40,10 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 .s-read-grid .s-rcard:nth-child(1)::after{background-image:url("../brand/icons/bar-graph.png")}
 .s-read-grid .s-rcard:nth-child(2)::after{background-image:url("../brand/icons/triangles.png")}
 .s-read-grid .s-rcard:nth-child(3)::after{background-image:url("../brand/icons/search.png")}
-.s-find-grid .s-find:nth-child(1)::after{background-image:url("../brand/icons/scales.png")}
-.s-find-grid .s-find:nth-child(2)::after{background-image:url("../brand/icons/flow.png")}
-.s-find-grid .s-find:nth-child(3)::after{background-image:url("../brand/icons/link.png")}
+.s-find-grid .s-find:nth-child(1)::after{background-image:url("../brand/icons/globe.png")}
+.s-find-grid .s-find:nth-child(2)::after{background-image:url("../brand/icons/standards.png")}
+.s-find-grid .s-find:nth-child(3)::after{background-image:url("../brand/icons/money.png")}
+.s-find-grid .s-find:nth-child(4)::after{background-image:url("../brand/icons/leaves.png")}
 .s-rcard h3,.s-find h3{padding-right:62px}
 
 /* Section headers with an official illustration */
@@ -168,3 +169,76 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 .s-dtip-v b{color:#fff;font-weight:700}
 .s-dtip-a{display:none;margin-top:8px;color:#77DAD9 !important;font:700 12.5px/1 "Urbanist",sans-serif;text-decoration:none}
 .s-dtip.pin .s-dtip-a{display:inline-block}
+#framework .lever-dh{margin:18px 0 6px;font:700 12px/1.2 "Urbanist",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5B6178}
+
+/* four key messages */
+.s-find-grid.s-find-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:991px){.s-find-grid.s-find-4{grid-template-columns:1fr}}
+.s-stagestrip text{font-weight:700;fill:#0F1428}
+.s-stagecount{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 10px}
+.s-stagecount li{display:flex;align-items:baseline;gap:7px;border-left:4px solid var(--c);padding-left:7px;font:600 12.5px/1.25 "Urbanist",sans-serif;color:#5d6479}
+.s-stagecount b{font:800 18px/1 "Urbanist",sans-serif;color:#0F1428}
+@media (max-width:480px){.s-stagecount{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.s-ibars{display:grid;gap:10px}
+.s-ibh{display:flex;align-items:center;gap:7px;margin:6px 0 0 !important;font:700 11px/1.2 "Urbanist",sans-serif !important;letter-spacing:.08em;text-transform:uppercase;color:#5d6479}
+.s-ibh i{width:10px;height:10px;border-radius:3px;flex:none}
+.s-ibars .s-bar{font-size:12.5px;font-weight:600}
+.s-swarm .s-dot.hl{stroke:#0F1428;stroke-width:1.6}
+.s-cchips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.s-cchips>span{flex-basis:100%;font:700 11px/1.2 "Urbanist",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5d6479}
+.s-cchip{display:inline-flex;align-items:center;gap:6px;border:1px solid #DAD7D2;background:#fff;border-radius:99px;padding:4px 10px 4px 5px;font:600 13px/1 "Urbanist",sans-serif;color:#0F1428;cursor:pointer}
+.s-cchip img{width:22px;height:16px;border-radius:3px;object-fit:cover}
+.s-cchip b{font-weight:800}
+.s-cchip:hover,.s-cchip:focus-visible{border-color:#2942B5;color:#2942B5}
+
+/* language switcher: far right, set like the nav links, with a globe icon */
+.s-lang{margin-left:14px}
+.s-lang label{display:flex;align-items:center;gap:6px;margin:0;position:relative;top:2px;cursor:pointer;color:#0F1428}
+.s-lang-ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6}
+.s-lang select{font:700 15px/1 "Urbanist",sans-serif !important;background-color:transparent !important;border:0 !important;border-radius:8px;padding:10px 20px 10px 2px !important;background-position:calc(100% - 9px) 52%,calc(100% - 4px) 52% !important;max-width:none}
+.s-lang select:hover{color:#2942B5}
+@media (max-width:991px){.s-lang{margin:8px 0 0;padding:0 16px}.s-lang select{font-size:17px !important}}
+
+/* framework pyramid */
+.s-pyr{margin:8px 0 34px;padding:30px 32px 26px;background:#0F1428;border-radius:24px;color:#fff}
+.s-pyr-k{margin:0 0 18px !important;font:italic 500 15px/1.2 "Urbanist",sans-serif !important;color:#9AA6FF}
+.s-pyr-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.s-pyr-row{display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);align-items:center;column-gap:34px;margin:0;padding:0}
+.s-pyr-shape{position:relative;height:84px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:12px;text-align:center;transition:filter .2s}
+.s-pyr-row:hover .s-pyr-shape{filter:brightness(1.08)}
+.s-pyr-row.r1 .s-pyr-shape{clip-path:polygon(50% 0,50% 0,61.9% 100%,38.1% 100%);background:#fff;color:#0F1428;padding-bottom:8px}
+.s-pyr-row.r2 .s-pyr-shape{clip-path:polygon(37.3% 0,62.7% 0,74.6% 100%,25.4% 100%);background:linear-gradient(90deg,#3DCC7D 0 40.7%,#77DAD9 40.7% 50%,#F094B5 50% 59.3%,#FFBD87 59.3% 100%);color:#0F1428}
+.s-pyr-row.r3 .s-pyr-shape{clip-path:polygon(24.6% 0,75.4% 0,87.3% 100%,12.7% 100%);background:#6478FF;color:#fff}
+.s-pyr-row.r4 .s-pyr-shape{clip-path:polygon(11.9% 0,88.1% 0,100% 100%,0 100%);background:#DDE2FF;color:#0F1428}
+.s-pyr-n{font:800 30px/1 "Urbanist",sans-serif;letter-spacing:-.02em}
+.s-pyr-l{font:700 12px/1.15 "Urbanist",sans-serif;letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.s-pyr-row.r1 .s-pyr-l{font-size:9.5px;letter-spacing:.06em;max-width:84px}
+.s-pyr-row p{margin:0 !important;padding:12px 0;border-top:1px dashed rgba(255,255,255,.22);font:500 15px/1.5 "Urbanist",sans-serif !important;color:#D6DAEA}
+.s-pyr-row.r1 p{border-top:0}
+@media (max-width:767px){.s-pyr{padding:22px 16px}.s-pyr-row{grid-template-columns:44% minmax(0,1fr);column-gap:14px}.s-pyr-shape{height:76px;padding-bottom:9px}.s-pyr-n{font-size:22px}.s-pyr-l{font-size:9.5px;letter-spacing:.06em}.s-pyr-row.r1 .s-pyr-l{font-size:7.5px}.s-pyr-row p{font-size:12.5px !important;line-height:1.4 !important;padding:6px 0}}
+
+/* key messages: one full-width row each, text left and evidence right */
+.s-find-grid.s-find-4{grid-template-columns:1fr !important;gap:16px}
+.s-find-4 .s-find{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-rows:auto auto 1fr;column-gap:40px;padding:28px 30px}
+.s-find-4 .s-find::after{display:none}
+.s-find-4 .s-find h3{padding-right:0}
+.s-find-4 .s-num{grid-column:1;grid-row:1;margin-bottom:14px}
+.s-find-4 .s-find h3{grid-column:1;grid-row:2}
+.s-find-4 .s-find>p{grid-column:1;grid-row:3;align-self:start}
+.s-find-4 .s-evid{grid-column:2;grid-row:1/4;margin:0;padding:0;align-self:start}
+.s-find-4 .s-evid-in{border-top:0;border-left:1px dashed var(--s-line);padding:0 0 0 32px}
+@media (max-width:991px){.s-find-4 .s-find{grid-template-columns:1fr;padding:24px 22px}.s-find-4 .s-evid{grid-column:1;grid-row:auto;margin-top:20px}.s-find-4 .s-evid-in{border-left:0;border-top:1px dashed var(--s-line);padding:18px 0 0}}
+.s-ins .s-stats{margin:0 0 16px}
+
+/* how to read: tooltip on the five-driver lever, normalisation note */
+.s-rdiag .s-rtip{position:relative;cursor:help;outline:none}
+.s-rtip-q{position:absolute;bottom:8px;right:8px;width:18px;height:18px;border-radius:50%;background:#0F1428;color:#fff;font:700 11px/18px "Urbanist",sans-serif;text-align:center;font-style:normal}
+.s-rtip-box{position:absolute !important;z-index:30;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%) translateY(4px);width:min(300px,78vw);min-height:0 !important;display:block !important;padding:12px 14px !important;background:#0F1428 !important;color:#D6DAEA !important;border-radius:14px !important;font:500 12.5px/1.45 "Urbanist",sans-serif !important;box-shadow:0 10px 26px rgba(15,20,40,.25);opacity:0;visibility:hidden;transition:opacity .15s,transform .15s;pointer-events:none;text-align:left}
+.s-rtip-box strong{display:block;color:#fff;font-size:13.5px;margin-bottom:4px}
+.s-rtip-box span{display:block !important;background:none !important;padding:0 !important;min-height:0 !important;font:inherit !important;color:inherit !important}
+.s-rtip:hover .s-rtip-box,.s-rtip:focus .s-rtip-box{opacity:1;visibility:visible;transform:translateX(-50%)}
+.s-rcard p.s-rnorm{margin-top:12px !important;padding-top:12px;border-top:1px dashed var(--g-grey)}
+
+.s-pyr-m{display:none}
+@media (max-width:767px){.s-pyr-row.r1 .s-pyr-l{display:none}.s-pyr-m{display:block;color:#fff;font:700 11px/1.2 "Urbanist",sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}}
+.s-lang select{field-sizing:content;max-width:190px}

@@ -530,8 +530,8 @@ input{
 .lever-stage{--c:#3DCC7D;position:relative;overflow:hidden;background:var(--c);color:#0b0b0b;border-radius:20px;padding:48px 48px 28px;transition:background .35s ease}
 .lever-stage[data-active="0"]{--c:#3DCC7D;border-top-left-radius:0}
 .lever-stage[data-active="1"]{--c:#77DAD9}
-.lever-stage[data-active="2"]{--c:#FFBD87}
-.lever-stage[data-active="3"]{--c:#F094B5;border-top-right-radius:0}
+.lever-stage[data-active="2"]{--c:#F094B5}
+.lever-stage[data-active="3"]{--c:#FFBD87;border-top-right-radius:0}
 .lever-grid{display:grid;grid-template-columns:5fr 7fr;gap:56px}
 .lever-bignum{display:block;font-family:"Urbanist",sans-serif;font-weight:700;font-size:110px;line-height:.85;letter-spacing:-.05em;opacity:.16}
 .lever-lead h3{font-family:"Urbanist",sans-serif;font-weight:700;font-size:2.3rem;line-height:1.05;letter-spacing:-.025em;margin:6px 0 20px}

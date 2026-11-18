@@ -217,3 +217,9 @@ button.ix-leg-item:hover{background:var(--soft)}
 .ix-c.ix-mk{stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke}
 .ix-cov{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:99px;border:1px dashed #9aa1bb;font:700 11px "Urbanist",sans-serif;color:#4b5064;white-space:nowrap}
 .ix-nd-cell{background:repeating-linear-gradient(45deg,#F1F0EE 0 4px,#E2DFDA 4px 6px) !important;color:#6b7083 !important;font-size:11px !important}
+.ix-sug{position:absolute;z-index:40;left:0;right:0;top:calc(100% + 6px);margin:0;padding:6px;list-style:none;background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:0 12px 28px rgba(15,20,40,.14);max-height:320px;overflow:auto}
+.ix-sug li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font:600 14px/1.2 "Urbanist",sans-serif;color:#0F1428}
+.ix-sug li img{width:22px;height:16px;border-radius:3px;object-fit:cover;flex:none}
+.ix-sug li span{flex:1}
+.ix-sug li b{font-weight:800;color:#5d6479}
+.ix-sug li:hover,.ix-sug li.on{background:#EEF0FF}
