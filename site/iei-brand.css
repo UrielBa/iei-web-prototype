@@ -141,3 +141,18 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 /* long translated words must not push the lever tabs past the screen edge */
 .lever-tab{min-width:0;overflow-wrap:anywhere}
 .lever-tab *{min-width:0;overflow-wrap:anywhere}
+/* definition block: the definition leads, the practice list supports it */
+.s-def-grid{grid-template-columns:minmax(0,1fr) !important;gap:22px !important}
+.s-def .s-eyebrow{margin:0 !important;font:italic 600 15px/1.2 "Urbanist",sans-serif !important;letter-spacing:0 !important;text-transform:none !important}
+.s-def blockquote{max-width:1040px;font-size:clamp(1.9rem,3.9vw,3.25rem) !important;line-height:1.12 !important;padding-top:34px !important}
+.s-def-how>p{font:500 16px/1.5 "Urbanist",sans-serif !important;color:#c9cee0 !important;margin:10px 0 14px !important;max-width:640px}
+.s-def-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.s-def-list li{position:relative;padding:16px 18px 18px !important;border-top:3px solid var(--c);background:rgba(255,255,255,.05);border-radius:0 0 16px 16px;color:#c9cee0;font:500 14.5px/1.45 "Urbanist",sans-serif}
+.s-def-list li:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:50%;transform:translate(50%,-50%);color:#6b7290;font:600 16px/1 "Urbanist",sans-serif}
+.s-def-list b{display:block;font:700 11px/1.2 "Urbanist",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--c);margin-bottom:10px}
+.s-def-list strong{display:block;font:700 19px/1.2 "Urbanist",sans-serif;color:#fff;margin-bottom:6px}
+.s-def-list span{display:block}
+.s-hero h1{font-size:clamp(2.3rem,4.3vw,3.75rem) !important;line-height:1.04 !important}
+@media(max-width:991px){.s-def-list li:not(:last-child)::after{display:none}}
+@media(max-width:991px){.s-def-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.s-def-list{grid-template-columns:1fr}}
