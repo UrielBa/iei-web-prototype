@@ -193,8 +193,7 @@ window.IEI_HASH=(function(){
     var hint=T('Hover a code to see what it measures; select it to see it on the map.');
     function cap(){return '<p class="s-pyr-cap" aria-live="polite">'+esc(hint)+'</p>'}
     var X={};
-    X[1]='<blockquote class="s-pyr-q">'+esc(T('An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making.'))+'</blockquote>'+
-      '<div class="s-pyr-flow">'+LOGIC.map(function(l,k){return '<span style="--c:'+LC[k]+'">'+esc(T(l[0]))+'</span>'}).join('<i aria-hidden="true">→</i>')+'</div>';
+    X[1]='<blockquote class="s-pyr-q">'+esc(T('An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making.'))+'</blockquote>';
     X[2]='';
     M.levers.forEach(function(L,k){var tb=document.getElementById('lever-tab-'+k);if(tb&&!tb.querySelector('.lever-avg')&&lAvg[k]!=null){var a=document.createElement('span');a.className='lever-avg';a.innerHTML='<span>'+esc(T('Global average'))+'</span><strong>'+lAvg[k].toFixed(1)+'</strong>';var ar=tb.querySelector('.lever-arrow');tb.insertBefore(a,ar)}});
     X[3]='<div class="s-pyr-drv">'+M.levers.map(function(L,k){return '<div class="g" style="--c:'+LC[k]+'"><span class="gl">'+esc(T(L.name))+'</span><div>'+L.drivers.map(function(d){var a=dAvg[d];return '<button type="button" class="s-pyr-chip" data-map="d'+d+'" data-cap="'+esc(d+' · '+T(M.driverLabels[d]))+(a==null?'':' · '+esc(T('Global average'))+' '+a.toFixed(1))+'"><span>'+d+'</span><i style="width:'+(a||0).toFixed(0)+'%"></i></button>'}).join('')+'</div></div>'}).join('')+'</div>'+cap();
@@ -210,7 +209,7 @@ window.IEI_HASH=(function(){
       root.classList.add('has-on');det.setAttribute('data-l',n);
       var deck=document.getElementById('leverDeck'),hold=document.getElementById('leverHold');
       if(!hold){hold=document.createElement('div');hold.id='leverHold';hold.hidden=true;root.parentNode.parentNode.appendChild(hold)}
-      if(deck&&det.contains(deck))hold.appendChild(deck);
+      if(deck&&det.contains(deck))hold.appendChild(deck);if(deck)deck.hidden=(n!==2);
       var dd=rows[n-1].querySelector('.s-pyr-txt>p');det.innerHTML='<div class="s-pyr-dx"><p class="s-pyr-dd">'+(dd?dd.innerHTML:'')+'</p>'+(n===2?'<div class="s-pyr-deckslot"></div>':X[n])+'</div>';
       if(n===2&&deck)det.querySelector('.s-pyr-deckslot').appendChild(deck);
     }
