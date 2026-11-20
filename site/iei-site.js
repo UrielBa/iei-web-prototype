@@ -56,7 +56,7 @@ if(C.length){
 /* ---- definition chips -> lever deck ---- */
 $$('.s-chip').forEach(function(c){c.addEventListener('click',function(){
   var i=+c.getAttribute('data-i'),t=document.getElementById('lever-tab-'+i),d=document.getElementById('leverDeck');
-  if(t)t.click();if(d)d.scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.IEI_openLevers)window.IEI_openLevers();t=document.getElementById('lever-tab-'+i);if(t&&t.getAttribute('aria-expanded')!=='true')t.click();var pz=document.getElementById('sPyrX');if(pz)pz.scrollIntoView({behavior:'smooth',block:'start'});
 })});
 
 /* ---- how to read: tier list ---- */
@@ -195,7 +195,7 @@ window.IEI_HASH=(function(){
     var X={};
     X[1]='<blockquote class="s-pyr-q">'+esc(T('An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making.'))+'</blockquote>'+
       '<div class="s-pyr-flow">'+LOGIC.map(function(l,k){return '<span style="--c:'+LC[k]+'">'+esc(T(l[0]))+'</span>'}).join('<i aria-hidden="true">→</i>')+'</div>';
-    X[2]='<div class="s-pyr-levs">'+M.levers.map(function(L,k){return '<button type="button" class="s-pyr-lev" data-lev="'+k+'" title="'+esc(T(L.name)+' · '+T('Global average')+' '+(lAvg[k]==null?'–':lAvg[k].toFixed(1))+' · '+T(L.drivers.length+' drivers'))+'" style="--c:'+LC[k]+';flex:'+L.drivers.length+'"><span class="n">0'+(k+1)+'</span><strong>'+Math.round(L.drivers.length/M.driverIds.length*100)+'%</strong></button>'}).join('')+'</div><p class="s-pyr-cap2">'+esc(T('Share of the total score'))+'</p>';
+    X[2]='';
     M.levers.forEach(function(L,k){var tb=document.getElementById('lever-tab-'+k);if(tb&&!tb.querySelector('.lever-avg')&&lAvg[k]!=null){var a=document.createElement('span');a.className='lever-avg';a.innerHTML='<span>'+esc(T('Global average'))+'</span><strong>'+lAvg[k].toFixed(1)+'</strong>';var ar=tb.querySelector('.lever-arrow');tb.insertBefore(a,ar)}});
     X[3]='<div class="s-pyr-drv">'+M.levers.map(function(L,k){return '<div class="g" style="--c:'+LC[k]+'"><span class="gl">'+esc(T(L.name))+'</span><div>'+L.drivers.map(function(d){var a=dAvg[d];return '<button type="button" class="s-pyr-chip" data-map="d'+d+'" data-cap="'+esc(d+' · '+T(M.driverLabels[d]))+(a==null?'':' · '+esc(T('Global average'))+' '+a.toFixed(1))+'"><span>'+d+'</span><i style="width:'+(a||0).toFixed(0)+'%"></i></button>'}).join('')+'</div></div>'}).join('')+'</div>'+cap();
     var byD={};I.inds.forEach(function(m){(byD[m.driver]=byD[m.driver]||[]).push(m)});
@@ -208,8 +208,13 @@ window.IEI_HASH=(function(){
       if(cur===n)return;cur=n;
       rows.forEach(function(r){var on=+r.getAttribute('data-l')===n;r.classList.toggle('on',on);r.querySelector('.s-pyr-shape').setAttribute('aria-expanded',on?'true':'false')});
       root.classList.add('has-on');det.setAttribute('data-l',n);
-      var dd=rows[n-1].querySelector('.s-pyr-txt>p');det.innerHTML='<div class="s-pyr-dx"><p class="s-pyr-dd">'+(dd?dd.innerHTML:'')+'</p>'+X[n]+'</div>';
+      var deck=document.getElementById('leverDeck'),hold=document.getElementById('leverHold');
+      if(!hold){hold=document.createElement('div');hold.id='leverHold';hold.hidden=true;root.parentNode.parentNode.appendChild(hold)}
+      if(deck&&det.contains(deck))hold.appendChild(deck);
+      var dd=rows[n-1].querySelector('.s-pyr-txt>p');det.innerHTML='<div class="s-pyr-dx"><p class="s-pyr-dd">'+(dd?dd.innerHTML:'')+'</p>'+(n===2?'<div class="s-pyr-deckslot"></div>':X[n])+'</div>';
+      if(n===2&&deck)det.querySelector('.s-pyr-deckslot').appendChild(deck);
     }
+    window.IEI_openLevers=function(){cur=0;open(2)};
     rows.forEach(function(r){var n=+r.getAttribute('data-l');
       r.querySelector('.s-pyr-shape').addEventListener('click',function(){open(n)});
       r.querySelector('.s-pyr-txt>p').addEventListener('click',function(){open(n)});
@@ -219,7 +224,6 @@ window.IEI_HASH=(function(){
     root.addEventListener('focusin',function(e){var b=e.target.closest('[data-cap]');if(!b)return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=b.getAttribute('data-cap');c.classList.add('live')}});
     root.addEventListener('mouseout',function(e){var b=e.target.closest('[data-cap]');if(!b||(e.relatedTarget&&b.contains(e.relatedTarget)))return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=hint;c.classList.remove('live')}});
     root.addEventListener('click',function(e){
-      var lv=e.target.closest('.s-pyr-lev');if(lv){var t=document.getElementById('lever-tab-'+lv.getAttribute('data-lev'));if(t){if(t.getAttribute('aria-expanded')!=='true')t.click();var dk=document.getElementById('leverDeck');if(dk)dk.scrollIntoView({behavior:'smooth',block:'start'})}return}
       var mp=e.target.closest('[data-map]');if(mp){var sel=document.querySelector('.ix-drvsel');if(sel){sel.value=mp.getAttribute('data-map');sel.dispatchEvent(new Event('change',{bubbles:true}));var ex=document.getElementById('explore');if(ex)ex.scrollIntoView({behavior:'smooth',block:'start'})}}
     });
     open(1);
