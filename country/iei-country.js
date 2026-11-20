@@ -43,7 +43,7 @@
   var incomes = ['High Income', 'Upper Middle Income', 'Lower Middle Income', 'Low Income'].filter(function (i) { return C.some(function (c) { return c.income === i; }); });
   var H0 = window.IEI_HASH ? window.IEI_HASH.get() : {};
   var fromHash = (H0.country || '').toUpperCase();
-  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', open: {}, q: '', tier: '', region: '', income: '' };
+  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', plevel: 'driver', open: {}, q: '', tier: '', region: '', income: '' };
   if (['income', 'tier', 'region', 'all', 'best', 'country'].indexOf(H0.cmp) >= 0) state.bench = H0.cmp;
   if (H0.vs && byId[H0.vs.toUpperCase()]) { state.bench = 'country'; state.benchId = H0.vs.toUpperCase(); }
   if (H0.open === 'all') DID.forEach(function (d) { state.open[d] = true; });
@@ -190,23 +190,41 @@
     var head = '<tr><th scope="col" class="ic-hd">Driver</th>' + cols.map(function (x, i) {
       return '<th scope="col" class="ic-hc' + (i === 0 ? ' is-me' : '') + '">' + flag(x, 'ic-flag') + '<span>' + esc(x.name) + '</span>' + (i > 0 ? '<button type="button" class="ic-rm" data-rm="' + x.id + '" aria-label="Remove ' + esc(x.name) + '">×</button>' : '') + '</th>';
     }).join('') + (P.length ? '<th scope="col" class="ic-hc ic-pavg"><span>Peer avg</span></th>' : '') + '<th scope="col" class="ic-hc"><span>vs ' + esc(bn.short) + '</span></th></tr>';
-    var body = drivers.map(function (x, n) {
-      var pv = P.map(function (p) { return p.d[x.i]; }), pavg = avg(pv, function (v) { return v; });
+    var lvl = state.plevel || 'driver', R = [];
+    if (lvl === 'lever') {
+      LEV.forEach(function (L, k) { R.push({ id: String(k + 1), lab: L.name, acc: L.accent, get: function (y) { return y.l[k]; }, ref: avg(bn.list, function (x) { return x.l[k]; }) }); });
+    } else if (lvl === 'driver') {
+      drivers.forEach(function (x) { R.push({ id: x.id, lab: DLAB[x.id], acc: LEV[x.k].accent, get: function (y) { return y.d[x.i]; }, ref: x.ref }); });
+    } else {
+      var lastD = '';
+      INDS.filter(function (m) { return !m.star; }).forEach(function (m) {
+        if (m.driver !== lastD) { lastD = m.driver; R.push({ head: true, id: m.driver, lab: DLAB[m.driver] || m.drvname, acc: LEV[driverLever[m.driver]] ? LEV[driverLever[m.driver]].accent : '#fff' }); }
+        R.push({ id: m.id, lab: m.name, acc: LEV[driverLever[m.driver]] ? LEV[driverLever[m.driver]].accent : '#fff', key: m.key, get: function (y) { var e = indVal(y.id, m.id); return e && e.s != null ? Math.round(e.s) : null; }, ref: indRef(m, bn.list) });
+      });
+    }
+    var ncols = cols.length + (P.length ? 1 : 0) + 1;
+    var body = R.map(function (x) {
+      if (x.head) return '<tr class="ic-ghead"><th scope="colgroup" colspan="' + (ncols + 1) + '"><span class="ic-did" style="--a:' + x.acc + '">' + x.id + '</span> ' + esc(x.lab) + '</th></tr>';
+      var pv = P.map(function (p) { return x.get(p); }), pavg = avg(pv, function (v) { return v; });
       var cells = cols.map(function (y, j) {
-        var v = y.d[x.i], hc = heatColour(v);
+        var v = x.get(y), hc = heatColour(v);
         return v == null ? '<td class="ic-hv na"><span class="ic-na">No data</span></td>' : '<td class="ic-hv' + (j === 0 ? ' me' : '') + '" style="background:' + hc.bg + ';color:' + hc.fg + '">' + v + '</td>';
       }).join('');
-      var cls = x.d == null ? '' : x.d >= 5 ? 'up' : x.d <= -5 ? 'down' : 'eq', lab = x.d == null ? '–' : x.d >= 5 ? 'Ahead' : x.d <= -5 ? 'Behind' : 'In line';
-      return '<tr><th scope="row" class="ic-hd"><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span><span class="ic-hl2">' + esc(DLAB[x.id]) + '</span></th>' + cells +
+      var mine = x.get(c), dd = (mine == null || x.ref == null) ? null : Math.round(mine - x.ref);
+      var cls = dd == null ? '' : dd >= 5 ? 'up' : dd <= -5 ? 'down' : 'eq', lab = dd == null ? '–' : dd >= 5 ? 'Ahead' : dd <= -5 ? 'Behind' : 'In line';
+      return '<tr><th scope="row" class="ic-hd"><span class="ic-did" style="--a:' + x.acc + '">' + x.id + '</span><span class="ic-hl2">' + esc(x.lab) + (x.key ? ' <i class="ic-keym" title="Key impact model">◆</i>' : '') + '</span></th>' + cells +
         (P.length ? '<td class="ic-hv avg">' + (pavg == null ? '–' : Math.round(pavg)) + '</td>' : '') +
-        '<td class="ic-hv st ' + cls + '">' + lab + (x.d == null ? '' : ' <em>' + sgn(x.d) + '</em>') + '</td></tr>';
+        '<td class="ic-hv st ' + cls + '">' + lab + (dd == null ? '' : ' <em>' + sgn(dd) + '</em>') + '</td></tr>';
     }).join('');
-    return '<div class="ic-card ic-pcard"><div class="ic-dhead"><div><h4 class="ic-h4">Compare with chosen peers</h4><p class="ic-psub">Driver scores side by side. Choose up to five countries.</p></div></div>' +
+    var firstCol = lvl === 'lever' ? 'Lever' : lvl === 'driver' ? 'Driver' : 'Indicator';
+    head = head.replace('<th scope="col" class="ic-hd">Driver</th>', '<th scope="col" class="ic-hd">' + firstCol + '</th>');
+    var seg = '<div class="ic-seg" role="group" aria-label="Compare at level"><span class="ic-lbl">Compare at</span>' + [['lever', 'Levers'], ['driver', 'Drivers'], ['indicator', 'Indicators']].map(function (o) { return '<button type="button" class="ic-sbtn' + (lvl === o[0] ? ' on' : '') + '" data-plv="' + o[0] + '" aria-pressed="' + (lvl === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>';
+    return '<div class="ic-card ic-pcard"><div class="ic-dhead"><div><h4 class="ic-h4">Compare with chosen peers</h4><p class="ic-psub">Scores side by side, at lever, driver or indicator level. Choose up to five countries.</p></div></div>' + seg +
       '<div class="ic-ppick"><span class="ic-lbl">Quick picks</span>' +
       [['region', 'Same region'], ['income', 'Same income group'], ['closest', 'Closest profile'], ['clear', 'Clear']].map(function (o) { return '<button type="button" class="ic-qp" data-qp="' + o[0] + '">' + o[1] + '</button>'; }).join('') +
       (P.length < 5 ? '<label class="ic-field ic-add"><span class="ic-sr">Add a country</span><select class="ic-padd"><option value="">Add a country…</option>' + opts.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
       '<div class="ic-tscroll"><table class="ic-heat"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
-      '<p class="ic-note">Darker blue means a higher driver score. “Ahead” / “Behind” mark a gap of 5 points or more against ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
+      '<p class="ic-note">Darker blue means a higher ' + (lvl === 'lever' ? 'lever' : lvl === 'driver' ? 'driver' : 'indicator') + ' score' + (lvl === 'indicator' ? ' (35 scored indicators; leading-edge models are not scored)' : '') + '. “Ahead” / “Behind” mark a gap of 5 points or more against ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
   }
   function csvDownload() {
     var c = byId[state.sel], bn = benchFor(c), P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
@@ -702,6 +720,7 @@
     }
     if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); return; }
     if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
+    if ((b = t.closest('[data-plv]'))) { state.plevel = b.getAttribute('data-plv'); render(); return; }
     if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }
     if ((b = t.closest('[data-share]'))) {
       var kind = b.getAttribute('data-share'), url = (syncHash(true), window.IEI_HASH ? window.IEI_HASH.url() : location.href), msg = root.querySelector('.ic-shmsg');
