@@ -322,7 +322,7 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 .s-pyr-row.s-reveal{transform:translateY(-14px)}
 .s-pyr-row.s-reveal.s-in{transform:none}
 .s-pyr-row.r2.s-reveal{transition-delay:.12s}.s-pyr-row.r3.s-reveal{transition-delay:.24s}.s-pyr-row.r4.s-reveal{transition-delay:.36s}
-@media (max-width:991px){.s-pyr-levs,.s-pyr-drv{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:991px){.s-pyr-drv{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:767px){.s-pyr-row{grid-template-columns:1fr;row-gap:6px}.s-pyr-shape{max-width:340px;width:100%;margin:0 auto}.s-pyr-row.r1 .s-pyr-l{display:block}.s-pyr-m{display:none !important}.s-pyr-txt{min-height:0}.s-pyr-ind{grid-template-columns:repeat(7,minmax(0,1fr));row-gap:14px}.s-pyr-levs{grid-template-columns:1fr 1fr}}
 /* pyramid v2: shapes stay joined; one detail panel below */
 .s-pyr-txt{min-height:0}
@@ -349,3 +349,13 @@ body{color:var(--g-navy);font-family:"Urbanist",system-ui,sans-serif}
 .s-pyr-dd .s-pyr-m{display:none !important}
 .s-pyr-detail::before{left:50%;margin-left:-8px}
 }
+
+/* pyramid lever bar (no duplicate cards) + average on lever tabs */
+.s-pyr-levs{display:flex;gap:6px;grid-template-columns:none}
+.s-pyr-lev{flex-direction:row;align-items:baseline;justify-content:space-between;min-width:0;padding:12px 14px;border-top-width:4px}
+.s-pyr-lev strong{font:800 20px/1 "Urbanist",sans-serif;color:#fff}
+#framework .lever-avg{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:10px;font:500 11px/1.2 "Urbanist",sans-serif;opacity:.8}
+#framework .lever-avg strong{font:800 22px/1 "Urbanist",sans-serif}
+@media (max-width:991px){.s-pyr-levs{flex-wrap:nowrap}.s-pyr-lev{padding:10px 8px}}
+#framework .lever-avg{margin-right:26px}
+.s-pyr-cap2{margin:10px 2px 0;font:500 12px/1.3 'Urbanist',sans-serif;color:#8E97BC}

@@ -195,7 +195,8 @@ window.IEI_HASH=(function(){
     var X={};
     X[1]='<blockquote class="s-pyr-q">'+esc(T('An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making.'))+'</blockquote>'+
       '<div class="s-pyr-flow">'+LOGIC.map(function(l,k){return '<span style="--c:'+LC[k]+'">'+esc(T(l[0]))+'</span>'}).join('<i aria-hidden="true">→</i>')+'</div>';
-    X[2]='<div class="s-pyr-levs">'+M.levers.map(function(L,k){return '<button type="button" class="s-pyr-lev" data-lev="'+k+'" style="--c:'+LC[k]+'"><span class="n">0'+(k+1)+'</span><b>'+esc(T(L.name))+'</b><em>'+esc(T(LOGIC[k][0]))+'</em><span class="m"><span>'+esc(T('Global average'))+'</span><strong>'+(lAvg[k]==null?'–':lAvg[k].toFixed(1))+'</strong></span><span class="d">'+esc(T(L.drivers.length+' drivers'))+'</span></button>'}).join('')+'</div>';
+    X[2]='<div class="s-pyr-levs">'+M.levers.map(function(L,k){return '<button type="button" class="s-pyr-lev" data-lev="'+k+'" title="'+esc(T(L.name)+' · '+T('Global average')+' '+(lAvg[k]==null?'–':lAvg[k].toFixed(1))+' · '+T(L.drivers.length+' drivers'))+'" style="--c:'+LC[k]+';flex:'+L.drivers.length+'"><span class="n">0'+(k+1)+'</span><strong>'+Math.round(L.drivers.length/M.driverIds.length*100)+'%</strong></button>'}).join('')+'</div><p class="s-pyr-cap2">'+esc(T('Share of the total score'))+'</p>';
+    M.levers.forEach(function(L,k){var tb=document.getElementById('lever-tab-'+k);if(tb&&!tb.querySelector('.lever-avg')&&lAvg[k]!=null){var a=document.createElement('span');a.className='lever-avg';a.innerHTML='<span>'+esc(T('Global average'))+'</span><strong>'+lAvg[k].toFixed(1)+'</strong>';var ar=tb.querySelector('.lever-arrow');tb.insertBefore(a,ar)}});
     X[3]='<div class="s-pyr-drv">'+M.levers.map(function(L,k){return '<div class="g" style="--c:'+LC[k]+'"><span class="gl">'+esc(T(L.name))+'</span><div>'+L.drivers.map(function(d){var a=dAvg[d];return '<button type="button" class="s-pyr-chip" data-map="d'+d+'" data-cap="'+esc(d+' · '+T(M.driverLabels[d]))+(a==null?'':' · '+esc(T('Global average'))+' '+a.toFixed(1))+'"><span>'+d+'</span><i style="width:'+(a||0).toFixed(0)+'%"></i></button>'}).join('')+'</div></div>'}).join('')+'</div>'+cap();
     var byD={};I.inds.forEach(function(m){(byD[m.driver]=byD[m.driver]||[]).push(m)});
     var TY={E:'Enabling condition',B:'Behaviour',L:'Leading-edge impact model'};
@@ -221,7 +222,7 @@ window.IEI_HASH=(function(){
       var lv=e.target.closest('.s-pyr-lev');if(lv){var t=document.getElementById('lever-tab-'+lv.getAttribute('data-lev'));if(t){if(t.getAttribute('aria-expanded')!=='true')t.click();var dk=document.getElementById('leverDeck');if(dk)dk.scrollIntoView({behavior:'smooth',block:'start'})}return}
       var mp=e.target.closest('[data-map]');if(mp){var sel=document.querySelector('.ix-drvsel');if(sel){sel.value=mp.getAttribute('data-map');sel.dispatchEvent(new Event('change',{bubbles:true}));var ex=document.getElementById('explore');if(ex)ex.scrollIntoView({behavior:'smooth',block:'start'})}}
     });
-    open(2);
+    open(1);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
