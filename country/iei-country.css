@@ -432,3 +432,24 @@ html.icm-open{overflow:hidden}
 .ic-soa-p{grid-column:2;font-size:12px;color:var(--a);font-weight:700}
 @media (max-width:767px){.ic-so{grid-template-columns:1fr}.ic-so-side{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:16px}.ic-so-t{font-size:19px !important}}
 .ic-so-also .ic-did{align-self:start;height:auto}
+/* standout: subtle badge + popover */
+.ic-name{position:relative}
+.ic-sob{display:inline-grid;place-items:center;width:28px;height:28px;margin-left:10px;vertical-align:4px;border-radius:50%;border:1.5px solid var(--a);background:color-mix(in srgb,var(--a) 16%,transparent);color:var(--a);font-size:14px;line-height:1;padding:0;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.ic-sob:hover,.ic-sob[aria-expanded="true"],.ic-sob:focus-visible{background:var(--a);color:#0F1428;transform:scale(1.08);outline:none}
+.ic-sopop{position:absolute;left:0;top:calc(100% + 10px);z-index:30;width:min(560px,86vw);display:block;padding:0;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.45);font-size:initial;font-weight:initial;line-height:normal;text-align:left;animation:icSoIn .2s ease both}
+.ic-sopop[hidden]{display:none}
+@keyframes icSoIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ic-sox{position:absolute;top:10px;right:12px;z-index:2;width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:17px;line-height:1;display:grid;place-items:center;padding:0}
+.ic-sox:hover{background:#fff;color:#0F1428}
+.ic-sopop .ic-so{display:block;margin:0;padding:20px 22px;border-radius:18px;background:radial-gradient(ellipse 70% 120% at 0 0,color-mix(in srgb,var(--a) 20%,transparent),transparent 65%),#161C36}
+.ic-sopop .ic-so-t{font-size:18px !important;padding-right:30px}
+.ic-sopop .ic-so-side{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:14px;margin-top:16px;display:grid;grid-template-columns:auto 1fr;gap:6px 22px;align-items:start}
+.ic-sopop .ic-so-score{grid-row:span 2}
+.ic-sopop .ic-so-score b{font-size:38px}
+.ic-sopop .ic-so-side>.ic-lbl{margin:0}
+@media (max-width:767px){.ic-sopop{width:calc(100vw - 48px)}.ic-sopop .ic-so-side{grid-template-columns:1fr}.ic-sopop .ic-so-score{grid-row:auto}}
+.ic-sopop,.ic-sopop *{letter-spacing:normal}
+.ic-sopop .ic-so-k,.ic-sopop .ic-lbl,.ic-sopop .ic-so-score span{letter-spacing:.12em}
+.ic-sopop .ic-so-t{letter-spacing:-.005em}
+.ic-head{position:relative}
+@media (max-width:767px){.ic-name{position:static}.ic-hl>div{position:static}.ic-sopop{left:12px;right:12px;width:auto;top:auto;margin-top:8px}}

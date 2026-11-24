@@ -309,6 +309,14 @@
     return b;
   }
   window.IEI_STANDOUT = function (id) { var S = standout(byId[id]); return S && { item: S.top.o.lvl + ' ' + S.top.o.id + ' ' + S.top.o.name, place: soPlace(S.top, byId[id]), tier: S.top.tier, also: S.also.map(function (x) { return x.o.id; }), learn: S.learn.map(function (x) { return x.id; }) }; };
+  function soClose() { var pp = document.getElementById('icSoPop'), bb = document.querySelector('.ic-sob'); if (pp && !pp.hidden) { pp.hidden = true; if (bb) { bb.setAttribute('aria-expanded', 'false'); bb.focus(); } } }
+  document.addEventListener('click', function (e) { var pp = document.getElementById('icSoPop'); if (pp && !pp.hidden && !e.target.closest('#icSoPop') && !e.target.closest('.ic-sob')) soClose(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') soClose(); });
+  function standoutBadge(c) {
+    var S = standout(c); if (!S || !S.top) return '';
+    return ' <button type="button" class="ic-sob" style="--a:' + S.top.o.acc + '" aria-expanded="false" aria-controls="icSoPop" title="Where ' + esc(c.name) + ' stands out"><span aria-hidden="true">★</span><span class="ic-sr">Where ' + esc(c.name) + ' stands out</span></button>' +
+      '<span class="ic-sopop" id="icSoPop" role="dialog" aria-label="Where ' + esc(c.name) + ' stands out" hidden><button type="button" class="ic-sox" aria-label="Close">×</button>' + standoutCard(c) + '</span>';
+  }
   function standoutCard(c) {
     var S = standout(c); if (!S || !S.top) return '';
     var t = S.top, pl = soPlace(t, c);
@@ -319,7 +327,7 @@
     var learn = S.learn.length ? '<div class="ic-so-learn"><span class="ic-lbl">Could inspire</span>' + S.learn.map(function (x) {
       return '<button type="button" class="ic-so-peer" data-go="' + x.id + '">' + flag(x, 'ic-flag') + '<span>' + esc(x.name) + '</span><em>' + Math.round(t.o.get(x)) + '</em></button>';
     }).join('') + '</div>' : '';
-    return '<div class="ic-card ic-so" style="--a:' + t.o.acc + '">' +
+    return '<div class="ic-so" style="--a:' + t.o.acc + '">' +
       '<div class="ic-so-main"><p class="ic-so-k"><span class="ic-so-ic" aria-hidden="true">★</span>Where ' + esc(c.name) + ' ' + lead + '</p>' +
       '<p class="ic-so-lvl">' + t.o.lvl + ' <span class="ic-did" style="--a:' + t.o.acc + '">' + esc(t.o.id) + '</span></p>' +
       '<h4 class="ic-so-t">' + esc(t.o.name) + '</h4>' +
@@ -400,7 +408,7 @@
 
     report.innerHTML =
       '<div class="ic-card ic-head">' +
-      '  <div class="ic-hl">' + flag(c, 'ic-hflag') + '<div><h3 class="ic-name">' + esc(c.name) + '</h3><p class="ic-sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div></div>' +
+      '  <div class="ic-hl">' + flag(c, 'ic-hflag') + '<div><h3 class="ic-name">' + esc(c.name) + standoutBadge(c) + '</h3><p class="ic-sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div></div>' +
       '  <div class="ic-share"><button type="button" class="ic-sh" data-share="link">Copy link</button><button type="button" class="ic-sh" data-share="print">Printable profile (PDF)</button><button type="button" class="ic-sh" data-share="embed" aria-expanded="false">Embed</button><span class="ic-shmsg" aria-live="polite"></span></div>' +
       '  <div class="ic-nav"><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
       '  <button type="button" class="ic-step" data-step="1" aria-label="Next country"' + (idx < 0 || idx >= f.length - 1 ? ' disabled' : '') + '>→</button></div>' +
@@ -411,7 +419,6 @@
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span><span><i class="b"></i>' + esc(bn.label) + '</span></p></div>' +
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
       '</div>' +
-      standoutCard(c) +
       '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
       ebCard(c, bn) +
       '<div class="ic-two">' +
@@ -796,6 +803,8 @@
       if (b.classList.contains('ic-chip')) { var top = $('.ic-report').getBoundingClientRect().top + window.pageYOffset - 90; if (top < window.pageYOffset) window.scrollTo({ top: top, behavior: reduced ? 'auto' : 'smooth' }); }
       return;
     }
+    if ((b = t.closest('.ic-sob'))) { var pp = document.getElementById('icSoPop'), op = pp.hidden; pp.hidden = !op; b.setAttribute('aria-expanded', op); return; }
+    if ((b = t.closest('.ic-sox'))) { soClose(); return; }
     if ((b = t.closest('[data-go]'))) { pick(b.getAttribute('data-go')); var tp = $('.ic-report').getBoundingClientRect().top + window.pageYOffset - 90; window.scrollTo({ top: tp, behavior: reduced ? 'auto' : 'smooth' }); return; }
     if ((b = t.closest('.ic-step'))) {
       var f = filtered(), i = f.map(function (x) { return x.id; }).indexOf(state.sel) + parseInt(b.getAttribute('data-step'), 10);
