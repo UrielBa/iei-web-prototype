@@ -246,6 +246,88 @@
     else base = C.filter(function (x) { return x.id !== c.id && x[kind] === c[kind]; }).sort(function (a, b) { return Math.abs(a.score - c.score) - Math.abs(b.score - c.score); }).slice(0, 5).map(function (x) { return x.id; });
     state.peers = base; render();
   }
+
+  /* ---------- standout strength: something every country can be proud of ---------- */
+  function standoutItems() {
+    var it = [];
+    LEV.forEach(function (L, k) { it.push({ lvl: 'Lever', id: String(k + 1), name: L.name, acc: L.accent, get: function (x) { return x.l[k]; } }); });
+    DID.forEach(function (id, i) { it.push({ lvl: 'Driver', id: id, name: DLAB[id], acc: LEV[driverLever[id]].accent, get: function (x) { return x.d[i]; } }); });
+    INDS.filter(function (m) { return !m.star; }).forEach(function (m) {
+      it.push({ lvl: 'Indicator', id: m.id, name: m.name, acc: LEV[driverLever[m.driver]].accent, drv: m.driver, get: function (x) { var e = indVal(x.id, m.id); return e && e.s != null ? e.s : null; } });
+    });
+    return it;
+  }
+  function placeIn(list, fn, c) {
+    var v = fn(c); if (v == null) return null;
+    var vals = list.map(fn).filter(function (x) { return x != null; });
+    if (vals.length < 3) return null;
+    var hi = vals.filter(function (x) { return x > v; }).length, tie = vals.filter(function (x) { return x === v; }).length;
+    return { r: hi + 1, n: vals.length, shared: tie > 1, eff: hi + tie };
+  }
+  var SO_CACHE = {};
+  function standout(c) {
+    if (SO_CACHE[c.id]) return SO_CACHE[c.id];
+    var reg = C.filter(function (x) { return x.region === c.region; }), inc = C.filter(function (x) { return x.income === c.income; });
+    var lvlW = { Lever: 0, Driver: 0.3, Indicator: 0.8 };
+    var cands = standoutItems().map(function (o) {
+      var v = o.get(c); if (v == null) return null;
+      var g = placeIn(C, o.get, c), rg = placeIn(reg, o.get, c), ig = placeIn(inc, o.get, c);
+      if (!g) return null;
+      var ref = avg(inc, o.get), gap = ref == null ? 0 : v - ref;
+      // effective rank (ties counted pessimistically) keeps "joint #1 with 20 countries" from looking special
+      var tier = g.eff <= 3 ? 1 : (rg && rg.eff === 1) || (ig && ig.eff === 1) ? 2 : g.eff <= 10 ? 3 : (rg && rg.eff <= 3) || (ig && ig.eff <= 3) ? 4 : 5;
+      var sc = tier * 10 + lvlW[o.lvl] + g.eff / g.n * 5 - Math.max(gap, 0) / 80;
+      return { o: o, v: v, g: g, rg: rg, ig: ig, gap: gap, ref: ref, tier: tier, sc: sc };
+    }).filter(Boolean).sort(function (a, b) { return a.sc - b.sc; });
+    var top = cands[0], also = [];
+    cands.slice(1).forEach(function (x) {
+      if (also.length >= 2 || x.tier > Math.max(top.tier, 3)) return;
+      if (x.o.id === top.o.id || x.o.drv === top.o.id || top.o.drv === x.o.id || also.some(function (a) { return a.o.id === x.o.drv || a.o.drv === x.o.id || (a.o.drv && a.o.drv === x.o.drv); })) return;
+      if (x.o.lvl === 'Lever' && top.o.lvl === 'Driver' && LEV[+x.o.id - 1].drivers.indexOf(top.o.id) >= 0) return;
+      also.push(x);
+    });
+    // peers who could learn from it: same region or income group, furthest behind on this item
+    var pool = C.filter(function (x) { return x.id !== c.id && (x.region === c.region || x.income === c.income) && top.o.get(x) != null && top.o.get(x) < top.v; });
+    pool.sort(function (a, b) { return top.o.get(a) - top.o.get(b); });
+    return (SO_CACHE[c.id] = { top: top, also: also, learn: pool.slice(0, 3) });
+  }
+  function rk(g) { var tie = g.eff - g.r + 1; return tie > 1 ? (g.r === 1 ? 'Top score, shared by ' + tie + ' of ' + g.n : 'Joint #' + g.r + ' of ' + g.n) : '#' + g.r + ' of ' + g.n; }
+  function soPlace(x, c) {
+    var b = [];
+    var q = [];
+    if (x.g.eff <= 10) q.push({ r: x.g.r, o: 0, t: (x.g.shared ? 'Joint #' : '#') + x.g.r + ' of ' + x.g.n + ' worldwide' });
+    if (x.rg && x.rg.eff <= 3) q.push({ r: x.rg.r, o: 1, t: (x.rg.shared ? 'Joint #' : '#') + x.rg.r + ' in ' + c.region });
+    if (x.ig && x.ig.eff <= 3) q.push({ r: x.ig.r, o: 2, t: (x.ig.shared ? 'Joint #' : '#') + x.ig.r + ' among ' + c.income + ' countries' });
+    q.sort(function (u, v) { return u.r - v.r || u.o - v.o; }).forEach(function (u) { b.push(u.t); });
+    if (!b.length) {
+      var opt = [{ p: x.g.eff / x.g.n, t: x.g.eff / x.g.n <= .5 ? 'Top ' + Math.max(1, Math.round(x.g.eff / x.g.n * 100)) + '% worldwide' : null }];
+      if (x.rg) opt.push({ p: x.rg.eff / x.rg.n, t: rk(x.rg) + ' in ' + c.region });
+      if (x.ig) opt.push({ p: x.ig.eff / x.ig.n, t: rk(x.ig) + ' ' + c.income + ' countries' });
+      opt = opt.filter(function (o) { return o.t; }).sort(function (u, v) { return u.p - v.p; });
+      b.push(opt.length && opt[0].p <= .5 ? opt[0].t : 'Its strongest result relative to its peers');
+    }
+    return b;
+  }
+  window.IEI_STANDOUT = function (id) { var S = standout(byId[id]); return S && { item: S.top.o.lvl + ' ' + S.top.o.id + ' ' + S.top.o.name, place: soPlace(S.top, byId[id]), tier: S.top.tier, also: S.also.map(function (x) { return x.o.id; }), learn: S.learn.map(function (x) { return x.id; }) }; };
+  function standoutCard(c) {
+    var S = standout(c); if (!S || !S.top) return '';
+    var t = S.top, pl = soPlace(t, c);
+    var lead = t.tier <= 2 ? 'stands out' : t.tier <= 4 ? 'leads its peers' : 'shows its greatest relative strength';
+    var also = S.also.map(function (x) {
+      return '<li style="--a:' + x.o.acc + '"><span class="ic-did">' + esc(x.o.id) + '</span><span class="ic-soa-n">' + esc(x.o.name) + '</span><span class="ic-soa-p">' + esc(soPlace(x, c)[0]) + '</span></li>';
+    }).join('');
+    var learn = S.learn.length ? '<div class="ic-so-learn"><span class="ic-lbl">Could inspire</span>' + S.learn.map(function (x) {
+      return '<button type="button" class="ic-so-peer" data-go="' + x.id + '">' + flag(x, 'ic-flag') + '<span>' + esc(x.name) + '</span><em>' + Math.round(t.o.get(x)) + '</em></button>';
+    }).join('') + '</div>' : '';
+    return '<div class="ic-card ic-so" style="--a:' + t.o.acc + '">' +
+      '<div class="ic-so-main"><p class="ic-so-k"><span class="ic-so-ic" aria-hidden="true">★</span>Where ' + esc(c.name) + ' ' + lead + '</p>' +
+      '<p class="ic-so-lvl">' + t.o.lvl + ' <span class="ic-did" style="--a:' + t.o.acc + '">' + esc(t.o.id) + '</span></p>' +
+      '<h4 class="ic-so-t">' + esc(t.o.name) + '</h4>' +
+      '<div class="ic-so-chips">' + pl.map(function (p, i) { return '<span class="ic-so-chip' + (i === 0 ? ' a' : '') + '">' + esc(p) + '</span>'; }).join('') +
+      (t.ref != null && t.gap >= 1 ? '<span class="ic-so-chip">' + sgn(Math.round(t.gap)) + ' vs income-group average</span>' : '') + '</div>' + learn + '</div>' +
+      '<div class="ic-so-side"><div class="ic-so-score"><b>' + Math.round(t.v) + '</b><span>score</span></div>' +
+      (also ? '<p class="ic-lbl">Also notable</p><ul class="ic-so-also">' + also + '</ul>' : '') + '</div></div>';
+  }
   function render() { renderCore(); syncHash(); }
   function renderCore() {
     var c = byId[state.sel], bn = benchFor(c);
@@ -329,6 +411,7 @@
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span><span><i class="b"></i>' + esc(bn.label) + '</span></p></div>' +
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
       '</div>' +
+      standoutCard(c) +
       '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
       ebCard(c, bn) +
       '<div class="ic-two">' +
@@ -713,6 +796,7 @@
       if (b.classList.contains('ic-chip')) { var top = $('.ic-report').getBoundingClientRect().top + window.pageYOffset - 90; if (top < window.pageYOffset) window.scrollTo({ top: top, behavior: reduced ? 'auto' : 'smooth' }); }
       return;
     }
+    if ((b = t.closest('[data-go]'))) { pick(b.getAttribute('data-go')); var tp = $('.ic-report').getBoundingClientRect().top + window.pageYOffset - 90; window.scrollTo({ top: tp, behavior: reduced ? 'auto' : 'smooth' }); return; }
     if ((b = t.closest('.ic-step'))) {
       var f = filtered(), i = f.map(function (x) { return x.id; }).indexOf(state.sel) + parseInt(b.getAttribute('data-step'), 10);
       if (f[i]) pick(f[i].id);
