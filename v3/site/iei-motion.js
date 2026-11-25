@@ -36,4 +36,45 @@
     });
   }, { threshold: .6 }) : null;
   $$('[data-count]').forEach(function (b) { if (cio && !reduce) { b.textContent = '0'; cio.observe(b); } });
+
+  /* Explore: tab dock that stays under the header once the page tabs scroll away */
+  var tabs = document.querySelector('.s-subtabs');
+  if (tabs) {
+    var dock = document.createElement('div'); dock.className = 's-tabdock'; dock.hidden = true;
+    dock.innerHTML = '<div class="s-wrap"><div class="s-dockrow" role="tablist" aria-label="Explore views"></div></div>';
+    var row = dock.querySelector('.s-dockrow');
+    $$('[data-subtab]', tabs).forEach(function (b) { var c = b.cloneNode(true); c.removeAttribute('id'); c.removeAttribute('aria-controls'); row.appendChild(c); });
+    document.body.appendChild(dock);
+    var dockCheck = function () {
+      var view = tabs.closest('.s-view'), show = false, h = nav ? nav.getBoundingClientRect().height : 56;
+      if (view && !view.hidden) show = tabs.getBoundingClientRect().bottom < h + 4;
+      dock.hidden = !show; dock.style.top = (h - 1) + 'px';
+    };
+    window.addEventListener('scroll', dockCheck, { passive: true }); window.addEventListener('hashchange', function () { setTimeout(dockCheck, 80); }); window.addEventListener('resize', dockCheck); dockCheck();
+  }
+
+  /* Overview: section index on the right edge */
+  var ov = document.querySelector('.s-view[data-view="overview"]');
+  if (ov) {
+    var secs = [['.s-hero', 'Introduction'], ['.s-def', 'Definition'], ['.s-use', 'Levers'], ['.s-ins', 'Key results'], ['.s-nextb', 'Next steps']]
+      .map(function (x) { var el = ov.querySelector(x[0]); return el ? { el: el, label: x[1] } : null; }).filter(Boolean);
+    var rail = document.createElement('nav'); rail.className = 's-rail'; rail.setAttribute('aria-label', 'Sections of this page'); rail.hidden = true;
+    rail.innerHTML = '<ul>' + secs.map(function (x, i) { return '<li><button type="button" data-i="' + i + '" aria-label="' + x.label + '"><span>' + x.label + '</span><i></i></button></li>'; }).join('') + '</ul>';
+    document.body.appendChild(rail);
+    var btns = $$('button', rail);
+    var railUpd = function () {
+      rail.hidden = ov.hidden || window.innerWidth < 1200;
+      if (rail.hidden) return;
+      var mid = window.innerHeight * .4, cur = 0;
+      secs.forEach(function (x, i) { if (x.el.getBoundingClientRect().top <= mid) cur = i; });
+      btns.forEach(function (b, i) { b.classList.toggle('on', i === cur); if (i === cur) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+      rail.classList.toggle('on-dark', secs[cur].el.classList.contains('s-def'));
+    };
+    rail.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      var y = secs[+b.getAttribute('data-i')].el.getBoundingClientRect().top + window.pageYOffset - 56;
+      window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+    });
+    window.addEventListener('scroll', railUpd, { passive: true }); window.addEventListener('resize', railUpd); window.addEventListener('hashchange', function () { setTimeout(railUpd, 80); }); railUpd();
+  }
 })();

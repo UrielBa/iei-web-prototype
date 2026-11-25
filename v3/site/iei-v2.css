@@ -264,7 +264,7 @@ a.cs-go,.cs-go,.cs-card h3,.cs-card h3 a{color:var(--v-navy) !important}
 .s-nav .s-wrap{transition:height .25s ease}
 .s-nav .s-brand img{transition:height .25s ease,width .25s ease}
 .s-nav.is-stuck .s-wrap{height:56px}
-.s-nav.is-stuck .s-brand img{height:36px;width:auto}
+.s-nav.is-stuck .s-brand img{height:34px !important;width:auto !important}
 .s-progress{position:absolute;left:0;right:0;bottom:-1px;height:3px;pointer-events:none}
 .s-progress i{display:block;height:100%;background:var(--v-lilac);transform:scaleX(0);transform-origin:left}
 /* levers: coloured rule draws in */
@@ -278,3 +278,31 @@ a.cs-go,.cs-go,.cs-card h3,.cs-card h3 a{color:var(--v-navy) !important}
 .s-ins .s-find .s-num{transition:background .25s}
 .s-ins .s-find:hover .s-num{background:var(--v-lilac) !important}
 @media (prefers-reduced-motion:reduce){.s-levs-rich>li::before{transform:none;transition:none}.s-nav .s-wrap,.s-nav .s-brand img,.s-nextcard{transition:none}.s-nextcard:hover{transform:none}}
+
+/* ================= 25 Nov (4): larger headlines, tab dock, section rail ================= */
+.s-hero h1{font-size:clamp(44px,5.8vw,84px) !important;line-height:1.02 !important;letter-spacing:-.03em !important}
+.s-use h2,.s-ins h2,.s-nextb h2,.s-xhead h2,.s-cases h2{font-size:clamp(42px,6vw,84px) !important;line-height:1.02 !important;letter-spacing:-.03em !important;font-weight:300 !important}
+.s-use h2 em,.s-ins h2 em,.s-nextb h2 em,.s-xhead h2 em,.s-cases h2 em{font-style:italic;font-weight:600}
+.s-hero h1 em{font-weight:600}
+@media (max-width:575px){.s-use h2,.s-ins h2,.s-nextb h2,.s-xhead h2,.s-cases h2{font-size:38px !important}.s-hero h1{font-size:40px !important}}
+/* Explore tab dock */
+.s-tabdock{position:fixed;left:0;right:0;z-index:900;background:#fff;border-bottom:1px solid var(--v-rule);box-shadow:0 6px 18px rgba(15,20,40,.06)}
+.s-tabdock[hidden]{display:none}
+.s-dockrow{display:flex;gap:4px;align-items:flex-end;padding-top:8px}
+.s-dockrow .s-subtab{padding:11px 22px !important;font-size:15px !important}
+.s-dockrow .s-subtab:first-child{padding-left:22px !important}
+.s-dockrow .s-subtab[aria-selected="true"][data-subtab="map"]{background:#F0F0F0 !important}
+@media (max-width:575px){.s-dockrow .s-subtab{flex:1;padding:11px 10px !important}}
+/* section rail (Overview, wide screens) */
+.s-rail{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:800}
+.s-rail[hidden]{display:none}
+.s-rail ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.s-rail button{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:12px;width:100%;padding:6px 0;border:0;background:none;cursor:pointer}
+.s-rail button i{display:block;width:12px;height:12px;border:2px solid var(--v-navy);background:#fff;transform:rotate(45deg);transition:background .2s,transform .2s,border-color .2s}
+.s-rail button span{padding:5px 10px;background:var(--v-navy);color:#fff;font:600 12px/1 "Urbanist",sans-serif;white-space:nowrap;opacity:0;transform:translateX(8px);transition:opacity .2s,transform .2s;pointer-events:none}
+.s-rail button:hover span,.s-rail button:focus-visible span{opacity:1;transform:none}
+.s-rail button.on i{background:var(--v-lilac);border-color:var(--v-lilac);transform:rotate(45deg) scale(1.25)}
+.s-rail.on-dark button i{border-color:#fff;background:var(--v-navy)}
+.s-rail.on-dark button.on i{background:var(--v-lilac);border-color:var(--v-lilac)}
+.s-rail.on-dark button span{background:#fff;color:var(--v-navy)}
+@media (prefers-reduced-motion:reduce){.s-rail button i,.s-rail button span{transition:none}}
