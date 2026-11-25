@@ -43,7 +43,7 @@
   var incomes = ['High Income', 'Upper Middle Income', 'Lower Middle Income', 'Low Income'].filter(function (i) { return C.some(function (c) { return c.income === i; }); });
   var H0 = window.IEI_HASH ? window.IEI_HASH.get() : {};
   var fromHash = (H0.country || '').toUpperCase();
-  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', plevel: 'driver', open: {}, q: '', tier: '', region: '', income: '' };
+  var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', plevel: 'driver', acc: {}, open: {}, q: '', tier: '', region: '', income: '' };
   if (['income', 'tier', 'region', 'all', 'best', 'country'].indexOf(H0.cmp) >= 0) state.bench = H0.cmp;
   if (H0.vs && byId[H0.vs.toUpperCase()]) { state.bench = 'country'; state.benchId = H0.vs.toUpperCase(); }
   if (H0.open === 'all') DID.forEach(function (d) { state.open[d] = true; });
@@ -179,8 +179,8 @@
   /* ---------- report ---------- */
   function heatColour(v) {
     if (v == null) return null;
-    var a = 0.12 + 0.78 * Math.max(0, Math.min(1, v / 100));
-    return { bg: 'rgba(112,132,255,' + a.toFixed(2) + ')', fg: a > 0.62 ? '#0F1428' : '#fff' };
+    var t = 0.06 + 0.94 * Math.max(0, Math.min(1, v / 100)), m = function (x) { return Math.round(255 + (x - 255) * t); };
+    return { bg: 'rgb(' + m(100) + ',' + m(120) + ',' + m(255) + ')', fg: '#0F1428' };
   }
   function peerCard(c, bn, drivers, closest) {
     if (state.peerFor !== c.id) { state.peerFor = c.id; state.peers = closest.slice(0, 4).map(function (p) { return p.c.id; }); }
@@ -224,7 +224,7 @@
       [['region', 'Same region'], ['income', 'Same income group'], ['closest', 'Closest profile'], ['clear', 'Clear']].map(function (o) { return '<button type="button" class="ic-qp" data-qp="' + o[0] + '">' + o[1] + '</button>'; }).join('') +
       (P.length < 5 ? '<label class="ic-field ic-add"><span class="ic-sr">Add a country</span><select class="ic-padd"><option value="">Add a country…</option>' + opts.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
       '<div class="ic-tscroll"><table class="ic-heat"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
-      '<p class="ic-note">Darker blue means a higher ' + (lvl === 'lever' ? 'lever' : lvl === 'driver' ? 'driver' : 'indicator') + ' score' + (lvl === 'indicator' ? ' (35 scored indicators; leading-edge models are not scored)' : '') + '. “Ahead” / “Behind” mark a gap of 5 points or more against ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
+      '<p class="ic-note">A stronger shade means a higher ' + (lvl === 'lever' ? 'lever' : lvl === 'driver' ? 'driver' : 'indicator') + ' score' + (lvl === 'indicator' ? ' (35 scored indicators; leading-edge models are not scored)' : '') + '. “Ahead” / “Behind” mark a gap of 5 points or more against ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
   }
   function csvDownload() {
     var c = byId[state.sel], bn = benchFor(c), P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
@@ -336,6 +336,13 @@
       '<div class="ic-so-side"><div class="ic-so-score"><b>' + Math.round(t.v) + '</b><span>score</span></div>' +
       (also ? '<p class="ic-lbl">Also notable</p><ul class="ic-so-also">' + also + '</ul>' : '') + '</div></div>';
   }
+
+  /* progressive disclosure: secondary detail sits behind a toggle */
+  function acc(key, title, hint, html) {
+    var on = !!state.acc[key];
+    return '<section class="ic-acc' + (on ? ' on' : '') + '"><button type="button" class="ic-acc-b" data-acc="' + key + '" aria-expanded="' + on + '"><span class="ic-acc-t">' + title + '</span><span class="ic-acc-h">' + hint + '</span><span class="ic-acc-i" aria-hidden="true"></span></button>' +
+      '<div class="ic-acc-p"' + (on ? '' : ' hidden') + '>' + html + '</div></section>';
+  }
   function render() { renderCore(); syncHash(); }
   function renderCore() {
     var c = byId[state.sel], bn = benchFor(c);
@@ -420,23 +427,24 @@
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
       '</div>' +
       '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
-      ebCard(c, bn) +
       '<div class="ic-two">' +
       '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
       '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul></div>' +
       '</div>' +
-      '<div class="ic-card ic-drivers">' +
+      '<p class="ic-more-k">More detail</p>' +
+      acc('drivers', 'All 14 drivers', 'Scores, gaps and the indicators behind each driver', '<div class="ic-card ic-drivers">' +
       '  <div class="ic-dhead"><h4 class="ic-h4">All 14 drivers</h4><div class="ic-sort" role="group" aria-label="Sort drivers">' +
       [['lever', 'By lever'], ['gap', 'Largest gaps'], ['strength', 'Strengths']].map(function (o) { return '<button type="button" data-sort="' + o[0] + '" aria-pressed="' + (state.sort === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div><div class="ic-dbtns"><button type="button" class="ic-dl" data-expand="1">' + (DID.every(function (id) { return state.open[id]; }) ? 'Collapse all' : 'Expand all') + '</button><button type="button" class="ic-dl" data-csv="1">Drivers CSV</button><button type="button" class="ic-dl" data-csv-ind="1">Indicators CSV</button></div></div>' +
       '  <p class="ic-hint">Select a driver to see its indicators, the facts behind each score and how it compares.</p>' +
       '  <p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' +
       '  <div class="ic-tscroll"><table class="ic-table"><thead class="ic-sr"><tr><th>Driver</th><th>Description</th><th>Score</th><th>Value</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
       (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data”. This is not a score of zero or a low score: the driver is left out of the averages and comparisons.</p>' : '') +
-      '</div>' +
-      indCard(c, bn) +
-      peerCard(c, bn, drivers, peers) +
-      '<div class="ic-card ic-peers"><h4 class="ic-h4">Countries with a similar lever profile</h4><div class="ic-chips">' +
-      peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>' +
+      '</div>') +
+      acc('eb', 'Enabling conditions and behaviour', 'Policies and institutions versus what actors actually do', ebCard(c, bn)) +
+      acc('why', 'What explains the differences', 'The facts behind the biggest gaps and leads, and what would move them', indCard(c, bn)) +
+      acc('peers', 'Compare with chosen peers', 'Lever, driver and indicator scores side by side', peerCard(c, bn, drivers, peers)) +
+      acc('similar', 'Countries with a similar lever profile', peers.slice(0, 3).map(function (p) { return esc(p.c.name); }).join(' · '), '<div class="ic-card ic-peers"><div class="ic-chips">' +
+      peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>') +
       (c.link ? '<a class="ic-profile" href="' + esc(c.link) + '" target="_blank" rel="noopener">Open full country profile ↗</a>' : '');
     renderList();
   }
@@ -813,6 +821,7 @@
     }
     if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); return; }
     if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
+    if ((b = t.closest('[data-acc]'))) { var ak = b.getAttribute('data-acc'); state.acc[ak] = !state.acc[ak]; var pn = b.nextElementSibling; pn.hidden = !state.acc[ak]; b.setAttribute('aria-expanded', state.acc[ak]); b.parentNode.classList.toggle('on', state.acc[ak]); return; }
     if ((b = t.closest('[data-plv]'))) { state.plevel = b.getAttribute('data-plv'); render(); return; }
     if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }
     if ((b = t.closest('[data-share]'))) {

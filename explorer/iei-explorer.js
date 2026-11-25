@@ -25,11 +25,11 @@
   var TIER_BG = {}, TIER_FG = {}, TIER_RANGE = {}; META.tiers.forEach(function (t) { TIER_BG[t.name] = t.bg; TIER_FG[t.name] = t.fg; TIER_RANGE[t.name] = t.min + '–' + t.max; });
 
   var METRICS = [
-    { id: 'score', name: 'Total score', short: 'Total', accent: '#0F1428', ink: '#FFFFFF', pal: ['#BFEDEC', '#6478FF', '#2942B5'], val: function (c) { return c.score; } },
-    { id: 'l1', name: META.levers[0].name, short: 'Accountability & Transparency', accent: '#3DCC7D', ink: '#0F1428', pal: ['#E0F6EA', '#3DCC7D', '#0C6636'], val: function (c) { return c.l[0]; } },
-    { id: 'l2', name: META.levers[1].name, short: 'Procurement & Demand', accent: '#77DAD9', ink: '#0F1428', pal: ['#E1F6F6', '#77DAD9', '#17787B'], val: function (c) { return c.l[1]; } },
-    { id: 'l3', name: META.levers[2].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', ink: '#0F1428', pal: ['#FCE6EE', '#F094B5', '#992450'], val: function (c) { return c.l[2]; } },
-    { id: 'l4', name: META.levers[3].name, short: 'Coordination & Support', accent: '#FFBD87', ink: '#0F1428', pal: ['#FFEEDF', '#FFBD87', '#B4540C'], val: function (c) { return c.l[3]; } }
+    { id: 'score', name: 'Total score', short: 'Total', accent: '#0F1428', ink: '#FFFFFF', pal: ['#F3F4FF', '#ABB6FF', '#6478FF'], val: function (c) { return c.score; } },
+    { id: 'l1', name: META.levers[0].name, short: 'Accountability & Transparency', accent: '#3DCC7D', ink: '#0F1428', pal: ['#EFFBF5', '#96E3B9', '#3DCC7D'], val: function (c) { return c.l[0]; } },
+    { id: 'l2', name: META.levers[1].name, short: 'Procurement & Demand', accent: '#77DAD9', ink: '#0F1428', pal: ['#F4FCFC', '#B6EBEA', '#77DAD9'], val: function (c) { return c.l[1]; } },
+    { id: 'l3', name: META.levers[2].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', ink: '#0F1428', pal: ['#FEF6F9', '#F7C5D7', '#F094B5'], val: function (c) { return c.l[2]; } },
+    { id: 'l4', name: META.levers[3].name, short: 'Coordination & Support', accent: '#FFBD87', ink: '#0F1428', pal: ['#FFFAF5', '#FFDBBE', '#FFBD87'], val: function (c) { return c.l[3]; } }
   ];
   var M = {};
   METRICS.forEach(function (m) {
@@ -85,7 +85,7 @@
     u = Math.max(0, Math.min(1, u));
     var s = m.pal.map(hex2rgb);
     var rgb = u < 0.5 ? lerp(s[0], s[1], u / 0.5) : lerp(s[1], s[2], (u - 0.5) / 0.5);
-    return { bg: rgbCss(rgb), fg: luminance(rgb) > 0.4 ? '#0F1428' : '#FFFFFF' };
+    return { bg: rgbCss(rgb), fg: '#0F1428' };
   }
 
   function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
@@ -160,7 +160,8 @@
     '    </section>' +
     '    <aside class="ix-card ix-panel" aria-live="polite"></aside>' +
     '  </div>' +
-    '  <section class="ix-card ix-tablecard" aria-label="Ranking table">' +
+    '  <button type="button" class="s-more ix-more" aria-expanded="false" aria-controls="ixTable"><span>Show the full country ranking</span><i aria-hidden="true"></i></button>' +
+    '  <section class="ix-card ix-tablecard" id="ixTable" aria-label="Ranking table" hidden>' +
     '    <div class="ix-tablebar">' +
     '      <div><p class="ix-tabletitle">Country ranking</p><p class="ix-count"></p></div>' +
     '      <button type="button" class="ix-ghost ix-dl">Download data (CSV)</button>' +
@@ -369,7 +370,7 @@
     }
     panel.innerHTML = '<div class="ix-pb">' +
       '<p class="ix-kicker">Global snapshot</p><h3 class="ix-ptitle">' + esc(m.name) + '</h3>' +
-      '<div class="ix-avg"><span style="color:' + (m.id === 'score' ? '#1B2A8F' : m.pal[2]) + '">' + Math.round(m.avg) + '</span><small>average across ' + ranked.length + ' countries<br>range ' + m.min + '–' + m.max + '</small></div>' +
+      '<div class="ix-avg"><span style="color:' + '#0F1428' + '">' + Math.round(m.avg) + '</span><small>average across ' + ranked.length + ' countries<br>range ' + m.min + '–' + m.max + '</small></div>' +
       tiers +
       '<p class="ix-sub">Highest</p>' + listItems(ranked.slice(0, 3), m) +
       '<p class="ix-sub">Lowest</p>' + listItems(ranked.slice(-3).reverse(), m) +

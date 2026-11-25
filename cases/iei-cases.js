@@ -46,7 +46,7 @@
   /* ---------- card + detail html ---------- */
   function tags(k) {
     var ic = SICON[k.s];
-    return '<div class="cs-tags">' + '<span class="cs-st">' + (ic ? '<img src="./brand/icons/' + ic + '.png" alt="">' : '') + esc(k.s) + '</span>' +
+    return '<div class="cs-tags">' + '<span class="cs-st">' + '' + esc(k.s) + '</span>' +
       k.i.map(function (id) { return '<span class="cs-dr" style="--a:' + LEVC[parseInt(id.charAt(0), 10) - 1] + '">' + esc(id) + '</span>'; }).join('') + '</div>';
   }
   function countryLine(k) {
@@ -79,7 +79,7 @@
       '<div class="cp-facts">' +
         '<div class="cp-fact"><span class="cp-fk">Country</span><span class="cp-fv">' + (k.flag ? '<img class="cp-flag" src="' + FLAGS + k.flag + '.svg" alt="">' : '') + esc(k.cn) + '</span>' +
           (c ? '<span class="cp-fs">IEI score ' + c.score + ' · <span class="cs-tier" style="background:' + TBG[c.tier] + ';color:' + TFG[c.tier] + '">' + esc(c.tier) + '</span></span>' : '<span class="cp-fs">Not scored in the Index</span>') + '</div>' +
-        '<div class="cp-fact"><span class="cp-fk">Most useful for</span><span class="cp-fv">' + (ic ? '<img class="cp-ico" src="./brand/icons/' + ic + '.png" alt="">' : '') + esc(k.s) + '</span>' + (k.sa ? '<span class="cp-fs">Also ' + esc(k.sa) + '</span>' : '') + '</div>' +
+        '<div class="cp-fact"><span class="cp-fk">Most useful for</span><span class="cp-fv">' + '' + esc(k.s) + '</span>' + (k.sa ? '<span class="cp-fs">Also ' + esc(k.sa) + '</span>' : '') + '</div>' +
         '<div class="cp-fact"><span class="cp-fk">Region · income</span><span class="cp-fv">' + esc(k.region) + '</span><span class="cp-fs">' + esc(k.inc) + '</span></div>' +
       '</div>' +
       (glance ? '<div class="cp-glance"><span class="cp-fk">At a glance</span><p>' + esc(glance) + '</p></div>' : '') +
@@ -164,7 +164,7 @@
   /* ---------- section with filters ---------- */
   var root = document.getElementById('ieiCases');
   if (!root) return;
-  var st = { country: '', stake: '', driver: '', tier: '', region: '' };
+  var st = { country: '', stake: '', driver: '', tier: '', region: '' }, showAll = false, FIRST = 6;
   function sel(key, label, opts) {
     return '<label class="cs-f"><span>' + label + '</span><select data-f="' + key + '"><option value="">All</option>' + opts.map(function (o) {
       var v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '">' + esc(l) + '</option>';
@@ -173,15 +173,19 @@
   var drvOpts = M.driverIds.map(function (id) { return [id, id + ' · ' + M.driverLabels[id].replace(/ \(e\.g\..*$/, '')]; });
   root.innerHTML = '<div class="cs-bar">' + sel('country', 'Country', uniq(K.map(function (k) { return k.cn; }))) + sel('stake', 'Stakeholder', uniq(K.map(function (k) { return k.s; }))) +
     sel('driver', 'Driver', drvOpts) + sel('tier', 'Stage', M.tiers.map(function (t) { return t.name; })) + sel('region', 'Region', uniq(K.map(function (k) { return k.region; }))) +
-    '<button type="button" class="cs-reset">Reset</button></div><p class="cs-count" aria-live="polite"></p><div class="cs-grid"></div>' +
+    '<button type="button" class="cs-reset">Reset</button></div><p class="cs-count" aria-live="polite"></p><div class="cs-grid"></div><button type="button" class="s-more cs-all" aria-expanded="false"><span></span><i aria-hidden="true"></i></button>' +
     '<p class="cs-note">Working draft: first selection of case studies (November 2026). Maturity stage is shown for countries in the 54-economy sample.</p>';
-  var grid = root.querySelector('.cs-grid'), count = root.querySelector('.cs-count');
+  var grid = root.querySelector('.cs-grid'), count = root.querySelector('.cs-count'), allBtn = root.querySelector('.cs-all');
   function render() {
     var L = K.filter(function (k) {
       return (!st.country || k.cn === st.country) && (!st.stake || k.s === st.stake) && (!st.driver || k.drivers.indexOf(st.driver) >= 0) &&
         (!st.tier || k.tier === st.tier) && (!st.region || k.region === st.region);
     });
     count.textContent = L.length + ' of ' + K.length + ' case studies';
+    var more = L.length > FIRST && !showAll;
+    allBtn.hidden = L.length <= FIRST; allBtn.setAttribute('aria-expanded', showAll);
+    allBtn.querySelector('span').textContent = showAll ? 'Show fewer case studies' : 'Show all ' + L.length + ' case studies';
+    if (more) L = L.slice(0, FIRST);
     grid.innerHTML = L.length ? L.map(function (k) {
       return '<article class="cs-card">' + (photo(k) ? '<img class="cs-photo" src="' + esc(photo(k).u) + '" alt="' + esc(photo(k).c) + '" loading="lazy" referrerpolicy="no-referrer">' : '') + '<div class="cs-top">' + countryLine(k) + '</div><h3>' + esc(k.t) + '</h3><p>' + esc(k.b) + '</p>' + tags(k) +
         '<button type="button" class="cs-go" data-open-case="' + esc(k.id) + '">Read the case →</button></article>';
@@ -191,6 +195,7 @@
   root.addEventListener('click', function (e) {
     var b = e.target.closest('.cs-reset');
     if (b) { st = { country: '', stake: '', driver: '', tier: '', region: '' }; Array.prototype.forEach.call(root.querySelectorAll('select'), function (s) { s.value = ''; }); render(); return; }
+    if (e.target.closest('.cs-all')) { showAll = !showAll; render(); return; }
     b = e.target.closest('[data-open-case]');
     if (b) open('ALL', b, b.getAttribute('data-open-case'));
   });

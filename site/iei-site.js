@@ -229,3 +229,12 @@ window.IEI_HASH=(function(){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
+
+/* ---- generic "show more" toggles: detail stays one click away ---- */
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('.s-more[aria-controls]');if(!b)return;
+  var t=document.getElementById(b.getAttribute('aria-controls'));if(!t)return;
+  var open=t.hidden;t.hidden=!open;b.setAttribute('aria-expanded',open);
+  var sp=b.querySelector('span'),T=window.IEI_T||function(x){return x};
+  if(sp){if(!b.dataset.l0)b.dataset.l0=sp.textContent;sp.textContent=open?(b.classList.contains('s-evbtn')?T('Hide the data'):T('Hide the country ranking')):b.dataset.l0;}
+});
