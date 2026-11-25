@@ -824,7 +824,7 @@
         var box = root.querySelector('.ic-embed');
         if (box) { box.remove(); b.setAttribute('aria-expanded', 'false'); return; }
         var lang = (new URLSearchParams(location.search)).get('lang');
-        var src = new URL('../embed.html?c=' + state.sel + (lang ? '&lang=' + lang : ''), location.href).href;
+        var src = new URL('embed.html?c=' + state.sel + (lang ? '&lang=' + lang : ''), location.href).href;
         var code = '<iframe src="' + src + '" width="100%" height="480" style="border:0;max-width:520px" title="Impact Economy Index: ' + byId[state.sel].name + '" loading="lazy"></iframe>';
         box = document.createElement('div'); box.className = 'ic-embed';
         box.innerHTML = '<p><b>Embed this country card</b> on a National Partner or partner website. Copy the code below into the page.</p><textarea readonly rows="3" aria-label="Embed code"></textarea><div class="ic-embed-a"><button type="button" class="ic-sh" data-embed-copy>Copy code</button><a class="ic-sh" href="' + src + '" target="_blank" rel="noopener">Preview card ↗</a></div>';

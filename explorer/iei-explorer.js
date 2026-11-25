@@ -160,8 +160,7 @@
     '    </section>' +
     '    <aside class="ix-card ix-panel" aria-live="polite"></aside>' +
     '  </div>' +
-    '  <button type="button" class="s-more ix-more" aria-expanded="false" aria-controls="ixTable"><span>Show the full country ranking</span><i aria-hidden="true"></i></button>' +
-    '  <section class="ix-card ix-tablecard" id="ixTable" aria-label="Ranking table" hidden>' +
+    '  <section class="ix-card ix-tablecard" id="ixTable" aria-label="Ranking table">' +
     '    <div class="ix-tablebar">' +
     '      <div><p class="ix-tabletitle">Country ranking</p><p class="ix-count"></p></div>' +
     '      <button type="button" class="ix-ghost ix-dl">Download data (CSV)</button>' +
@@ -649,7 +648,7 @@
   if (cnt) cnt.textContent = N;
   applyView();
   var H0 = window.IEI_HASH ? window.IEI_HASH.get() : {};
-  if (H0.map && M[H0.map]) { state.metric = H0.map; state.sort = { key: H0.map, dir: -1 }; if (!H0.country) setTimeout(function () { var s = document.getElementById('explore'); if (s) s.scrollIntoView(); }, 300); }
+  if (H0.map && M[H0.map]) { state.metric = H0.map; state.sort = { key: H0.map, dir: -1 }; if (!H0.country && !document.querySelector('.s-view')) setTimeout(function () { var s = document.getElementById('explore'); if (s) s.scrollIntoView(); }, 300); }
   paint();
   renderTable();
   renderPanel();

@@ -20,10 +20,7 @@ if(nav){
   links.concat($$('.s-nav .s-btn')).forEach(function(a){a.addEventListener('click',close)});
   function stuck(){nav.classList.toggle('is-stuck',window.scrollY>8)}
   window.addEventListener('scroll',stuck,{passive:true});stuck();
-  var secs=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1))});
-  function spy(){var y=window.scrollY+120,cur=-1;secs.forEach(function(s,i){if(s&&s.getBoundingClientRect().top+window.scrollY<=y)cur=i});
-    links.forEach(function(a,i){a.classList.toggle('is-active',i===cur);if(i===cur)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})}
-  window.addEventListener('scroll',spy,{passive:true});spy();
+  /* active state is set by the router (site/iei-router.js) */
 }
 
 /* ---- reveal ---- */
@@ -171,11 +168,12 @@ var box=document.getElementById('dataVersion');if(box)box.innerHTML='<details><s
 document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('a[href="#dataVersion"]');if(a&&box){var d=box.querySelector('details');if(d)d.open=true}});})();
 /* shared view state in the URL hash: #country=ARG&cmp=region&vs=BRA&open=1A,2B&map=i1A.1 */
 window.IEI_HASH=(function(){
+  function route(){var f=location.hash.replace(/^#/,'').split('&')[0];return f.indexOf('=')<0?f:''}
   function get(){var h=location.hash.replace(/^#/,''),o={};if(h.indexOf('=')<0)return o;h.split('&').forEach(function(p){var i=p.indexOf('=');if(i>0)o[decodeURIComponent(p.slice(0,i))]=decodeURIComponent(p.slice(i+1))});return o}
   function str(o){var k=['country','cmp','vs','open','map','lang'];return Object.keys(o).filter(function(x){return o[x]!=null&&o[x]!==''}).sort(function(a,b){return k.indexOf(a)-k.indexOf(b)}).map(function(x){return encodeURIComponent(x)+'='+encodeURIComponent(o[x]).replace(/%2C/g,',')}).join('&')}
-  function set(patch){var o=get();for(var k in patch)o[k]=patch[k];var s=str(o);try{history.replaceState(null,'',location.pathname+location.search+(s?'#'+s:''))}catch(e){}}
+  function set(patch){var o=get();for(var k in patch)o[k]=patch[k];var s=str(o),r=route();if(r)s=r+(s?'&'+s:'');try{history.replaceState(null,'',location.pathname+location.search+(s?'#'+s:''))}catch(e){}}
   function url(){return location.href.split('#')[0]+(location.hash||'')}
-  return {get:get,set:set,url:url};
+  return {get:get,set:set,url:url,route:route};
 })();
 /* ---- interactive framework pyramid ---- */
 (function(){
@@ -223,9 +221,9 @@ window.IEI_HASH=(function(){
     root.addEventListener('focusin',function(e){var b=e.target.closest('[data-cap]');if(!b)return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=b.getAttribute('data-cap');c.classList.add('live')}});
     root.addEventListener('mouseout',function(e){var b=e.target.closest('[data-cap]');if(!b||(e.relatedTarget&&b.contains(e.relatedTarget)))return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=hint;c.classList.remove('live')}});
     root.addEventListener('click',function(e){
-      var mp=e.target.closest('[data-map]');if(mp){var sel=document.querySelector('.ix-drvsel');if(sel){sel.value=mp.getAttribute('data-map');sel.dispatchEvent(new Event('change',{bubbles:true}));var ex=document.getElementById('explore');if(ex)ex.scrollIntoView({behavior:'smooth',block:'start'})}}
+      var mp=e.target.closest('[data-map]');if(mp){var sel=document.querySelector('.ix-drvsel');if(sel){sel.value=mp.getAttribute('data-map');sel.dispatchEvent(new Event('change',{bubbles:true}));if(window.IEI_GO)window.IEI_GO('explore',{tab:'map'});else{var ex=document.getElementById('explore');if(ex)ex.scrollIntoView({behavior:'smooth',block:'start'})}}}
     });
-    open(1);
+    open(2);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

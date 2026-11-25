@@ -1,0 +1,109 @@
+/* =====================================================================
+   IEI views — variant B (24 Nov 2026 identity kept): four hash-routed
+   views, sub-tabs, tabs, report modal, more white space, 65ch measure
+   ===================================================================== */
+:root{--b-navy:#0F1428;--b-blue:#4A5FE8;--b-lilac:#6478FF;--b-line:#E2DFDA;--b-soft:#F1F0EE;--b-mut:#5D6479;--b-measure:65ch}
+.s-view[hidden],.s-subpanel[hidden]{display:none !important}
+.s-btn{cursor:pointer;font-family:"Urbanist",sans-serif}
+.s-nav .s-link.is-active{color:var(--b-blue) !important;background:#EEF0FF !important}
+.s-wrap,.s-wrap *{box-sizing:border-box}
+
+/* generous spacing and readable measure */
+.s-def,.s-ins,.s-levsum,.s-nextb,.s-read,.s-dls,.s-cases,.s-xhead{padding-top:104px !important;padding-bottom:104px !important}
+.s-xhead{padding-bottom:0 !important}
+.s-lede,.s-sub,.s-lead,.s-find p,.s-rcard p,.s-levcard span,.s-nextcard span,.lever-intro{max-width:var(--b-measure)}
+
+/* contextual "How scores are built" */
+.s-how{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--b-blue);border-radius:999px;color:var(--b-navy) !important;font:700 14px/1 "Urbanist",sans-serif;text-decoration:none !important;background:#fff;white-space:nowrap}
+.s-how:hover{background:var(--b-blue);color:#fff !important}
+.s-how span{font-size:16px}
+.s-howrow{margin:36px 0 0 !important}
+
+/* ---------- overview: four lever cards ---------- */
+.s-levsum{background:var(--b-soft)}
+.s-levsum h2{margin:6px 0 0}
+.s-levcards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:40px 0 32px}
+.s-levcard{display:flex;flex-direction:column;gap:8px;padding:24px 22px 26px;border-radius:24px;background:#fff;border-top:6px solid var(--c);color:var(--b-navy) !important;text-decoration:none !important;transition:transform .25s}
+.s-levcard:hover{transform:translateY(-4px)}
+.s-levcard .n{font:700 13px/1 "Urbanist",sans-serif;letter-spacing:.12em;color:var(--b-mut)}
+.s-levcard b{font:700 19px/1.25 "Urbanist",sans-serif}
+.s-levcard span:last-child{font:400 15px/1.5 "Urbanist",sans-serif;color:var(--b-mut)}
+@media (max-width:991px){.s-levcards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:575px){.s-levcards{grid-template-columns:1fr}}
+
+/* ---------- overview: next steps ---------- */
+.s-nextb h2{margin:6px 0 0}
+.s-nextcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:40px}
+.s-nextcard{position:relative;display:flex;flex-direction:column;gap:10px;min-height:190px;padding:28px 26px;border-radius:24px;background:var(--b-navy);color:#fff !important;text-decoration:none !important;transition:transform .25s,background .25s}
+.s-nextcard:hover{transform:translateY(-4px);background:var(--b-blue)}
+.s-nextcard b{font:700 22px/1.2 "Urbanist",sans-serif}
+.s-nextcard span{font:400 15px/1.5 "Urbanist",sans-serif;color:rgba(255,255,255,.8)}
+.s-nextcard i{margin-top:auto;font-style:normal;font-size:24px}
+@media (max-width:767px){.s-nextcards{grid-template-columns:1fr}}
+
+/* ---------- explore header + sub-tabs ---------- */
+.s-xhead{background:#f0f0f0}
+.s-xtop{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px}
+.s-xhead h2{margin:6px 0 12px}
+.s-xhead .s-stats{margin-top:40px}
+.s-subtabs{display:inline-flex;gap:6px;margin:40px 0 0;padding:6px;border-radius:999px;background:#fff;border:1px solid var(--b-line)}
+.s-subtab{padding:12px 22px;border:0;border-radius:999px;background:none;color:var(--b-navy);font:700 15px/1 "Urbanist",sans-serif;cursor:pointer}
+.s-subtab[aria-selected="true"]{background:var(--b-navy);color:#fff}
+.s-xmap{padding-top:24px;padding-bottom:56px}
+#sPanCtry .container{padding-top:24px}
+@media (max-width:575px){.s-subtabs{display:flex;width:100%}.s-subtab{flex:1;padding:12px 10px;font-size:13.5px}}
+
+/* ---------- framework: how to read as tabs ---------- */
+.s-read{background:#fff}
+.s-howto2{border:0;background:none}
+.s-howto-h2{margin:6px 0 0 !important}
+.s-tabs{display:inline-flex;flex-wrap:wrap;gap:6px;margin:32px 0 0;padding:6px;border-radius:999px;background:var(--b-soft)}
+.s-tab{padding:11px 20px;border:0;border-radius:999px;background:none;color:var(--b-navy);font:700 15px/1 "Urbanist",sans-serif;cursor:pointer}
+.s-tab[aria-selected="true"]{background:var(--b-navy);color:#fff}
+.s-howto2 .s-read-grid{display:block !important;margin-top:28px}
+.s-howto2 .s-rcard{max-width:880px;opacity:1 !important;transform:none !important}
+.s-howto2 .s-rcard[hidden]{display:none !important}
+@media (max-width:575px){.s-tabs{border-radius:18px}}
+
+/* ---------- framework: downloads ---------- */
+.s-dls{background:var(--b-soft)}
+.s-dlbtns{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+
+/* ---------- case studies filters ---------- */
+.s-cases .s-head{align-items:flex-start}
+.cs-bar{display:flex !important;flex-wrap:wrap;align-items:flex-end;gap:14px 16px}
+.cs-bar .cs-f{display:flex !important;flex-direction:column;gap:8px;margin:0 !important}
+.cs-search{flex:1 1 260px}
+.cs-search input{width:100%;height:46px;padding:0 16px;border:1px solid var(--b-line);border-radius:14px;background:#fff;font:500 15px/1 "Urbanist",sans-serif;color:var(--b-navy)}
+.cs-bar .cs-f:not(.cs-search){flex:0 1 220px}
+.cs-morebtn,.cs-reset{height:46px;padding:0 18px;border:1.5px solid var(--b-blue);border-radius:999px;background:#fff;color:var(--b-navy);font:700 14px/1 "Urbanist",sans-serif;cursor:pointer}
+.cs-morebtn[aria-expanded="true"]{background:var(--b-navy);border-color:var(--b-navy);color:#fff}
+.cs-reset{border-color:transparent;background:none;text-decoration:underline;text-underline-offset:3px}
+.cs-more{display:flex;flex-wrap:wrap;gap:14px 16px;margin-top:16px;padding:18px;border-radius:18px;background:var(--b-soft)}
+.cs-more[hidden]{display:none}
+.cs-more .cs-f{flex:0 1 220px;display:flex;flex-direction:column;gap:8px;margin:0}
+.cs-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.cs-chips:empty{display:none}
+.cs-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:0;border-radius:999px;background:#EEF0FF;color:var(--b-navy);font:600 13px/1 "Urbanist",sans-serif;cursor:pointer}
+.cs-chip span{font-size:15px}
+.cs-chip:hover{background:var(--b-blue);color:#fff}
+.cs-all{display:inline-flex;align-items:center;gap:10px;margin:28px 0 0;padding:12px 22px;border:1.5px solid var(--b-blue);border-radius:999px;background:#fff;color:var(--b-navy);font:700 14px/1 "Urbanist",sans-serif;cursor:pointer}
+.cs-all i{width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px)}
+.cs-all[aria-expanded="true"] i{transform:rotate(-135deg)}
+@media (max-width:575px){.cs-bar .cs-f:not(.cs-search),.cs-more .cs-f{flex:1 1 100%}.cs-morebtn{flex:1}}
+
+/* ---------- report modal ---------- */
+html.s-modal-open{overflow:hidden}
+.s-modal{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px}
+.s-modal[hidden]{display:none}
+.s-modal-bg{position:absolute;inset:0;background:rgba(15,20,40,.7)}
+.s-modal-box{position:relative;width:min(760px,100%);max-height:calc(100vh - 48px);overflow:auto;padding:44px 44px 36px;border-radius:28px;background:linear-gradient(135deg,#3A4FD8,#5B70F5);color:#fff}
+.s-modal-box,.s-modal-box *{box-sizing:border-box}
+.s-modal-box>.s-eyebrow,.s-modal-box>h2,.s-modal-box>.s-sub{color:#fff !important}
+.s-modal-box>h2{margin:6px 0 8px !important}
+.s-modal-x{position:absolute;top:16px;right:16px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font:400 26px/1 "Urbanist",sans-serif;cursor:pointer}
+.s-modal-x:hover{background:#fff;color:var(--b-navy)}
+.s-modal .s-form{margin-top:24px;opacity:1 !important;transform:none !important}
+@media (max-width:575px){.s-modal{padding:0;place-items:stretch}.s-modal-box{max-height:100vh;border-radius:0;padding:60px 18px 28px}}
+.s-levsum h2,.s-nextb h2,.s-dls h2,.s-xhead h2,.s-howto-h2{font-family:"Urbanist",sans-serif !important;font-weight:400 !important;font-size:clamp(34px,4.4vw,56px) !important;line-height:1.08 !important;letter-spacing:-.02em;color:var(--b-navy)}
+.s-xhead .s-sub{font:400 18px/1.55 "Urbanist",sans-serif !important;color:var(--b-mut) !important}

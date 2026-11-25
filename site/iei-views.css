@@ -1,0 +1,135 @@
+/* =====================================================================
+   IEI views: four hash-routed views, sub-tabs, tabs, report modal
+   Uses tokens from iei-tokens.css
+   ===================================================================== */
+.s-view[hidden],.s-subpanel[hidden]{display:none !important}
+.s-nav .s-link.is-active{color:var(--navy) !important;background:none !important;box-shadow:inset 0 -2px 0 var(--navy) !important}
+.s-nav .s-btn.primary{background:var(--lilac) !important;border-color:var(--lilac) !important;color:var(--white) !important;font-family:"Urbanist",sans-serif;cursor:pointer}
+.s-btn{cursor:pointer}
+
+/* readable measure for long text */
+.s-lede,.s-sub,.s-why p,.s-find>p,.s-rcard p,.s-levs p,.s-next-t,.lever-intro,.s-lead,.s-dls-list span{max-width:var(--measure)}
+
+/* ---------- shared arrow link ---------- */
+.s-arrow{display:inline-flex;align-items:center;gap:8px;margin-top:28px;font:700 15px/1.2 "Urbanist",sans-serif;color:var(--navy) !important;text-decoration:underline;text-underline-offset:4px}
+.s-arrow:hover{opacity:.75}
+.s-def .s-arrow,#framework .s-arrow{color:var(--white) !important}
+
+/* ---------- overview: four levers ---------- */
+.s-use{padding:var(--space-section) 0 calc(var(--space-section) - 24px)}
+.s-levs{list-style:none;margin:var(--space-block) 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px}
+.s-levs li{padding-top:16px;border-top:3px solid var(--c)}
+.s-lev-n{display:block;margin-bottom:12px;font:700 13px/1 "Urbanist",sans-serif;letter-spacing:.12em;color:var(--navy)}
+.s-levs h3{margin:0 0 8px;font:700 19px/1.25 "Urbanist",sans-serif;color:var(--navy)}
+.s-levs p{margin:0;font:400 15px/1.5 "Urbanist",sans-serif;color:var(--muted-on-light)}
+.s-levs p b{display:block;color:var(--navy);font-weight:700;margin-bottom:2px}
+@media (max-width:991px){.s-levs{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 24px}}
+@media (max-width:575px){.s-levs{grid-template-columns:1fr}}
+
+/* ---------- overview: insights ---------- */
+.s-ins{padding-top:var(--space-section) !important;padding-bottom:var(--space-section) !important}
+.s-ins .s-howlink{margin-top:12px}
+
+/* ---------- overview: go further ---------- */
+.s-next{padding:0 0 var(--space-section)}
+.s-next-h{margin:0 0 20px !important;font:700 13px/1 "Urbanist",sans-serif !important;letter-spacing:.14em;text-transform:uppercase;color:var(--navy) !important}
+.s-next-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--rule-light)}
+.s-next-grid li{border-right:1px solid var(--rule-light)}
+.s-next-grid li:last-child{border-right:0}
+.s-next-grid a{display:grid;grid-template-rows:auto 1fr auto;gap:10px;height:100%;padding:28px 28px 26px;color:var(--navy);text-decoration:none}
+.s-next-grid li:first-child a{padding-left:0}
+.s-next-k{font:700 22px/1.2 "Urbanist",sans-serif}
+.s-next-t{font:400 15px/1.5 "Urbanist",sans-serif;color:var(--muted-on-light)}
+.s-next-a{font:600 22px/1 "Urbanist",sans-serif;transition:transform .2s}
+.s-next-grid a:hover .s-next-k{text-decoration:underline;text-underline-offset:4px}
+.s-next-grid a:hover .s-next-a{transform:translateX(6px)}
+@media (max-width:767px){.s-next-grid{grid-template-columns:1fr}.s-next-grid li{border-right:0;border-bottom:1px solid var(--rule-light)}.s-next-grid a{padding:22px 0}}
+
+/* ---------- explore header + sub-tabs ---------- */
+.s-xhead{padding:calc(var(--space-section) - 24px) 0 0;background:#fff}
+.s-xhead h2{margin:6px 0 12px;font:400 clamp(36px,4.6vw,60px)/1.08 "Urbanist",sans-serif;letter-spacing:-.02em;color:var(--navy)}
+.s-xhead .s-howlink{margin-top:4px;font-size:14px}
+.s-xhead .s-stats{margin:32px 0 0 !important}
+.s-xhead .s-stats .s-stat b{color:var(--navy) !important;font-weight:600 !important}
+.s-xhead .s-stats .s-stat span{color:var(--muted-on-light) !important}
+.s-subtabs{display:flex;gap:0;margin-top:40px;border-bottom:1px solid var(--rule-light)}
+.s-subtab{padding:16px 22px;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:none;color:var(--muted-on-light);font:700 16px/1 "Urbanist",sans-serif;cursor:pointer}
+.s-subtab[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--navy)}
+.s-subtab:hover{color:var(--navy)}
+.s-subtab:first-child{padding-left:0}
+.s-xmap{background:#fff !important;padding-bottom:var(--space-block)}
+.s-xmap #explore{padding-top:24px}
+#sPanCtry .container{padding-top:24px}
+@media (max-width:575px){.s-subtab{padding:14px 12px;font-size:14px}.s-subtab:first-child{padding-left:0}}
+
+/* ---------- framework: how to read as tabs ---------- */
+.s-read{padding:var(--space-section) 0 !important;background:#fff}
+.s-howto2{border:0}
+.s-howto-h2{margin:6px 0 0 !important;font:400 clamp(32px,4vw,52px)/1.1 "Urbanist",sans-serif !important;letter-spacing:-.02em;color:var(--navy) !important}
+.s-tabs{display:flex;flex-wrap:wrap;margin:32px 0 0;border-bottom:1px solid var(--rule-light)}
+.s-tab{padding:14px 20px;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;background:none;color:var(--muted-on-light);font:700 15px/1 "Urbanist",sans-serif;cursor:pointer}
+.s-tab:first-child{padding-left:0}
+.s-tab[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--navy)}
+.s-howto2 .s-read-grid{display:block !important;margin-top:28px}
+.s-howto2 .s-rcard{border-top:0 !important;padding:0 !important;max-width:860px}
+.s-howto2 .s-rcard[hidden]{display:none !important}
+.s-howto2 .s-rk{display:none}
+.s-howto2 .s-rcard h3{font:700 24px/1.25 "Urbanist",sans-serif !important;margin:0 0 12px !important}
+
+/* ---------- framework: downloads ---------- */
+.s-dls{padding:0 0 var(--space-section);background:#fff}
+.s-dls-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-light)}
+.s-dls-list li{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 0;border-bottom:1px solid var(--rule-light)}
+.s-dls-list span{font:400 15px/1.5 "Urbanist",sans-serif;color:var(--muted-on-light)}
+.s-dls-list b{display:block;font:700 18px/1.3 "Urbanist",sans-serif;color:var(--navy)}
+.s-dls-list .s-btn{flex:none;background:none !important;border:1.5px solid var(--navy) !important;color:var(--navy) !important}
+@media (max-width:575px){.s-dls-list li{flex-direction:column;align-items:flex-start}}
+
+/* ---------- case studies filters ---------- */
+.s-cases{padding-top:calc(var(--space-section) - 24px) !important}
+.cs-bar{display:flex !important;flex-wrap:wrap;align-items:flex-end;gap:14px 16px}
+.cs-search{flex:1 1 260px}
+.cs-search input{width:100%;height:44px;padding:0 14px;border:1px solid var(--rule-light);background:#fff;font:500 15px/1 "Urbanist",sans-serif;color:var(--navy)}
+.cs-bar .cs-f:not(.cs-search){flex:0 1 220px}
+.cs-morebtn,.cs-reset{height:44px;padding:0 16px;border:1.5px solid var(--navy) !important;background:none !important;color:var(--navy) !important;font:700 14px/1 "Urbanist",sans-serif;cursor:pointer}
+.cs-reset{border-color:transparent !important;text-decoration:underline;text-underline-offset:3px;padding:0 4px}
+.cs-morebtn[aria-expanded="true"]{background:var(--navy) !important;color:#fff !important}
+.cs-more{display:flex;flex-wrap:wrap;gap:14px 16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--rule-light)}
+.cs-more[hidden]{display:none}
+.cs-more .cs-f{flex:0 1 220px}
+.cs-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.cs-chips:empty{display:none}
+.cs-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--navy);background:none;color:var(--navy);font:600 13px/1 "Urbanist",sans-serif;cursor:pointer}
+.cs-chip:hover{background:var(--navy);color:#fff}
+
+/* ---------- report modal ---------- */
+html.s-modal-open{overflow:hidden}
+.s-modal{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px}
+.s-modal[hidden]{display:none}
+.s-modal-bg{position:absolute;inset:0;background:rgba(15,20,40,.72)}
+.s-modal-box{position:relative;width:min(720px,100%);max-height:calc(100vh - 48px);overflow:auto;padding:40px 44px 36px;background:#fff;color:var(--navy)}
+.s-modal-box h2{margin:6px 0 8px !important;font:400 34px/1.15 "Urbanist",sans-serif !important;color:var(--navy) !important}
+.s-modal-box .s-eyebrow{color:var(--navy) !important}
+.s-modal-x{position:absolute;top:14px;right:14px;width:40px;height:40px;border:0;background:none;color:var(--navy);font:400 28px/1 "Urbanist",sans-serif;cursor:pointer}
+.s-modal-x:hover{background:var(--lilac-1)}
+.s-modal .s-form{margin-top:22px;padding:0 !important;border:0 !important;background:none !important;box-shadow:none !important}
+.s-modal .s-formbody>h3,.s-modal .s-formbody>.s-note{display:none}
+.s-modal .s-fields input,.s-modal .s-fields select{border:1px solid var(--rule-light) !important;background:#fff !important}
+@media (max-width:575px){.s-modal{padding:0;place-items:stretch}.s-modal-box{max-height:100vh;padding:56px 20px 28px}}
+
+/* ---------- absolute zero radius (data marks stay round) ---------- */
+.ic-sob,.ic-so-ic,.lever-arrow,.ic-sox,.ic-rm{border-radius:0 !important}
+.s-xhead .s-sub,.s-use .s-sub,.s-ins .s-sub{font:400 18px/1.55 "Urbanist",sans-serif !important;color:var(--muted-on-light) !important}
+.s-foot h4,.s-foot .s-eyebrow{color:var(--white) !important}
+.ix-tablecard{margin-top:32px}
+.s-rcard::before,.s-rcard::after,.s-find::before,.s-find::after{display:none !important;background:none !important}
+#framework .lever-tab{background:transparent !important;border:0 !important;border-top:3px solid var(--c) !important;padding-left:2px !important}
+#framework .lever-tab:hover{background:rgba(255,255,255,.04) !important}
+#framework .lever-tab.is-active{background:var(--c) !important}
+.s-modal-box,.s-modal-box *{box-sizing:border-box}
+.s-modal .s-fields{gap:14px 16px !important}
+.cs-bar .cs-f{display:flex !important;flex-direction:column;gap:8px;margin:0 !important}
+.cs-bar .cs-f>span{margin:0 !important;line-height:1 !important}
+.cs-bar select,.cs-more select{height:44px}
+.s-cases .s-head{display:block !important}
+@media (max-width:575px){.cs-bar .cs-f:not(.cs-search),.cs-more .cs-f{flex:1 1 100% !important}.cs-morebtn{flex:1}}

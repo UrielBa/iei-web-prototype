@@ -164,23 +164,39 @@
   /* ---------- section with filters ---------- */
   var root = document.getElementById('ieiCases');
   if (!root) return;
-  var st = { country: '', stake: '', driver: '', tier: '', region: '' }, showAll = false, FIRST = 6;
+  var st = { q: '', country: '', stake: '', driver: '', tier: '', region: '' }, showAll = false, FIRST = 6, CHIPS = root.hasAttribute('data-chips');
+  var LBL = { country: 'Country', driver: 'Driver', stake: 'Stakeholder', tier: 'Stage', region: 'Region' };
   function sel(key, label, opts) {
     return '<label class="cs-f"><span>' + label + '</span><select data-f="' + key + '"><option value="">All</option>' + opts.map(function (o) {
       var v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '">' + esc(l) + '</option>';
     }).join('') + '</select></label>';
   }
   var drvOpts = M.driverIds.map(function (id) { return [id, id + ' · ' + M.driverLabels[id].replace(/ \(e\.g\..*$/, '')]; });
-  root.innerHTML = '<div class="cs-bar">' + sel('country', 'Country', uniq(K.map(function (k) { return k.cn; }))) + sel('stake', 'Stakeholder', uniq(K.map(function (k) { return k.s; }))) +
-    sel('driver', 'Driver', drvOpts) + sel('tier', 'Stage', M.tiers.map(function (t) { return t.name; })) + sel('region', 'Region', uniq(K.map(function (k) { return k.region; }))) +
-    '<button type="button" class="cs-reset">Reset</button></div><p class="cs-count" aria-live="polite"></p><div class="cs-grid"></div><button type="button" class="s-more cs-all" aria-expanded="false"><span></span><i aria-hidden="true"></i></button>' +
+  root.innerHTML = '<div class="cs-bar">' +
+    '<label class="cs-f cs-search"><span>Search</span><input type="search" data-f="q" placeholder="Search case studies…" autocomplete="off"></label>' +
+    sel('country', 'Country', uniq(K.map(function (k) { return k.cn; }))) + sel('driver', 'Driver', drvOpts) +
+    '<button type="button" class="cs-morebtn" aria-expanded="false" aria-controls="csMore">More filters <span class="cs-mn" hidden></span></button>' +
+    '<button type="button" class="cs-reset">Clear all</button></div>' +
+    '<div class="cs-more" id="csMore" hidden>' + sel('stake', 'Stakeholder', uniq(K.map(function (k) { return k.s; }))) +
+    sel('tier', 'Maturity stage', M.tiers.map(function (t) { return t.name; })) + sel('region', 'Region', uniq(K.map(function (k) { return k.region; }))) + '</div>' +
+    (CHIPS ? '<div class="cs-chips" aria-live="polite"></div>' : '') +
+    '<p class="cs-count" aria-live="polite"></p><div class="cs-grid"></div><button type="button" class="s-more cs-all" aria-expanded="false"><span></span><i aria-hidden="true"></i></button>' +
     '<p class="cs-note">Working draft: first selection of case studies (November 2026). Maturity stage is shown for countries in the 54-economy sample.</p>';
-  var grid = root.querySelector('.cs-grid'), count = root.querySelector('.cs-count'), allBtn = root.querySelector('.cs-all');
+  var grid = root.querySelector('.cs-grid'), count = root.querySelector('.cs-count'), allBtn = root.querySelector('.cs-all'), chips = root.querySelector('.cs-chips');
+  function norm(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function label(key, v) { if (key === 'driver') { var o = drvOpts.filter(function (d) { return d[0] === v; })[0]; return o ? o[1] : v; } return v; }
   function render() {
+    var q = norm(st.q);
     var L = K.filter(function (k) {
-      return (!st.country || k.cn === st.country) && (!st.stake || k.s === st.stake) && (!st.driver || k.drivers.indexOf(st.driver) >= 0) &&
+      return (!q || norm(k.t + ' ' + k.b + ' ' + k.cn + ' ' + k.s).indexOf(q) >= 0) &&
+        (!st.country || k.cn === st.country) && (!st.stake || k.s === st.stake) && (!st.driver || k.drivers.indexOf(st.driver) >= 0) &&
         (!st.tier || k.tier === st.tier) && (!st.region || k.region === st.region);
     });
+    var nMore = ['stake', 'tier', 'region'].filter(function (k) { return st[k]; }).length, mn = root.querySelector('.cs-mn');
+    mn.hidden = !nMore; mn.textContent = '(' + nMore + ')';
+    if (chips) chips.innerHTML = Object.keys(LBL).filter(function (k) { return st[k]; }).map(function (k) {
+      return '<button type="button" class="cs-chip" data-clear="' + k + '" aria-label="Remove filter ' + esc(LBL[k]) + ': ' + esc(label(k, st[k])) + '">' + esc(LBL[k]) + ': ' + esc(label(k, st[k])) + ' <span aria-hidden="true">×</span></button>';
+    }).join('');
     count.textContent = L.length + ' of ' + K.length + ' case studies';
     var more = L.length > FIRST && !showAll;
     allBtn.hidden = L.length <= FIRST; allBtn.setAttribute('aria-expanded', showAll);
@@ -191,10 +207,14 @@
         '<button type="button" class="cs-go" data-open-case="' + esc(k.id) + '">Read the case →</button></article>';
     }).join('') : '<p class="cs-none">No case studies match these filters.</p>';
   }
+  function clearAll() { st = { q: '', country: '', stake: '', driver: '', tier: '', region: '' }; Array.prototype.forEach.call(root.querySelectorAll('[data-f]'), function (s) { s.value = ''; }); render(); }
   root.addEventListener('change', function (e) { var f = e.target.getAttribute && e.target.getAttribute('data-f'); if (f) { st[f] = e.target.value; render(); } });
+  root.addEventListener('input', function (e) { if (e.target.getAttribute && e.target.getAttribute('data-f') === 'q') { st.q = e.target.value; render(); } });
   root.addEventListener('click', function (e) {
     var b = e.target.closest('.cs-reset');
-    if (b) { st = { country: '', stake: '', driver: '', tier: '', region: '' }; Array.prototype.forEach.call(root.querySelectorAll('select'), function (s) { s.value = ''; }); render(); return; }
+    if (b) { clearAll(); return; }
+    if ((b = e.target.closest('.cs-morebtn'))) { var pn = document.getElementById('csMore'), o = pn.hidden; pn.hidden = !o; b.setAttribute('aria-expanded', o); return; }
+    if ((b = e.target.closest('[data-clear]'))) { var k = b.getAttribute('data-clear'); st[k] = ''; var s2 = root.querySelector('[data-f="' + k + '"]'); if (s2) s2.value = ''; render(); return; }
     if (e.target.closest('.cs-all')) { showAll = !showAll; render(); return; }
     b = e.target.closest('[data-open-case]');
     if (b) open('ALL', b, b.getAttribute('data-open-case'));

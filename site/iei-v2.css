@@ -11,7 +11,7 @@
 
 /* ---------- corners & shadows ---------- */
 *,*::before,*::after{border-radius:0 !important;box-shadow:none !important;text-shadow:none !important}
-.s-pyr-dot,.s-pyr-leg i,.ic-rd,.ic-so-ic,.ic-sob,.lever-arrow,.ic-sox,.ic-rm,.ix-dot,.ic-grp th i,.s-sw-dot,.s-dotc,
+.s-pyr-dot,.s-pyr-leg i,.ic-rd,.ix-dot,.s-sw-dot,.s-dotc,
 .ix-ring,.ic-tip i.dot,input[type=radio]{border-radius:50% !important}
 .s-pyr-row.on .s-pyr-shape,.s-pyr-row:hover .s-pyr-shape{filter:none !important}
 

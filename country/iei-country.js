@@ -891,5 +891,5 @@
   };
 
   render();
-  if (fromHash && byId[fromHash]) setTimeout(function () { var s = document.getElementById('country'); if (s) s.scrollIntoView(); }, 300);
+  if (fromHash && byId[fromHash] && !document.querySelector('.s-view')) setTimeout(function () { var s = document.getElementById('country'); if (s) s.scrollIntoView(); }, 300);
 })();
