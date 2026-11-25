@@ -453,3 +453,9 @@ html.icm-open{overflow:hidden}
 .ic-sopop .ic-so-t{letter-spacing:-.005em}
 .ic-head{position:relative}
 @media (max-width:767px){.ic-name{position:static}.ic-hl>div{position:static}.ic-sopop{left:12px;right:12px;width:auto;top:auto;margin-top:8px}}
+
+/* stable header: arrows always in the same corner, share buttons on their own row */
+.ic-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"hl nav" "share share";align-items:start;gap:14px 16px}
+.ic-head .ic-hl{grid-area:hl;min-height:64px}
+.ic-head .ic-nav{grid-area:nav;justify-self:end;align-self:start;flex:none}
+.ic-head .ic-share{grid-area:share;margin:0;width:auto;order:0;justify-content:flex-start}

@@ -473,10 +473,12 @@
       '</div>' +
       indCard(c, bn) +
       peerCard(c, bn, drivers, peers) +
+      '<div class="ic-card ic-actwrap ic-actcard"><h4 class="ic-h4">Learn &amp; act</h4><div id="ieiAct" class="ia-panel"></div></div>' +
       '<div class="ic-card ic-peers"><h4 class="ic-h4">Countries with a similar lever profile</h4><div class="ic-chips">' +
       peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>' +
       (c.link ? '<a class="ic-profile" href="' + esc(c.link) + '" target="_blank" rel="noopener">Open full country profile ↗</a>' : '');
     renderList();
+    if (window.IEI_ACT_MOUNT) window.IEI_ACT_MOUNT(c.id);
   }
 
   function pick(id, scroll) {
@@ -920,8 +922,17 @@
   };
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-act]'); if (!b) return;
-    if (window.IEI_GO) window.IEI_GO('explore', { tab: 'act', country: b.getAttribute('data-act') });
+    openAct(b.getAttribute('data-act'));
   });
+  function openAct(id) {
+    if (!byId[id]) id = state.sel;
+    if (state.acc) if (state.acc) state.acc.act = true;
+    if (window.IEI_GO) window.IEI_GO('explore', { tab: 'country', country: id }, true);
+    if (id !== state.sel) pick(id, false); else render();
+    setTimeout(function () { var a = document.getElementById('ieiAct'); a = a && a.parentNode; if (a) { var y = a.getBoundingClientRect().top + window.pageYOffset - 90; window.scrollTo({ top: y, behavior: 'instant' }); a.focus({ preventScroll: true }); } }, 80);
+  }
+  window.IEI_OPEN_ACT = openAct;
+  if (window.__ieiActPending) { var pid = window.__ieiActPending; window.__ieiActPending = null; openAct(pid === true ? state.sel : pid); }
   window.IEI_OPEN_COUNTRY = function (id) {
     if (!byId[id]) return;
     state.q = ''; state.tier = ''; state.region = ''; state.income = '';

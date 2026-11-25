@@ -82,3 +82,32 @@
 .ic-actgo{display:block;margin:16px 0 0;padding:0;border:0;background:none;color:#fff;font:700 14.5px/1.4 "Urbanist",sans-serif;text-align:left;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 .ic-actgo:hover{text-decoration-thickness:2px}
 .ia-more p.ia-peer .ia-lnk,.ia-steps .ia-lnk,.ia-k+.ia-lnk.inl{display:inline !important;margin:0}
+
+/* inside the country profile (dark) */
+.ic-actwrap{padding:0 !important;background:none !important;border:0 !important}
+.ia-dark{color:#fff}
+.ia-dark .ia-head{padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.2)}
+.ia-dark .ia-lede{color:#fff;font-size:16px;max-width:60ch}
+.ia-dark .ia-grid{margin-top:28px;gap:44px}
+.ia-dark .ia-h3,.ia-dark .ia-sub,.ia-dark .ia-pick,.ia-dark .ia-lnk,.ia-dark .ia-res,.ia-dark .ia-f,.ia-dark .ia-eye,.ia-dark .ia-sel{color:#fff}
+.ia-dark .ia-list{border-top-color:rgba(255,255,255,.25)}
+.ia-dark .ia-it{border-bottom-color:rgba(255,255,255,.25)}
+.ia-dark .ia-steps li{border-top-color:rgba(255,255,255,.2)}
+.ia-dark .ia-res a{color:#fff !important}
+.ia-dark .ia-sel select,.ia-dark .ia-f textarea,.ia-dark .ia-f input{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.45)}
+.ia-dark .ia-sel select option{color:#0F1428;background:#fff}
+.ia-dark .ia-f textarea::placeholder,.ia-dark .ia-f input::placeholder{color:rgba(255,255,255,.55)}
+.ia-dark .ia-did{color:#0F1428}
+.ia-dark .ia-ask{top:90px}
+.ia-dark .s-btn{color:#fff;border-color:rgba(255,255,255,.6)}
+.ia-dark .s-btn.primary{background:#fff;color:#0F1428;border-color:#fff}
+.ia-dark .ia-h3{font-size:20px}
+
+.ia-dark *:not(select):not(option):not(.ia-did):not(.s-btn){color:#fff}
+.ia-dark select{color:#fff}
+.ia-dark .s-btn{background:transparent;color:#fff}
+.ia-dark .s-btn.primary{background:#fff;color:#0F1428}
+.ia-dark .ia-did{color:#0F1428}
+.ia-panel{background:#fff;color:#0F1428;border-radius:22px;padding:28px}
+.ia-panel .ia-ask{top:96px}
+@media (max-width:575px){.ia-panel{padding:18px}}

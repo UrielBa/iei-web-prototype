@@ -1,12 +1,12 @@
 /* IEI · Learn & act
-   Explore sub-tab that turns a country's relative gaps into a short, practical conversation:
+   Section inside the country profile (Explore › Country Deep-Dive › More detail) that turns a country's relative gaps into a short, practical conversation:
    five drivers to explore (largest gaps against the comparison group first, then the lowest scores),
    a higher-scoring peer to learn from, related case studies and policy actions, and a three-step
    "turn a finding into an ask" note that the reader can copy or e-mail. Nothing is sent or stored. */
 (function () {
   'use strict';
-  var root = document.getElementById('ieiAct');
-  var D = window.IEI_DATA; if (!root || !D) return;
+  var root = null;
+  var D = window.IEI_DATA; if (!D) return;
   var C = Object.keys(D.countries).map(function (k) { return D.countries[k]; }), META = D.meta;
   var byId = {}; C.forEach(function (c) { byId[c.id] = c; });
   var DID = META.driverIds, DLAB = META.driverLabels, LEV = META.levers;
@@ -122,11 +122,9 @@
       '<p class="ia-fine">Nothing is sent or stored online. Your notes stay in this browser until you copy them.</p></div>' : '';
 
     root.innerHTML =
-      '<div class="ia-head"><div><p class="s-eyebrow">Learn &amp; act</p><h2 class="ia-h2">Learn from peers. Take action.</h2>' +
-      '<p class="ia-lede">Five drivers worth a closer look for the selected country, with a peer to learn from, related cases and a simple way to turn one finding into a stakeholder conversation.</p></div>' +
-      '<div class="ia-ctl"><label class="ia-sel"><span>Country</span><select data-ia-c>' + opts + '</select></label>' +
-      '<label class="ia-sel"><span>Compare against</span><select data-ia-cmp>' + cmp + '</select></label></div></div>' +
-      '<div class="ia-grid"><div class="ia-left"><h3 class="ia-h3">Five drivers to explore</h3><p class="ia-sub">Largest gaps against ' + CMP[state.cmp] + ' first, then the lowest scores. ' + T(c.name) + ' · IEI ' + c.score + '/100 · ' + esc(c.tier) + '.</p>' +
+          '<div class="ia-head"><p class="ia-lede">Five drivers worth a closer look for ' + esc(T(c.name)) + ', with a peer to learn from, related cases and a simple way to turn one finding into a stakeholder conversation.</p>' +
+          '<div class="ia-ctl"><label class="ia-sel"><span>Compare against</span><select data-ia-cmp>' + cmp + '</select></label></div></div>' +
+          '<div class="ia-grid"><div class="ia-left"><h3 class="ia-h3">Five drivers to explore</h3><p class="ia-sub">Largest gaps against ' + CMP[state.cmp] + ' first, then the lowest scores. ' + T(c.name) + ' · IEI ' + c.score + '/100 · ' + esc(c.tier) + '.</p>' +
       '<ol class="ia-list">' + items + '</ol>' +
       '<p class="ia-fine">These are diagnostic leads, not automated policy recommendations. A related case may be adjacent to an indicator rather than a direct measure of it.</p></div>' +
       '<div class="ia-right">' + panel + '</div></div>';
@@ -142,18 +140,20 @@
       'Who can move this forward: ' + (nt.who || '–') + '\n' +
       'Specific ask: ' + (nt.ask || '–') + '\n\n' + location.href;
   }
-  function msg(t) { var m = root.querySelector('.ia-msg'); if (m) { m.textContent = t; setTimeout(function () { if (m) m.textContent = ''; }, 2500); } }
+  function msg(t) { var m = root && root.querySelector('.ia-msg'); if (m) { m.textContent = t; setTimeout(function () { if (m) m.textContent = ''; }, 2500); } }
 
-  root.addEventListener('change', function (e) {
-    if (e.target.matches('[data-ia-c]')) { state.sel = e.target.value; state.pick = 0; if (window.IEI_GO) window.IEI_GO('explore', { tab: 'act', country: state.sel }, true); render(); }
+  document.addEventListener('change', function (e) {
+    if (!root || !root.contains(e.target)) return;
     if (e.target.matches('[data-ia-cmp]')) { state.cmp = e.target.value; state.pick = 0; render(); }
   });
-  root.addEventListener('input', function (e) {
+  document.addEventListener('input', function (e) {
+    if (!root || !root.contains(e.target)) return;
     var k = e.target.getAttribute('data-note'); if (!k) return;
     var c = byId[state.sel], r = five(c, group(c, state.cmp))[state.pick], key = c.id + ':' + r.id;
     state.notes[key] = state.notes[key] || {}; state.notes[key][k] = e.target.value; saveNotes();
   });
-  root.addEventListener('click', function (e) {
+  document.addEventListener('click', function (e) {
+    if (!root || !root.contains(e.target)) return;
     var b = e.target.closest('button'); if (!b) return;
     if (b.hasAttribute('data-pick')) { state.pick = +b.getAttribute('data-pick'); render(); var f = root.querySelector('.ia-it.on .ia-pick'); if (f) f.focus(); return; }
     if (b.hasAttribute('data-country')) { if (window.IEI_OPEN_COUNTRY) window.IEI_OPEN_COUNTRY(b.getAttribute('data-country')); return; }
@@ -173,12 +173,14 @@
     }
   });
 
-  function sync() {
-    var id = current();
-    if (id !== state.sel) { state.sel = id; state.pick = 0; render(); }
-  }
-  state.sel = current(); render();
-  window.addEventListener('hashchange', sync);
-  document.addEventListener('iei:view', sync);
-  window.IEI_ACT_RENDER = function () { render(); };
-})();
+  function mount(id) {
+        root = document.getElementById('ieiAct'); if (!root) return;
+        id = byId[id] ? id : current();
+        if (id !== state.sel) { state.sel = id; state.pick = 0; }
+        render();
+      }
+      window.IEI_ACT_MOUNT = mount;
+      window.IEI_ACT_RENDER = function () { if (root && document.body.contains(root)) render(); };
+      if (document.getElementById('ieiAct')) mount(current());
+    })();
+    

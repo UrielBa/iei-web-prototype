@@ -480,11 +480,13 @@
       '</div>') +
       acc('eb', 'Enabling conditions and behaviour', 'Policies and institutions versus what actors actually do', ebCard(c, bn)) +
       acc('why', 'What explains the differences', 'The facts behind the biggest gaps and leads, and what would move them', indCard(c, bn)) +
+      acc('act', 'Learn &amp; act', 'Five drivers to explore, a peer to learn from and a way to turn a finding into an ask', '<div class="ic-card ic-actwrap"><div id="ieiAct" class="ia-dark"></div></div>') +
       acc('peers', 'Compare with chosen peers', 'Lever, driver and indicator scores side by side', peerCard(c, bn, drivers, peers)) +
       acc('similar', 'Countries with a similar lever profile', peers.slice(0, 3).map(function (p) { return esc(p.c.name); }).join(' · '), '<div class="ic-card ic-peers"><div class="ic-chips">' +
       peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>') +
       (c.link ? '<a class="ic-profile" href="' + esc(c.link) + '" target="_blank" rel="noopener">Open full country profile ↗</a>' : '');
     renderList();
+    if (window.IEI_ACT_MOUNT) window.IEI_ACT_MOUNT(c.id);
   }
 
   function pick(id, scroll) {
@@ -929,8 +931,17 @@
   };
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-act]'); if (!b) return;
-    if (window.IEI_GO) window.IEI_GO('explore', { tab: 'act', country: b.getAttribute('data-act') });
+    openAct(b.getAttribute('data-act'));
   });
+  function openAct(id) {
+    if (!byId[id]) id = state.sel;
+    if (state.acc) if (state.acc) state.acc.act = true;
+    if (window.IEI_GO) window.IEI_GO('explore', { tab: 'country', country: id }, true);
+    if (id !== state.sel) pick(id, false); else render();
+    setTimeout(function () { var a = document.querySelector('[data-acc="act"]'); if (a) { var y = a.getBoundingClientRect().top + window.pageYOffset - 90; window.scrollTo({ top: y, behavior: 'instant' }); a.focus({ preventScroll: true }); } }, 80);
+  }
+  window.IEI_OPEN_ACT = openAct;
+  if (window.__ieiActPending) { var pid = window.__ieiActPending; window.__ieiActPending = null; openAct(pid === true ? state.sel : pid); }
   window.IEI_OPEN_COUNTRY = function (id) {
     if (!byId[id]) return;
     state.q = ''; state.tier = ''; state.region = ''; state.income = '';

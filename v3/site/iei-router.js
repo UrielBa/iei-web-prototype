@@ -1,5 +1,5 @@
 /* IEI router: four views on hash routes, sub-tabs, report modal.
-   Routes: #overview · #explore[&tab=map|country|act][&country=ISO] · #framework[&sec=howto] · #case-studies
+   Routes: #overview · #explore[&tab=map|country][&country=ISO] · #framework[&sec=howto] · #case-studies
    Older links (#country=ARG, #about, #cases, #howto, #download…) are mapped onto these. */
 (function () {
   'use strict';
@@ -48,7 +48,7 @@
     });
   }
   function setSub(tab) {
-    tab = (tab === 'country' || tab === 'act') ? tab : 'map';
+    tab = (tab === 'country' || tab === 'act') ? 'country' : 'map';
     document.querySelectorAll('[data-subtab]').forEach(function (b) {
       var on = b.getAttribute('data-subtab') === tab; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; b.classList.toggle('is-on', on);
     });
@@ -57,7 +57,8 @@
     return changed;
   }
   function apply() {
-    var s = parse(), r = s.r, p = s.p, changed = r !== cur;
+    var s = parse(), r = s.r, p = s.p, changed = r !== cur, openAct = false;
+    if (r === 'explore' && p.tab === 'act') { openAct = true; p.tab = 'country'; history.replaceState(null, '', location.pathname + location.search + build(r, p)); }
     views.forEach(function (v) { v.hidden = v.getAttribute('data-view') !== r; });
     links.forEach(function (a) { var on = a.getAttribute('data-route') === r; a.classList.toggle('is-active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     var view = document.querySelector('.s-view[data-view="' + r + '"]');
@@ -70,6 +71,7 @@
     cur = r;
     if (view && (changed || subChanged)) settle(view);
     if (p.report === '1') openModal();
+    if (openAct) { if (window.IEI_OPEN_ACT) window.IEI_OPEN_ACT(p.country); else window.__ieiActPending = p.country || true; }
   }
 
   /* ---- sub-tabs (Explore) ---- */
