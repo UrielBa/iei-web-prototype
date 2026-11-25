@@ -25,7 +25,7 @@
   var TIER_BG = {}, TIER_FG = {}, TIER_RANGE = {}; META.tiers.forEach(function (t) { TIER_BG[t.name] = t.bg; TIER_FG[t.name] = t.fg; TIER_RANGE[t.name] = t.min + '–' + t.max; });
 
   var METRICS = [
-    { id: 'score', name: 'Total score', short: 'Total', accent: '#0F1428', ink: '#FFFFFF', pal: ['#F3F4FF', '#ABB6FF', '#6478FF'], val: function (c) { return c.score; } },
+    { id: 'score', name: 'Total score', short: 'Total', accent: '#6478FF', ink: '#FFFFFF', pal: ['#F3F4FF', '#ABB6FF', '#6478FF'], val: function (c) { return c.score; } },
     { id: 'l1', name: META.levers[0].name, short: 'Accountability & Transparency', accent: '#3DCC7D', ink: '#0F1428', pal: ['#EFFBF5', '#96E3B9', '#3DCC7D'], val: function (c) { return c.l[0]; } },
     { id: 'l2', name: META.levers[1].name, short: 'Procurement & Demand', accent: '#77DAD9', ink: '#0F1428', pal: ['#F4FCFC', '#B6EBEA', '#77DAD9'], val: function (c) { return c.l[1]; } },
     { id: 'l3', name: META.levers[2].name, short: 'Capital Allocation & Deployment', accent: '#F094B5', ink: '#0F1428', pal: ['#FEF6F9', '#F7C5D7', '#F094B5'], val: function (c) { return c.l[2]; } },
