@@ -1,5 +1,5 @@
 /* IEI router: four views on hash routes, sub-tabs, report modal.
-   Routes: #overview · #explore[&tab=map|country][&country=ISO] · #framework[&sec=howto] · #case-studies
+   Routes: #overview · #explore[&tab=map|country|act][&country=ISO] · #framework[&sec=howto] · #case-studies
    Older links (#country=ARG, #about, #cases, #howto, #download…) are mapped onto these. */
 (function () {
   'use strict';
@@ -48,7 +48,7 @@
     });
   }
   function setSub(tab) {
-    tab = tab === 'country' ? 'country' : 'map';
+    tab = (tab === 'country' || tab === 'act') ? tab : 'map';
     document.querySelectorAll('[data-subtab]').forEach(function (b) {
       var on = b.getAttribute('data-subtab') === tab; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; b.classList.toggle('is-on', on);
     });
@@ -76,7 +76,7 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-subtab]'); if (!b) return;
     var tab = b.getAttribute('data-subtab'), p = parse().p;
-    go('explore', { tab: tab === 'country' ? 'country' : '', country: p.country || '' });
+    go('explore', { tab: tab === 'map' ? '' : tab, country: p.country || (window.IEI_CUR ? window.IEI_CUR() : '') });
   });
   document.addEventListener('keydown', function (e) {
     var b = e.target.closest && e.target.closest('[role=tab]'); if (!b || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;

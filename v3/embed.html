@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Impact Economy Index · country card</title>
+<meta name="robots" content="noindex">
+<style>
+@font-face{font-family:"Urbanist";src:url("../brand/fonts/Urbanist-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Urbanist";font-style:italic;src:url("../brand/fonts/Urbanist-Italic-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+*{box-sizing:border-box}
+html,body{margin:0;background:transparent}
+body{font-family:"Urbanist",system-ui,sans-serif;color:#0F1428}
+.card{max-width:520px;margin:0 auto;background:#fff;border:1px solid #D9D6D1;border-radius:20px;padding:20px 22px 18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.top img{height:28px;width:auto}
+.top span{font:italic 500 13px "Urbanist",sans-serif;color:#2942B5;text-align:right}
+.head{display:flex;align-items:center;gap:14px}
+.flag{width:44px;height:33px;border-radius:5px;object-fit:cover;border:1px solid #E2DFDA}
+.name{font:700 22px/1.15 "Urbanist",sans-serif;margin:0}
+.sub{font:500 13px "Urbanist",sans-serif;color:#4b5064;margin:2px 0 0}
+.score{display:flex;align-items:center;gap:14px;margin:16px 0 12px;padding:12px 14px;background:#F1F0EE;border-radius:14px}
+.big{font:700 46px/1 "Urbanist",sans-serif;letter-spacing:-.03em}
+.tier{display:inline-block;padding:4px 11px;border-radius:99px;font:700 12px "Urbanist",sans-serif}
+.meta{font:500 13px/1.4 "Urbanist",sans-serif;color:#4b5064;margin:6px 0 0}
+.lev{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:2px 10px;align-items:center;margin:9px 0}
+.lev p{grid-column:1/-1;margin:0;font:700 13px "Urbanist",sans-serif;display:flex;align-items:center;gap:7px}
+.lev p i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.bar{position:relative;height:8px;border-radius:99px;background:#E2DFDA}
+.bar span{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.bar u{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:#0F1428;border-radius:2px}
+.lev b{font:700 15px "Urbanist",sans-serif;text-align:right}
+.key{font:500 11.5px "Urbanist",sans-serif;color:#6b7083;margin:4px 0 12px;display:flex;align-items:center;gap:6px}
+.key u{display:inline-block;width:2px;height:11px;background:#0F1428}
+a.go{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:99px;background:#0F1428;color:#fff;text-decoration:none;font:700 14px "Urbanist",sans-serif}
+a.go:hover{background:#6478FF}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.foot small{font:500 11px "Urbanist",sans-serif;color:#6b7083}
+.err{padding:20px;font:600 14px "Urbanist",sans-serif}
+</style>
+</head>
+<body>
+<div class="card" id="card" aria-live="polite"></div>
+<script src="data/iei-data.js?v=v3-20261125"></script>
+<script src="i18n/iei-i18n.js?v=v3-20261125"></script>
+<script>
+(function () {
+  var D = window.IEI_DATA, el = document.getElementById('card');
+  var q = new URLSearchParams(location.search), id = (q.get('c') || q.get('country') || '').toUpperCase();
+  var T = window.IEI_T || function (s) { return s; };
+  var c = D && D.countries.filter(function (x) { return x.id === id; })[0];
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
+  if (!c) { el.innerHTML = '<p class="err">' + esc(T('Country not found. Use embed.html?c= followed by an ISO3 code, for example embed.html?c=ARG.')) + '</p>'; return; }
+  var C = D.countries, N = C.length;
+  var TB = {}, TF = {}; (D.meta.tiers || []).forEach(function (t) { TB[t.name] = t.bg; TF[t.name] = t.fg; });
+  var LC = ['#3DCC7D', '#77DAD9', '#F094B5', '#FFBD87'];
+  var rank = 1 + C.filter(function (x) { return x.score > c.score; }).length;
+  var avg = function (k) { return C.reduce(function (s, x) { return s + x.l[k]; }, 0) / N; };
+  var full = new URL('./', location.href).href + (q.get('lang') ? '?lang=' + encodeURIComponent(q.get('lang')) : '') + '#country=' + c.id;
+  el.innerHTML =
+    '<div class="top"><img src="../brand/logo/gsg-impact-lilac-navy.png" alt="GSG Impact"><span>' + esc(T('Impact Economy Index')) + '</span></div>' +
+    '<div class="head"><img class="flag" src="../Impact Economy Index_files/flags/4x3/' + c.flag + '.svg" alt=""><div><h1 class="name">' + esc(T(c.name)) + '</h1><p class="sub">' + esc(T(c.region)) + ' · ' + esc(T(c.income)) + '</p></div></div>' +
+    '<div class="score"><span class="big">' + c.score + '</span><div><span class="tier" style="background:' + TB[c.tier] + ';color:' + (TF[c.tier] || '#0F1428') + '">' + esc(T(c.tier)) + '</span>' +
+    '<p class="meta">' + esc(T('Rank')) + ' #' + rank + ' ' + esc(T('of')) + ' ' + N + ' · ' + esc(T('score out of 100')) + '</p></div></div>' +
+    D.meta.levers.map(function (L, k) {
+      return '<div class="lev"><p><i style="background:' + LC[k] + '"></i>' + esc(T(L.name)) + '</p><div class="bar"><span style="width:' + c.l[k] + '%;background:' + LC[k] + '"></span><u style="left:' + avg(k).toFixed(1) + '%"></u></div><b>' + c.l[k] + '</b></div>';
+    }).join('') +
+    '<p class="key"><u></u>' + esc(T('Global average')) + '</p>' +
+    '<div class="foot"><a class="go" href="' + esc(full) + '" target="_blank" rel="noopener">' + esc(T('See the full profile')) + ' →</a><small>' + esc(T('Draft data · GSG Impact')) + '</small></div>';
+  if (window.parent !== window) { try { window.parent.postMessage({ iei: 'height', h: document.body.scrollHeight }, '*'); } catch (e) { } }
+})();
+</script>
+</body>
+</html>

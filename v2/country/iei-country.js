@@ -336,6 +336,42 @@
       '<div class="ic-so-side"><div class="ic-so-score"><b>' + Math.round(t.v) + '</b><span>score</span></div>' +
       (also ? '<p class="ic-lbl">Also notable</p><ul class="ic-so-also">' + also + '</ul>' : '') + '</div></div>';
   }
+
+  /* ---------- context, evidence, divergence (25 Nov 2026) ---------- */
+  function evidenceOf(c) {
+    var I = window.IEI_IND || { inds: [], vals: {} }, v = I.vals[c.id] || {}, sc = I.inds.filter(function (m) { return !m.star; });
+    return { n: sc.filter(function (m) { return v[m.id] && v[m.id].s != null; }).length, of: sc.length };
+  }
+  function ctxStrip(c, bn) {
+    var x = c.x || {}, ev = evidenceOf(c);
+    var ref = function (k) { return avg(bn.list, function (y) { return y.x ? y.x[k] : null; }); };
+    var item = function (val, lab, src, r, money) {
+      if (val == null) return '<div class="ic-cx"><b>–</b><span>' + lab + '</span><small>' + src + ' · not available</small></div>';
+      var f = money ? '$' + Math.round(val).toLocaleString('en-GB') : (Math.round(val * 10) / 10).toFixed(1);
+      var rf = r == null ? '' : ' · comparison ' + (money ? '$' + Math.round(r).toLocaleString('en-GB') : Math.round(r));
+      return '<div class="ic-cx"><b>' + f + '</b><span>' + lab + '</span><small>' + src + rf + '</small></div>';
+    };
+    return '<div class="ic-ctx"><div class="ic-ctx-h"><p class="ic-lbl">Context and evidence</p><p class="ic-ctx-n">Context indicators are shown for reference and are not part of the IEI score.</p></div><div class="ic-ctx-g">' +
+      item(x.epi, 'Environmental Performance Index', 'Score /100', ref('epi')) +
+      item(x.spi, 'Social Progress Index', 'Score /100 · 2025', ref('spi')) +
+      item(x.gdppc, 'GDP per capita', 'Current USD · World Bank 2025', ref('gdppc'), true) +
+      '<div class="ic-cx"><b>' + ev.n + '<em>/' + ev.of + '</em></b><span>Evidence coverage</span><small>Scored indicators with data. Missing data is not treated as zero.</small></div>' +
+      '</div></div>';
+  }
+  function divCard(c, bn, drivers) {
+    var ok = drivers.filter(function (x) { return x.v != null && x.ref != null; });
+    var mx = Math.max(20, Math.ceil(Math.max.apply(null, ok.map(function (x) { return Math.abs(x.v - x.ref); }).concat([0])) / 10) * 10);
+    var rows = LEV.map(function (L, k) {
+      return '<div class="ic-dvg-g" style="--a:' + L.accent + '"><p class="ic-dvg-l"><i></i>' + esc(L.name) + '</p>' + drivers.filter(function (x) { return x.k === k; }).map(function (x) {
+        if (x.v == null || x.ref == null) return '<div class="ic-dvg-r"><span class="ic-did" style="--a:' + L.accent + '">' + x.id + '</span><span class="ic-dvg-t">' + esc(DLAB[x.id]) + '</span><span class="ic-dvg-b"></span><b class="ic-na">No data</b></div>';
+        var d = x.v - x.ref, w = Math.min(50, Math.abs(d) / mx * 50);
+        return '<div class="ic-dvg-r"><span class="ic-did" style="--a:' + L.accent + '">' + x.id + '</span><span class="ic-dvg-t">' + esc(DLAB[x.id]) + '</span><span class="ic-dvg-b"><i style="' + (d < 0 ? 'right:50%' : 'left:50%') + ';width:' + w.toFixed(1) + '%"></i></span><b>' + sgn(Math.round(d)) + '</b></div>';
+      }).join('') + '</div>';
+    }).join('');
+    return '<div class="ic-card ic-dvg"><div class="ic-dvg-ax" aria-hidden="true"><span></span><span></span><span class="ic-dvg-sc"><em>−' + mx + '</em><em>0</em><em>+' + mx + '</em></span><span></span></div>' + rows +
+      '<p class="ic-note">Driver score minus the average for ' + esc(bn.short) + ' (' + esc(bn.label) + '). Bars to the right mark relative strengths, bars to the left relative gaps. The comparison does not imply a causal explanation.</p></div>';
+  }
+  function actLink(c) { return '<button type="button" class="ic-actgo" data-act="' + c.id + '">Turn these gaps into action: Learn &amp; Act →</button>'; }
   function render() { renderCore(); syncHash(); }
   function renderCore() {
     var c = byId[state.sel], bn = benchFor(c);
@@ -366,6 +402,7 @@
         worst.d >= 0 ? 'It is at or above ' + esc(bn.short) + ' on every lever, strongest on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and narrowest on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
         'Relative to ' + esc(bn.short) + ', its strongest lever is <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and its largest gap is <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').');
 
+    if (strengths.length && gaps.length && gaps[0].d < 0) summary += ' At driver level, the largest relative gap is <b>' + esc(DLAB[gaps[0].id]) + '</b> (' + sgn(gaps[0].d) + ')' + (strengths[0].d > 0 ? ' and the strongest relative lead is <b>' + esc(DLAB[strengths[0].id]) + '</b> (' + sgn(strengths[0].d) + ')' : '') + '. These are starting points for local validation, not automatic policy priorities.';
     var peers = C.filter(function (x) { return x.id !== c.id; }).map(function (x) {
       var dist = Math.sqrt(x.l.reduce(function (s, v, k) { return s + Math.pow(v - c.l[k], 2); }, 0));
       return { c: x, dist: dist };
@@ -419,12 +456,13 @@
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span><span><i class="b"></i>' + esc(bn.label) + '</span></p></div>' +
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
       '</div>' +
-      '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
+      ctxStrip(c, bn) + '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
       ebCard(c, bn) +
       '<div class="ic-two">' +
       '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
-      '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul></div>' +
+      '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div>' +
       '</div>' +
+      '<h4 class="ic-h4 ic-dvg-h">Over- and under-performance vs comparison</h4>' + divCard(c, bn, drivers) +
       '<div class="ic-card ic-drivers">' +
       '  <div class="ic-dhead"><h4 class="ic-h4">All 14 drivers</h4><div class="ic-sort" role="group" aria-label="Sort drivers">' +
       [['lever', 'By lever'], ['gap', 'Largest gaps'], ['strength', 'Strengths']].map(function (o) { return '<button type="button" data-sort="' + o[0] + '" aria-pressed="' + (state.sort === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div><div class="ic-dbtns"><button type="button" class="ic-dl" data-expand="1">' + (DID.every(function (id) { return state.open[id]; }) ? 'Collapse all' : 'Expand all') + '</button><button type="button" class="ic-dl" data-csv="1">Drivers CSV</button><button type="button" class="ic-dl" data-csv-ind="1">Indicators CSV</button></div></div>' +
@@ -630,7 +668,7 @@
       if (window.IEI_CASES_MATCH) { var L = window.IEI_CASES_MATCH('I:' + m.id).filter(function (k) { return k.c !== c.id; }); if (!L.length) L = window.IEI_CASES_MATCH('D:' + m.driver).filter(function (k) { return k.c !== c.id; }); if (L.length) cs = '<p class="cs"><i>Learn from ' + esc(L[0].cn) + ':</i> ' + esc(L[0].t) + '</p>'; }
       return '<li><p class="gh"><span class="did" style="background:' + LEV[parseInt(m.id.charAt(0), 10) - 1].accent + '">' + esc(m.id) + '</span><b>' + esc(m.name) + '</b>' + dd(Math.round(r.x.d)) + '</p><p>' + esc(r.x.cf || '') + '</p>' + (act ? '<p><i>How to close the gap:</i> ' + esc(act) + '</p>' : '') + cs + '</li>';
     }).join('');
-    var css = '@font-face{font-family:Urbanist;src:url(' + abs('brand/fonts/Urbanist-Variable.woff2') + ') format("woff2");font-weight:100 900}@font-face{font-family:Urbanist;font-style:italic;src:url(' + abs('brand/fonts/Urbanist-Italic-Variable.woff2') + ') format("woff2");font-weight:100 900}' +
+    var css = '@font-face{font-family:Urbanist;src:url(' + abs('../brand/fonts/Urbanist-Variable.woff2') + ') format("woff2");font-weight:100 900}@font-face{font-family:Urbanist;font-style:italic;src:url(' + abs('../brand/fonts/Urbanist-Italic-Variable.woff2') + ') format("woff2");font-weight:100 900}' +
       '@page{size:A4;margin:14mm 14mm 16mm}*{box-sizing:border-box}body{margin:0;font:500 10.5pt/1.45 Urbanist,sans-serif;color:#0F1428;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
       '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0F1428;padding-bottom:10px;margin-bottom:14px}.top img{height:34px}.top .r{text-align:right;font-size:9pt;color:#4b5064}' +
       'h1{font:700 24pt/1.1 Urbanist;margin:0}h2{font:600 12pt Urbanist;color:#2942B5;margin:11px 0 6px}.sub{color:#4b5064;margin:2px 0 0}.it{font-style:italic}' +
@@ -643,7 +681,7 @@
       'ul.g{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}ul.g li{border:1px solid #D9D6D1;border-radius:12px;padding:9px 11px;break-inside:avoid}ul.g p{margin:3px 0;font-size:9pt}.gh{display:flex;gap:6px;align-items:center}.cs{color:#2942B5}' +
       '.foot{margin-top:14px;border-top:1px solid #D9D6D1;padding-top:8px;font-size:8pt;color:#4b5064}.pg{break-before:page}@media screen{body{max-width:820px;margin:20px auto;padding:0 20px}}';
     var html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(c.name) + ' · Impact Economy Index profile</title><style>' + css + '</style></head><body>' +
-      '<div class="top"><img src="' + abs('brand/logo/gsg-impact-lilac-navy.png') + '" alt="GSG Impact"><div class="r"><b>Impact Economy Index · Country profile</b><br>Draft for validation</div></div>' +
+      '<div class="top"><img src="' + abs('../brand/logo/gsg-impact-lilac-navy.png') + '" alt="GSG Impact"><div class="r"><b>Impact Economy Index · Country profile</b><br>Draft for validation</div></div>' +
       '<div class="hero"><div><div class="big">' + c.score + '</div><span class="tier" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span></div>' +
       '<div><h1>' + esc(c.name) + '</h1><p class="sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p><p>Rank <b>#' + tr.r + '</b> of ' + N + '. Total score ' + c.score + ' out of 100, ' + sgn(Math.round(c.score - refT)) + ' against the comparison (' + esc(bn.label) + ', ' + Math.round(refT) + ').</p>' +
       '<p class="sub it">The total is the average of 14 equally weighted drivers. The marker on each bar shows the comparison.</p></div></div>' +
@@ -871,6 +909,18 @@
   });
   window.addEventListener('hashchange', function () {
     var h = window.IEI_HASH ? window.IEI_HASH.get() : {}, id = (h.country || '').toUpperCase(); if (byId[id] && id !== state.sel) pick(id);
+  });
+  window.IEI_CUR = function () { return state.sel; };
+  window.IEI_OPEN_DRIVER = function (id, did) {
+    if (!byId[id]) return;
+    state.open[did] = true; if (state.acc) state.acc.drivers = true; state.sort = 'lever';
+    if (window.IEI_GO) window.IEI_GO('explore', { tab: 'country', country: id });
+    pick(id, false);
+    setTimeout(function () { var r = document.querySelector('.ic-dr[data-drv="' + did + '"]'); if (r) { var y = r.getBoundingClientRect().top + window.pageYOffset - 90; window.scrollTo({ top: y, behavior: 'instant' }); r.focus({ preventScroll: true }); } }, 60);
+  };
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-act]'); if (!b) return;
+    if (window.IEI_GO) window.IEI_GO('explore', { tab: 'act', country: b.getAttribute('data-act') });
   });
   window.IEI_OPEN_COUNTRY = function (id) {
     if (!byId[id]) return;

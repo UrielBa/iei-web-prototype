@@ -1,0 +1,194 @@
+/* =====================================================================
+   IEI v2 — policymaker-first, quieter visual system
+   - text is navy or white; colour only when it encodes a lever,
+     enabling conditions (red) or behaviour (dark blue)
+   - square corners (circles only for data marks and round icon buttons)
+   - no decorative images, no shadows, fewer boxes
+   - scales run from white to the full colour
+   ===================================================================== */
+:root{--v-navy:#0F1428;--v-white:#fff;--v-lilac:#6478FF;--v-red:#E34A59;--v-blue:#2942B5;
+  --v-mut:rgba(15,20,40,.72);--v-mutd:rgba(255,255,255,.72);--v-rule:rgba(15,20,40,.14);--v-ruled:rgba(255,255,255,.16)}
+
+/* ---------- corners & shadows ---------- */
+*,*::before,*::after{border-radius:0 !important;box-shadow:none !important;text-shadow:none !important}
+.s-pyr-dot,.s-pyr-leg i,.ic-rd,.ix-dot,.s-sw-dot,.s-dotc,
+.ix-ring,.ic-tip i.dot,input[type=radio]{border-radius:50% !important}
+.s-pyr-row.on .s-pyr-shape,.s-pyr-row:hover .s-pyr-shape{filter:none !important}
+
+/* ---------- decorative imagery off ---------- */
+.s-hero-img,.s-illu,.s-def::before,.s-def::after,.s-dl::before,.s-dl::after,.cs-st img,.cp-ico{display:none !important}
+.s-def,#framework,.s-csv,.s-dl,.container-fluid[style*="f0f0f0"]{background-image:none !important}
+#framework::before,#framework::after,#framework .container::before,#framework .container::after{display:none !important;background:none !important}
+.s-pyr{background:var(--v-navy) !important;border:0 !important;padding-left:0 !important;padding-right:0 !important}
+.s-pyr-list::after,.s-pyr-shape::before,.s-pyr-shape::after{display:none !important}
+
+/* ---------- text colours ---------- */
+.s-eyebrow,.s-eyebrow em,.pre-text,p.pre-text,.s-pyr-k,.s-evid-t,.s-rk,.ix-kicker{color:inherit !important;opacity:.8}
+body,h1,h2,h3,.s-hero h1,.s-ins h2,.s-ins h3,.s-find h3,#explore h2,.s-cases h2{color:var(--v-navy)}
+.s-hero h1 em{color:var(--v-navy) !important;font-style:italic}
+.s-lede,.s-sub,.s-lead,.s-find p,.s-rnorm,.cs-count,.cs-note,.s-note,p.s-ibh,.ix-mapsub,.ix-maphint,.ix-hint,.ix-count,.ix-pageinfo,.ix-mut,
+.s-howto-h,#explore p,.s-rcard small,.s-rcard p{color:var(--v-mut) !important}
+.s-def,.s-def *,#framework,#framework h2,#framework p,.s-pyr-hint,.s-pyr-row p,.ic,.ic h3,.ic h4{color:#fff}
+.s-pyr-hint,.lever-intro,.ic-lede,.ic-listcount,.ic-sub,.ic-wnote,.ic-vs,.ic-bnote,.ic-lmeta,.ic-note,.ic-key,.ic-rk,.ic-hint,.ic-psub,
+.ic-so-lvl,.ic-lbl,.ic-tkey,.ic-legend,.ic .ic-hl2,.ic-summary,.ic-ebm,.ic-so-chip,.ic-soa-n{color:var(--v-mutd) !important}
+.ic-summary b,.ic-summary{color:#fff !important}
+.ic-gck,.ic-gcb:hover,.ic-gcm,.s-dtip-a{color:#fff !important}
+a.cs-go,.cs-go,.cs-card h3,.cs-card h3 a{color:var(--v-navy) !important}
+.cs-go{text-decoration:underline;text-underline-offset:3px}
+/* deltas and up/down: neutral, the sign carries the meaning */
+.ic-d,.ic-d.up,.ic-d.down,.ic-d.eq,.ic-hv.st.up,.ic-hv.st.down,.ic-hv.st em,.ix-d{color:#fff !important;background:rgba(255,255,255,.1) !important}
+.ix-d{color:var(--v-navy) !important;background:rgba(15,20,40,.07) !important}
+.ic-sg .ic-h4 i.up,.ic-sg .ic-h4 i.down{background:#fff !important}
+.ic .cs-pill,.ic .cs-pill:hover{border-color:rgba(255,255,255,.5) !important;color:#fff !important;background:transparent !important}
+.ic .cs-pill:hover{background:#fff !important;color:var(--v-navy) !important}
+.ic-so-k{color:#fff !important}.ic-soa-p{color:#fff !important;opacity:.8}
+.ic-so-chip.a{background:#fff !important;border-color:#fff !important;color:var(--v-navy) !important}
+
+/* ---------- enabling conditions (red) and behaviour (dark blue) ---------- */
+.ic{--ec-e:#E34A59;--ec-b:#2942B5;--ec-k:#6478FF}
+.ic-ty.e{background:var(--v-red) !important;color:#fff !important}.ic-ty.b{background:var(--v-blue) !important;color:#fff !important}.ic-ty.k{background:var(--v-lilac) !important;color:#fff !important}
+.s-pyr-dot{border-color:transparent !important}
+.s-pyr-dot.tE{background:var(--v-red) !important}
+.s-pyr-dot.tB{background:var(--v-blue) !important;border:2px solid #6E86FF !important}
+.s-pyr-dot.k{outline:2px solid #fff;outline-offset:2px}
+.s-pyr-leg i.tE{background:var(--v-red) !important}.s-pyr-leg i.tB{background:var(--v-blue) !important;border:2px solid #6E86FF}
+.s-pyr-leg i.k{outline:2px solid #fff;outline-offset:2px;box-shadow:none !important}
+
+/* ---------- benchmark pegs: plain lines, same everywhere ---------- */
+.ic-bar u,.ic-bar.thin u{top:-4px !important;bottom:-4px !important;width:0 !important;margin-left:-1px !important;background:none !important;border-left:2px solid #fff !important;transform:none !important}
+.ic-bar u::before{display:none !important}
+.ic-bar u.g{border-left-style:dashed !important}
+.ic-bar u.b{border-left-style:dotted !important}
+.ic-bar u:hover,.ic-bar u:focus-visible{border-left-width:3px !important}
+.ic-tkey i,.ic-key u{width:0 !important;height:14px !important;background:none !important;border-left:2px solid #fff !important}
+.ic-tkey i.g{border-left-style:dashed !important}.ic-tkey i.b{border-left-style:dotted !important}
+.ix-bar u,.ix-key u{background:var(--v-navy) !important;width:2px !important}
+
+/* ---------- hero ---------- */
+.s-hero-grid{grid-template-columns:minmax(0,820px) !important}
+.s-hero{padding-bottom:56px}
+
+/* ---------- definition + why ---------- */
+.s-why{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin-top:36px;padding-top:24px;border-top:1px solid var(--v-ruled)}
+.s-why p{margin:0 !important;font:400 17px/1.55 "Urbanist",sans-serif !important;color:var(--v-mutd) !important}
+@media (max-width:767px){.s-why{grid-template-columns:1fr;gap:14px}}
+
+/* ---------- policy use ---------- */
+.s-use{padding:88px 0 72px;background:#fff}
+.s-use h2{margin:6px 0 12px}
+.s-use .s-sub{max-width:720px}
+.s-steps{list-style:none;margin:40px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 40px}
+.s-steps li{padding-top:18px;border-top:2px solid var(--v-navy)}
+.s-step-n{display:block;font:700 13px/1 "Urbanist",sans-serif;letter-spacing:.12em;color:var(--v-navy);margin-bottom:14px}
+.s-steps h3{margin:0 0 10px;font:700 24px/1.2 "Urbanist",sans-serif;color:var(--v-navy)}
+.s-steps p{margin:0 0 16px;font:400 16px/1.55 "Urbanist",sans-serif;color:var(--v-mut)}
+.s-steps a{font:700 15px/1 "Urbanist",sans-serif;color:var(--v-navy);text-decoration:underline;text-underline-offset:4px}
+@media (max-width:767px){.s-steps{grid-template-columns:1fr;gap:28px}}
+
+/* ---------- "show more" buttons ---------- */
+.s-more{display:inline-flex;align-items:center;gap:10px;padding:10px 0;border:0;border-bottom:1.5px solid currentColor;background:none;color:inherit;font:700 14px/1 "Urbanist",sans-serif;cursor:pointer}
+.s-more i{width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s}
+.s-more[aria-expanded="true"] i{transform:rotate(-135deg) translate(-2px,-2px)}
+.s-more:hover{opacity:.75}
+
+/* ---------- key messages: text first, data on demand ---------- */
+.s-ins .s-head{display:block}
+.s-stats{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;margin:36px 0 8px}
+.s-stat,.s-ins .s-stat{background:none !important;color:var(--v-navy) !important;border:0 !important;border-top:1px solid var(--v-rule) !important;padding:16px 0 0 !important;min-height:0 !important}
+.s-stat b{color:var(--v-navy) !important;font-weight:600 !important}
+.s-stat span{color:var(--v-mut) !important}
+.s-tiers{display:none !important}
+.s-find-grid.s-find-4{display:block !important;margin-top:40px}
+.s-find{display:grid !important;grid-template-columns:64px minmax(0,1fr) !important;column-gap:20px;background:none !important;border:0 !important;border-top:1px solid var(--v-rule) !important;padding:28px 0 !important;margin:0 !important}
+.s-find .s-num{grid-row:span 4;width:auto !important;height:auto !important;background:none !important;color:var(--v-navy) !important;font:600 34px/1 "Urbanist",sans-serif !important;display:block !important}
+.s-find h3{grid-column:2;margin:0 0 8px !important;font-size:24px !important;color:var(--v-navy) !important}
+.s-find p{grid-column:2;max-width:760px}
+.s-find .s-evbtn{grid-column:2;justify-self:start;margin-top:6px;color:var(--v-navy)}
+.s-find .s-evid{grid-column:2;margin-top:18px;padding:0 !important;border:0 !important;background:none !important}
+.s-find .s-evid[hidden]{display:none !important}
+.s-evid-in{border:0 !important;padding:0 !important;background:none !important}
+@media (max-width:767px){.s-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.s-find{grid-template-columns:40px minmax(0,1fr) !important}.s-find .s-num{font-size:24px !important}}
+
+/* ---------- how to read ---------- */
+.s-howto{background:none !important;border:0 !important;border-top:1px solid var(--v-rule) !important;border-bottom:1px solid var(--v-rule) !important}
+.s-howto-btn{background:var(--v-navy) !important;color:#fff !important}
+.s-rcard{background:none !important;border:0 !important;border-top:1px solid var(--v-rule) !important;padding-left:0 !important;padding-right:0 !important}
+
+/* ---------- explorer: fewer boxes ---------- */
+.container-fluid[style*="f0f0f0"]{background:#fff !important}
+.ix-card{border:0 !important;background:#fff !important}
+.ix-mapcard{border-top:1px solid var(--v-rule) !important;padding-left:0 !important;padding-right:0 !important}
+.ix-panel{border-left:1px solid var(--v-rule) !important}
+.ix-more{margin:22px 0 6px;color:var(--v-navy)}
+.ix-tablecard{border-top:1px solid var(--v-rule) !important;padding-left:0 !important;padding-right:0 !important}
+.ix-chip,.ix-metric,.ix-tab,.ix-ghost,.ix-sel,.ix-q,select,.ix-reset{border-radius:0 !important}
+.ix-table td,.ix-table th{color:var(--v-navy)}
+.s-csv{background:none !important;color:var(--v-navy) !important;border-top:1px solid var(--v-rule);padding:22px 0 !important;margin-top:28px}
+.s-csv p,.s-csv small{color:var(--v-navy) !important}
+.s-csv small{opacity:.72}
+.s-csv .s-btn{background:none !important;border:1.5px solid var(--v-navy) !important;color:var(--v-navy) !important}
+
+/* ---------- country profile: rules instead of boxes ---------- */
+.ic-card{background:none !important;border:0 !important;border-top:1px solid var(--v-ruled) !important;padding-left:0 !important;padding-right:0 !important}
+.ic-head{border-top:0 !important}
+.ic-lcard,.ic-lev{background:none !important;border:0 !important}
+.ic-levs>*{background:none !important;border:0 !important;border-top:3px solid var(--a,#fff) !important;padding-left:0 !important;padding-right:0 !important}
+.ic-ebm,.ic-hv.avg,.ic-hv.st{background:rgba(255,255,255,.06) !important}
+.ic-two{gap:0 40px !important}
+.ic-more-k{margin:36px 0 0 !important;font:700 12px/1 "Urbanist",sans-serif !important;letter-spacing:.14em;text-transform:uppercase;color:var(--v-mutd) !important}
+.ic-acc{border-top:1px solid var(--v-ruled)}
+.ic-acc:last-of-type{border-bottom:1px solid var(--v-ruled)}
+.ic-acc-b{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr) 24px;align-items:baseline;gap:6px 18px;width:100%;padding:18px 0;border:0;background:none;color:#fff;text-align:left;cursor:pointer;font-family:"Urbanist",sans-serif}
+.ic-acc-t{font:700 17px/1.25 "Urbanist",sans-serif}
+.ic-acc-h{font:500 14px/1.3 "Urbanist",sans-serif;color:var(--v-mutd)}
+.ic-acc-i{justify-self:end;align-self:center;width:10px;height:10px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);transition:transform .2s}
+.ic-acc.on .ic-acc-i{transform:rotate(-135deg)}
+.ic-acc-b:hover .ic-acc-t{text-decoration:underline;text-underline-offset:4px}
+.ic-acc-p{padding-bottom:22px}
+.ic-acc-p>.ic-card{border-top:0 !important;margin-top:0 !important;padding-top:0 !important}
+.ic-acc-p>.ic-card>.ic-h4:first-child,.ic-acc-p .ic-pcard .ic-dhead .ic-h4,.ic-acc-p .ic-drivers>.ic-dhead>.ic-h4,.ic-acc-p .ic-eb>.ic-h4{display:none}
+@media (max-width:767px){.ic-acc-b{grid-template-columns:minmax(0,1fr) 24px}.ic-acc-h{grid-column:1;grid-row:2}.ic-acc-i{grid-row:1/3;grid-column:2}}
+/* lever group rows span the whole table (were squeezed into the first column) */
+.ic-grp th{display:table-cell !important;padding:20px 0 8px !important;font-size:14px !important}
+.ic-grp .ic-gv{float:right}
+.ic-table .ic-grp th{white-space:normal}
+/* peer heat map: white to lilac, navy text */
+.ic-hv{color:var(--v-navy)}
+.ic-hv.me{outline:2px solid #fff;outline-offset:-2px}
+
+/* ---------- case studies ---------- */
+.cs-card{background:none !important;border:0 !important;border-top:1px solid var(--v-rule) !important;padding-left:0 !important;padding-right:0 !important}
+.cs-card .cs-photo{margin-left:0 !important;margin-right:0 !important;width:100% !important}
+.cs-all{margin:24px 0 0;color:var(--v-navy)}
+.cs-st{background:none !important;border:1px solid var(--v-rule) !important;color:var(--v-navy) !important}
+
+/* ---------- report form & footer ---------- */
+.s-dl{background:var(--v-navy) !important}
+.s-form{border:0 !important}
+.s-plogo{border:1px solid var(--v-rule) !important;background:none !important}
+/* key messages: explicit placement (beats the older two-column layout) */
+.s-find-4 .s-find{grid-template-rows:auto !important;padding:28px 0 !important}
+.s-find-4 .s-find .s-num{grid-column:1 !important;grid-row:1 / 5 !important;align-self:start}
+.s-find-4 .s-find h3{grid-column:2 !important;grid-row:1 !important}
+.s-find-4 .s-find>p{grid-column:2 !important;grid-row:2 !important}
+.s-find-4 .s-find .s-evbtn{grid-column:2 !important;grid-row:3 !important}
+.s-find-4 .s-find .s-evid{grid-column:2 !important;grid-row:4 !important;border:0 !important}
+.s-find-4 .s-evid-in{border:0 !important;padding:0 !important}
+#about .s-stats .s-stat b{color:var(--v-navy) !important}
+#about .s-stats .s-stat span{color:var(--v-mut) !important}
+.s-use .s-sub{font:400 18px/1.55 "Urbanist",sans-serif !important;color:var(--v-mut) !important}
+/* eyebrows: white on dark grounds, navy on light */
+.s-def .s-eyebrow,#framework .pre-text,#framework .s-pyr-k,#country .pre-text,.s-dl .s-eyebrow,.s-foot .s-eyebrow,footer .s-eyebrow,footer h4,footer p.s-fh,.s-dl p.s-eyebrow{color:#fff !important}
+.s-hero .s-eyebrow,.s-use .s-eyebrow,.s-ins .s-eyebrow,.s-read .s-eyebrow,#explore .pre-text,.s-cases .s-eyebrow,.s-partners h2{color:var(--v-navy) !important}
+.s-rcard h3,.s-read h3{color:var(--v-navy) !important}
+.s-hero h1,.s-btn:not(.primary){color:var(--v-navy) !important;border-color:var(--v-navy) !important}
+.s-cap small,.s-cchips span,.s-tleg small,.s-wrap small,.s-nd{color:var(--v-mut) !important}
+.lever-stage,.lever-stage *:not(.lever-badge){color:var(--v-navy)}
+.lever-dh{color:var(--v-navy) !important;opacity:.7}
+.s-rtip-box span{color:rgba(255,255,255,.85) !important}
+.s-find .s-evid{max-width:760px}
+#explore{background:#fff !important}
+.s-pyr-dot.tL,.s-pyr-leg i.tL{color:#fff !important}
+.ix-panel .ix-note,.ix-panel [class*="hint"]{background:none !important;border-top:1px solid var(--v-rule);padding-left:0 !important}
+.s-use h2{font:400 clamp(36px,4.6vw,60px)/1.08 "Urbanist",sans-serif !important;letter-spacing:-.02em;color:var(--v-navy)}
+.s-wrap,.s-use *{box-sizing:border-box}

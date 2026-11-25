@@ -1,0 +1,19 @@
+/* =====================================================================
+   IEI design tokens — single source for colour, rules, radius and measure
+   Every scale runs from white to the full colour (step 6 = full colour).
+   ===================================================================== */
+:root{
+  --navy:#0F1428; --white:#FFFFFF;
+  --text-on-light:var(--navy); --text-on-dark:var(--white);
+  --muted-on-light:rgba(15,20,40,.72); --muted-on-dark:rgba(255,255,255,.72);
+  --rule-light:rgba(15,20,40,.14); --rule-dark:rgba(255,255,255,.16);
+  --lilac:#6478FF; --lilac-1:#ECEFFF; --lilac-2:#D7DCFF; --lilac-3:#BEC6FF; --lilac-4:#A5B1FF; --lilac-5:#8696FF; --lilac-6:#6478FF;
+  --l1:#3DCC7D; --l1-1:#E8F9EF; --l1-2:#CDF2DD; --l1-3:#AEEAC8; --l1-4:#8EE1B4; --l1-5:#68D79A; --l1-6:#3DCC7D;
+  --l2:#77DAD9; --l2-1:#EFFBFA; --l2-2:#DCF5F5; --l2-3:#C6EFEF; --l2-4:#B0EAE9; --l2-5:#95E2E1; --l2-6:#77DAD9;
+  --l3:#F094B5; --l3-1:#FDF2F6; --l3-2:#FBE3EC; --l3-3:#F9D2E0; --l3-4:#F6C1D4; --l3-5:#F3ACC5; --l3-6:#F094B5;
+  --l4:#FFBD87; --l4-1:#FFF7F1; --l4-2:#FFEEE0; --l4-3:#FFE3CD; --l4-4:#FFD9B9; --l4-5:#FFCCA1; --l4-6:#FFBD87;
+  --enabling:#E34A59; --enabling-1:#FCE9EB; --enabling-2:#F8D0D4; --enabling-3:#F3B3B9; --enabling-4:#EF969F; --enabling-5:#E9727E; --enabling-6:#E34A59;
+  --behaviour:#2942B5; --behaviour-1:#E5E8F6; --behaviour-2:#C7CEEC; --behaviour-3:#A5B0E0; --behaviour-4:#8391D4; --behaviour-5:#586CC5; --behaviour-6:#2942B5;
+  --radius:0; --measure:65ch;
+  --space-section:96px; --space-block:40px;
+}
