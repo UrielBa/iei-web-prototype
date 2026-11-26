@@ -363,9 +363,9 @@
     var tiers = '';
     if (m.id === 'score') {
       var counts = META.tiers.map(function (t) { return { t: t.name, n: C.filter(function (c) { return c.tier === t.name; }).length }; });
-      tiers = '<p class="ix-sub">Countries by maturity stage</p><div class="ix-tierbar">' + counts.map(function (x) {
-        return '<span style="flex:' + x.n + ';background:' + TIER_BG[x.t] + ';color:' + TIER_FG[x.t] + '" title="' + x.t + ': ' + x.n + '">' + x.n + '</span>';
-      }).join('') + '</div><div class="ix-tiernames">' + counts.map(function (x) { return '<span>' + x.t + '</span>'; }).join('') + '</div>';
+      tiers = '<p class="ix-sub">Number of countries by maturity stage</p><div class="ix-tierbar" role="img" aria-label="Number of countries in each maturity stage">' + counts.map(function (x) {
+        return '<span style="flex:' + x.n + ';background:' + TIER_BG[x.t] + ';color:' + TIER_FG[x.t] + '" title="' + x.t + ': ' + x.n + (x.n === 1 ? ' country' : ' countries') + '">' + x.n + '</span>';
+      }).join('') + '</div><div class="ix-tiernames">' + counts.map(function (x) { return '<span>' + x.t + '</span>'; }).join('') + '</div><p class="ix-tiernote">Figures are numbers of countries, not scores.</p>';
     }
     panel.innerHTML = '<div class="ix-pb">' +
       '<p class="ix-kicker">Global snapshot</p><h3 class="ix-ptitle">' + esc(m.name) + '</h3>' +

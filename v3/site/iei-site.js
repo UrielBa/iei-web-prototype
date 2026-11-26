@@ -38,7 +38,7 @@ if(C.length){
     var counts=ST.map(function(){return 0});C.forEach(function(c){counts[tier(c.score)]++});
     var stats=[[n,'countries assessed'],['14','drivers and 38 indicators across 4 levers'],[Math.round(avg(sc)),'average score on a 1–100 scale'],[Math.min.apply(null,sc)+'–'+Math.max.apply(null,sc),'score range, lowest to highest']];
     el.innerHTML=stats.map(function(s,i){return '<div class="s-stat s-reveal" data-d="'+(i%4)+'"><b data-n="'+esc(s[0])+'">'+esc(s[0])+'</b><span>'+esc(s[1])+'</span></div>'}).join('')+
-      '<div class="s-tiers s-reveal"><p>Countries by maturity stage</p><div class="s-tbar" role="img" aria-label="'+TN.map(function(t,i){return counts[i]+' '+t}).join(', ')+'">'+
+      '<div class="s-tiers s-reveal"><p>Number of countries by maturity stage <small class="s-tnote">(figures are numbers of countries, not scores)</small></p><div class="s-tbar" role="img" aria-label="'+TN.map(function(t,i){return counts[i]+' '+t}).join(', ')+'">'+
       counts.map(function(k,i){return '<i style="flex:'+k+';background:'+TC[i]+'" title="'+TN[i]+': '+k+'"></i>'}).join('')+'</div><div class="s-tleg">'+
       counts.map(function(k,i){return '<span><i style="background:'+TC[i]+'"></i>'+TN[i]+' <small>'+k+' · '+TR[i]+'</small></span>'}).join('')+'</div></div>';
     $$('.s-reveal',el).forEach(function(r){if('IntersectionObserver' in window)io.observe(r);else r.classList.add('s-in')});
@@ -157,7 +157,26 @@ function insights(){
   var m3=sv+'<div class="s-cchips"><span>'+esc(TT('Above income peers'))+'</span>'+['GBR','FRA','FIN'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below income peers'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
     '<p class="s-cap">'+(advHi===adv.length?'All '+adv.length+' Advanced countries are high-income':advHi+' of '+adv.length+' Advanced countries are high-income')+', yet high-income economies range from '+LIVE['hi-min']+' to '+LIVE['hi-max']+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
   var m4=n1.replace('<p class="s-cap">','<p class="s-cap">The 2026 report also finds higher scores go with stronger conditions for innovative, inclusive, sustainable and resilient growth (World Economic Forum Future of Growth Framework, 46 countries); those data are not shown here. ');
-  var ev=[m1,m2,m3,m4];
+  // strategic message 2: leading-edge models
+  var sd=[0,0,0,0];C.forEach(function(c){var k=Math.max(0,Math.min(3,+c.stars||0));sd[k]++});
+  var star=C.filter(function(c){return +c.stars>0}).length,three=C.filter(function(c){return +c.stars>=3});
+  LIVE.star=star;
+  var s2='<div class="s-ibars">'+[[1,'One leading-edge model'],[2,'Two models'],[3,'All three models'],[0,'None yet']].map(function(r){var v=sd[r[0]];return '<div class="s-bar" style="--c:'+(r[0]?'#6478FF':'#C9CEE0')+'"><span>'+esc(r[1])+'</span><b>'+v+'</b><div><span style="width:'+(v/C.length*100).toFixed(1)+'%"></span></div></div>'}).join('')+'</div>'+
+    (three.length?'<div class="s-cchips"><span>'+esc(TT('All three models'))+'</span>'+three.map(function(c){return chip(c.id)}).join('')+'</div>':'')+
+    '<p class="s-cap">Countries by number of leading-edge impact models in place.<small>Leading-edge models are recognised with a star and do not count towards the score: outcomes-based commissioning readiness, a Just Transition country platform and an impact wholesaler.</small></p>';
+  // strategic message 3: frameworks ahead of practice; emerging vs high income
+  var eb=C.filter(function(c){return c.e!=null&&c.b!=null}),ebA=eb.filter(function(c){return c.e>c.b}).length;
+  var HI=C.filter(function(c){return c.income==='High Income'}),EM=C.filter(function(c){return c.income!=='High Income'});
+  function gav(L,id){var v=[];L.forEach(function(c){var e=(IND.vals[c.id]||{})[id];if(e&&e.s!=null)v.push(e.s)});return v.length?avg(v):null}
+  var CMPI=[['3.B.1','Sustainable finance taxonomy'],['2.B.3','Outcomes-based procurement'],['3.B.2','Corporate sustainable debt issuance'],['3.A.1','Rules enabling institutional investment'],['3.E.3','Leading corporates’ environmental practices'],['3.E.4','Leading corporates’ social practices']];
+  var s3='<p class="s-cap s-capt">In '+ebA+' of '+eb.length+' countries, enabling conditions (policies, rules, institutions) score higher than behaviour (what companies, investors and consumers do).</p>'+
+    '<div class="s-pairs"><p class="s-pkey"><span><i class="f"></i>Emerging and developing economies</span><span><i class="p"></i>High-income economies</span></p>'+CMPI.map(function(p){var a=gav(EM,p[0]),b=gav(HI,p[0]);if(a==null||b==null)return '';
+    return '<div class="s-pair"><p class="s-pact">'+esc(p[1])+'</p><div class="s-bar f"><span>Emerging and developing</span><b>'+a.toFixed(0)+'</b><div><span style="width:'+a.toFixed(1)+'%"></span></div></div><div class="s-bar p"><span>High-income</span><b>'+b.toFixed(0)+'</b><div><span style="width:'+b.toFixed(1)+'%"></span></div></div></div>'}).join('')+'</div>'+
+    '<p class="s-cap">Average indicator scores by income group.<small>Emerging and developing economies are all countries outside the World Bank high-income group ('+EM.length+' countries); high-income ('+HI.length+').</small></p>';
+  // strategic message 4: no Thriving yet
+  var s4=e1+'<p class="s-cap">No country has reached the Thriving stage (80 and above); the highest score is '+LIVE.max+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
+  $$('[data-live="star"]').forEach(function(el){el.textContent=star});
+  var ev=[m4,s2,s3,s4];
   $$('.s-find').forEach(function(f,i){var h=$('.s-evid',f);if(h)h.innerHTML='<div class="s-evid-in"><p class="s-evid-t">In the data</p>'+ev[i]+'</div>'});
   // country tooltip on the insight dots: flag, name, values; tap pins it with a link to the profile
   (function(){

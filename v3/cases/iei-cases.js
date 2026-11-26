@@ -162,6 +162,7 @@
   });
 
   /* ---------- section with filters ---------- */
+  function stakes2(k) { return String(k.sa || '').split(/[;,]/).map(function (x) { return x.trim(); }).filter(Boolean); }
   var root = document.getElementById('ieiCases');
   if (!root) return;
   var st = { q: '', country: '', stake: '', driver: '', tier: '', region: '' }, showAll = false, FIRST = 6, CHIPS = root.hasAttribute('data-chips');
@@ -177,7 +178,7 @@
     sel('country', 'Country', uniq(K.map(function (k) { return k.cn; }))) + sel('driver', 'Driver', drvOpts) +
     '<button type="button" class="cs-morebtn" aria-expanded="false" aria-controls="csMore">More filters <span class="cs-mn" hidden></span></button>' +
     '<button type="button" class="cs-reset">Clear all</button></div>' +
-    '<div class="cs-more" id="csMore" hidden>' + sel('stake', 'Stakeholder', uniq(K.map(function (k) { return k.s; }))) +
+    '<div class="cs-more" id="csMore" hidden>' + sel('stake', 'Stakeholder (primary or secondary)', uniq(K.reduce(function (a, k) { return a.concat([k.s]).concat(stakes2(k)); }, []).filter(Boolean))) +
     sel('tier', 'Maturity stage', M.tiers.map(function (t) { return t.name; })) + sel('region', 'Region', uniq(K.map(function (k) { return k.region; }))) + '</div>' +
     (CHIPS ? '<div class="cs-chips" aria-live="polite"></div>' : '') +
     '<p class="cs-count" aria-live="polite"></p><div class="cs-grid"></div><button type="button" class="s-more cs-all" aria-expanded="false"><span></span><i aria-hidden="true"></i></button>' +
@@ -189,7 +190,7 @@
     var q = norm(st.q);
     var L = K.filter(function (k) {
       return (!q || norm(k.t + ' ' + k.b + ' ' + k.cn + ' ' + k.s).indexOf(q) >= 0) &&
-        (!st.country || k.cn === st.country) && (!st.stake || k.s === st.stake) && (!st.driver || k.drivers.indexOf(st.driver) >= 0) &&
+        (!st.country || k.cn === st.country) && (!st.stake || k.s === st.stake || stakes2(k).indexOf(st.stake) >= 0) && (!st.driver || k.drivers.indexOf(st.driver) >= 0) &&
         (!st.tier || k.tier === st.tier) && (!st.region || k.region === st.region);
     });
     var nMore = ['stake', 'tier', 'region'].filter(function (k) { return st[k]; }).length, mn = root.querySelector('.cs-mn');

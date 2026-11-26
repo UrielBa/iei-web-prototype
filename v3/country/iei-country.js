@@ -79,7 +79,7 @@
   root.innerHTML =
     '<div class="ic">' +
     '  <div class="ic-intro"><h2 class="ic-h">Explore any of the ' + N + ' countries</h2>' +
-    '  <p class="ic-lede">Pick a country to see its total score, its four levers and the indicators behind them, and compare it with its income group, region, stage or any other country.</p></div>' +
+    '  <p class="ic-lede">Choose a country from the menu, the map or the results table to see its total score, its four levers and the indicators behind them, and compare it with its income group, region, stage or any other country.</p></div>' +
     '  <div class="ic-grid">' +
     '    <aside class="ic-rail" aria-label="Country selection">' +
     '      <label class="ic-field"><span class="ic-sr">Search countries</span><input type="search" class="ic-q" placeholder="Search a country…" autocomplete="off"></label>' +
@@ -293,13 +293,13 @@
     pool.sort(function (a, b) { return top.o.get(a) - top.o.get(b); });
     return (SO_CACHE[c.id] = { top: top, also: also, learn: pool.slice(0, 3) });
   }
-  function rk(g) { var tie = g.eff - g.r + 1; return tie > 1 ? (g.r === 1 ? 'Top score, shared by ' + tie + ' of ' + g.n : 'Joint #' + g.r + ' of ' + g.n) : '#' + g.r + ' of ' + g.n; }
+  function rk(g) { var tie = g.eff - g.r + 1; return g.r === 1 ? (tie > 1 ? 'Highest score, shared by ' + tie + ' of ' + g.n : 'Highest score of ' + g.n) : 'Among the ' + g.eff + ' highest of ' + g.n; }
   function soPlace(x, c) {
     var b = [];
     var q = [];
-    if (x.g.eff <= 10) q.push({ r: x.g.r, o: 0, t: (x.g.shared ? 'Joint #' : '#') + x.g.r + ' of ' + x.g.n + ' worldwide' });
-    if (x.rg && x.rg.eff <= 3) q.push({ r: x.rg.r, o: 1, t: (x.rg.shared ? 'Joint #' : '#') + x.rg.r + ' in ' + c.region });
-    if (x.ig && x.ig.eff <= 3) q.push({ r: x.ig.r, o: 2, t: (x.ig.shared ? 'Joint #' : '#') + x.ig.r + ' among ' + c.income + ' countries' });
+    if (x.g.eff <= 10) q.push({ r: x.g.r, o: 0, t: x.g.r === 1 ? (x.g.shared ? 'Shares the highest score' : 'Highest score') + ' of the ' + x.g.n + ' countries' : 'Among the 10 highest of the ' + x.g.n + ' countries' });
+    if (x.rg && x.rg.eff <= 3) q.push({ r: x.rg.r, o: 1, t: x.rg.r === 1 ? (x.rg.shared ? 'Joint highest' : 'Highest') + ' in ' + c.region : 'Among the 3 highest in ' + c.region });
+    if (x.ig && x.ig.eff <= 3) q.push({ r: x.ig.r, o: 2, t: x.ig.r === 1 ? (x.ig.shared ? 'Joint highest' : 'Highest') + ' among ' + c.income + ' countries' : 'Among the 3 highest ' + c.income + ' countries' });
     q.sort(function (u, v) { return u.r - v.r || u.o - v.o; }).forEach(function (u) { b.push(u.t); });
     if (!b.length) {
       var opt = [{ p: x.g.eff / x.g.n, t: x.g.eff / x.g.n <= .5 ? 'Top ' + Math.max(1, Math.round(x.g.eff / x.g.n * 100)) + '% worldwide' : null }];
@@ -518,7 +518,7 @@
       '<div class="ic-card ic-head">' +
       '  <div class="ic-hl">' + flag(c, 'ic-hflag') + '<div><h3 class="ic-name">' + esc(c.name) + standoutBadge(c) + '</h3><p class="ic-sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div></div>' +
       '  <div class="ic-share"><button type="button" class="ic-sh" data-share="link">Copy link</button><button type="button" class="ic-sh" data-share="print">Printable profile (PDF)</button><button type="button" class="ic-sh" data-share="embed" aria-expanded="false">Embed</button><span class="ic-shmsg" aria-live="polite"></span></div>' +
-      '  <div class="ic-nav"><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
+      '  <div class="ic-nav"><label class="ic-cpick"><span class="ic-sr">Choose a country</span><select class="ic-csel">' + C.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (x.id === c.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
       '  <button type="button" class="ic-step" data-step="1" aria-label="Next country"' + (idx < 0 || idx >= f.length - 1 ? ' disabled' : '') + '>→</button></div>' +
       '</div>' + cmpBar +
       '<p class="ic-sec"><span>1</span>Total score</p>' +
@@ -538,7 +538,6 @@
       '  <div class="ic-tscroll"><table class="ic-table"><thead class="ic-sr"><tr><th>Driver</th><th>Description</th><th>Score</th><th>Value</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
       (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data”. This is not a score of zero or a low score: the driver is left out of the averages and comparisons.</p>' : '') +
       '</div>' +
-      '<p class="ic-sec"><span>5</span>Compare countries</p>' + peerCard(c, bn, drivers, peers) +
       '<p class="ic-more-k">More analysis</p>' +
       acc('path', 'Pathways: who is driving change', (function () { var p = pathways(c); return p.integrated ? 'Integrated: all four pathways' : p.lead ? 'Strongest: ' + p.lead.p.name + ' · ' + p.ex.length + ' of 4 exhibited' : 'No pathway exhibited yet'; })(), pathCard(c)) +
       acc('sg', 'Relative strengths and gaps', 'Where ' + esc(c.name) + ' is furthest ahead of and behind ' + (bn.none ? 'the comparison' : esc(bn.short)), bn.none ? noCmp : '<div class="ic-two">' +
@@ -981,6 +980,7 @@
   $('.ic-fincome').addEventListener('change', function (e) { state.income = e.target.value; renderList(); });
   $('.ic-fregion').addEventListener('change', function (e) { state.region = e.target.value; renderList(); });
   report.addEventListener('change', function (e) {
+    if (e.target.classList.contains('ic-csel')) { armed = true; pick(e.target.value, false); return; }
     if (e.target.classList.contains('ic-bsel')) {
       state.bench = e.target.value; armed = true;
       if (state.bench === 'country' && (!state.benchId || state.benchId === state.sel)) {
