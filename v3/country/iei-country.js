@@ -79,7 +79,7 @@
   root.innerHTML =
     '<div class="ic">' +
     '  <div class="ic-intro"><h2 class="ic-h">Explore any of the ' + N + ' countries</h2>' +
-    '  <p class="ic-lede">Choose a country from the menu, the map or the results table to see its total score, its four levers and the indicators behind them, and compare it with its income group, region, stage or any other country.</p></div>' +
+    '  <p class="ic-lede">Choose a country from the list, the map or the results table to see its total score, its four levers and the indicators behind them, and compare it with its income group, region, stage or any other country.</p></div>' +
     '  <div class="ic-grid">' +
     '    <aside class="ic-rail" aria-label="Country selection">' +
     '      <label class="ic-field"><span class="ic-sr">Search countries</span><input type="search" class="ic-q" placeholder="Search a country…" autocomplete="off"></label>' +
@@ -518,7 +518,7 @@
       '<div class="ic-card ic-head">' +
       '  <div class="ic-hl">' + flag(c, 'ic-hflag') + '<div><h3 class="ic-name">' + esc(c.name) + standoutBadge(c) + '</h3><p class="ic-sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div></div>' +
       '  <div class="ic-share"><button type="button" class="ic-sh" data-share="link">Copy link</button><button type="button" class="ic-sh" data-share="print">Printable profile (PDF)</button><button type="button" class="ic-sh" data-share="embed" aria-expanded="false">Embed</button><span class="ic-shmsg" aria-live="polite"></span></div>' +
-      '  <div class="ic-nav"><label class="ic-cpick"><span class="ic-sr">Choose a country</span><select class="ic-csel">' + C.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (x.id === c.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
+      '  <div class="ic-nav"><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
       '  <button type="button" class="ic-step" data-step="1" aria-label="Next country"' + (idx < 0 || idx >= f.length - 1 ? ' disabled' : '') + '>→</button></div>' +
       '</div>' + cmpBar +
       '<p class="ic-sec"><span>1</span>Total score</p>' +
