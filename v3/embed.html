@@ -41,8 +41,8 @@ a.go:hover{background:#6478FF}
 </head>
 <body>
 <div class="card" id="card" aria-live="polite"></div>
-<script src="data/iei-data.js?v=v3-20261125e"></script>
-<script src="i18n/iei-i18n.js?v=v3-20261125e"></script>
+<script src="data/iei-data.js?v=v3-20261125g"></script>
+<script src="i18n/iei-i18n.js?v=v3-20261125g"></script>
 <script>
 (function () {
   var D = window.IEI_DATA, el = document.getElementById('card');
@@ -61,7 +61,7 @@ a.go:hover{background:#6478FF}
     '<div class="top"><img src="../brand/logo/gsg-impact-lilac-navy.png" alt="GSG Impact"><span>' + esc(T('Impact Economy Index')) + '</span></div>' +
     '<div class="head"><img class="flag" src="../Impact Economy Index_files/flags/4x3/' + c.flag + '.svg" alt=""><div><h1 class="name">' + esc(T(c.name)) + '</h1><p class="sub">' + esc(T(c.region)) + ' · ' + esc(T(c.income)) + '</p></div></div>' +
     '<div class="score"><span class="big">' + c.score + '</span><div><span class="tier" style="background:' + TB[c.tier] + ';color:' + (TF[c.tier] || '#0F1428') + '">' + esc(T(c.tier)) + '</span>' +
-    '<p class="meta">' + esc(T('Rank')) + ' #' + rank + ' ' + esc(T('of')) + ' ' + N + ' · ' + esc(T('score out of 100')) + '</p></div></div>' +
+    '<p class="meta">' + esc(T('score out of 100')) + '</p></div></div>' +
     D.meta.levers.map(function (L, k) {
       return '<div class="lev"><p><i style="background:' + LC[k] + '"></i>' + esc(T(L.name)) + '</p><div class="bar"><span style="width:' + c.l[k] + '%;background:' + LC[k] + '"></span><u style="left:' + avg(k).toFixed(1) + '%"></u></div><b>' + c.l[k] + '</b></div>';
     }).join('') +

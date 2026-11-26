@@ -44,7 +44,7 @@
   var H0 = window.IEI_HASH ? window.IEI_HASH.get() : {};
   var fromHash = (H0.country || '').toUpperCase();
   var state = { sel: byId[fromHash] ? fromHash : (byId.ARG ? 'ARG' : C[0].id), bench: 'income', benchId: '', sort: 'lever', peers: [], peerFor: '', plevel: 'driver', acc: {}, open: {}, q: '', tier: '', region: '', income: '' };
-  if (['income', 'tier', 'region', 'all', 'best', 'country'].indexOf(H0.cmp) >= 0) state.bench = H0.cmp;
+  if (['income', 'tier', 'region', 'all', 'country', 'none'].indexOf(H0.cmp) >= 0) state.bench = H0.cmp;
   if (H0.vs && byId[H0.vs.toUpperCase()]) { state.bench = 'country'; state.benchId = H0.vs.toUpperCase(); }
   if (H0.open === 'all') DID.forEach(function (d) { state.open[d] = true; });
   else if (H0.open) H0.open.split(',').forEach(function (d) { if (DID.indexOf(d) >= 0) state.open[d] = true; });
@@ -65,6 +65,7 @@
   function bestList() { return C.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 5); }
   function benchFor(c) {
     var b = state.bench, list, label, short;
+    if (b === 'none') { list = C.filter(function (x) { return x.income === c.income; }); return { list: list, label: 'No comparison', short: 'its income-group average', n: list.length, none: true }; }
     if (b === 'tier') { list = C.filter(function (x) { return x.tier === c.tier; }); label = 'Stage average · ' + c.tier; short = 'its stage average'; }
     else if (b === 'region') { list = C.filter(function (x) { return x.region === c.region; }); label = 'Region average · ' + c.region; short = 'its regional average'; }
     else if (b === 'country' && byId[state.benchId] && state.benchId !== c.id) { list = [byId[state.benchId]]; label = byId[state.benchId].name; short = byId[state.benchId].name; }
@@ -78,7 +79,7 @@
   root.innerHTML =
     '<div class="ic">' +
     '  <div class="ic-intro"><h2 class="ic-h">Explore any of the ' + N + ' countries</h2>' +
-    '  <p class="ic-lede">Pick a country to see how it scores on the four levers and fourteen drivers, and compare it with its maturity stage, income group, region or any other country.</p></div>' +
+    '  <p class="ic-lede">Pick a country to see its total score, its four levers and the indicators behind them, and compare it with its income group, region, stage or any other country.</p></div>' +
     '  <div class="ic-grid">' +
     '    <aside class="ic-rail" aria-label="Country selection">' +
     '      <label class="ic-field"><span class="ic-sr">Search countries</span><input type="search" class="ic-q" placeholder="Search a country…" autocomplete="off"></label>' +
@@ -111,14 +112,13 @@
   }
   function ticks(bn, fn, cmp, own) {
     var out = '';
-    if (cmp != null) out += tk('', bn.label, cmp, own);
-    if (state.bench !== 'all') { var g = avg(C, fn); if (g != null) out += tk('g', 'Global average', g, own); }
-    if (state.bench !== 'best') { var b = avg(bestList(), fn); if (b != null) out += tk('b', 'Best in class (provisional): top 5 countries', b, own); }
+    if (cmp != null && !bn.none) out += tk('', bn.label, cmp, own);
     return out;
   }
   function tickKey() {
-    return '<p class="ic-tkey"><span><i></i>' + (state.bench === 'country' ? 'Selected country' : 'Comparison group') + '</span>' + (state.bench !== 'all' ? '<span><i class="g"></i>Global average</span>' : '') +
-      (state.bench !== 'best' ? '<span><i class="b"></i>Best in class <em>(TBD · top 5 for now)</em></span>' : '') + '</p>';
+    if (state.bench === 'none') return '';
+    var c = byId[state.sel], bn = benchFor(c);
+    return '<p class="ic-tkey"><span>Bars: ' + esc(c.name) + '</span><span><i></i>Marker: ' + esc(bn.label) + '</span></p>';
   }
 
 
@@ -173,7 +173,7 @@
     var bdots = ref.map(function (v, i) { if (v == null) return ''; var p = pt(i, v); return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3" class="ic-rbd"/>'; }).join('');
     var hits = c.l.map(function (v, i) { var p = pt(i, Math.max(v, ref[i] || 0) * 0.5 + 50); return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="30" class="ic-rh" tabindex="0" data-k="' + i + '" data-v="' + v + '" data-r="' + (ref[i] == null ? '' : ref[i].toFixed(1)) + '" aria-label="' + esc(LEV[i].name) + ': ' + v + '"/>'; }).join('');
     return '<svg class="ic-radar" viewBox="0 0 ' + S + ' ' + S + '" role="img" aria-label="Radar chart of ' + esc(c.name) + ' lever scores versus ' + esc(bn.label) + '">' +
-      rings + axes + '<polygon points="' + poly(ref) + '" class="ic-rb"/><polygon points="' + poly(c.l) + '" class="ic-rc"/>' + bdots + dots + lab + hits + '</svg>';
+      rings + axes + (bn.none ? '' : '<polygon points="' + poly(ref) + '" class="ic-rb"/>') + '<polygon points="' + poly(c.l) + '" class="ic-rc"/>' + (bn.none ? '' : bdots) + dots + lab + hits + '</svg>';
   }
 
   /* ---------- report ---------- */
@@ -184,14 +184,16 @@
   }
   function peerCard(c, bn, drivers, closest) {
     if (state.peerFor !== c.id) { state.peerFor = c.id; state.peers = closest.slice(0, 4).map(function (p) { return p.c.id; }); }
+    if (state.bench === 'country' && byId[state.benchId] && state.benchId !== c.id && state.peers.indexOf(state.benchId) < 0) state.peers = [state.benchId].concat(state.peers).slice(0, 5);
     var P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
     var opts = C.filter(function (x) { return x.id !== c.id && state.peers.indexOf(x.id) < 0; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
     var cols = [c].concat(P);
     var head = '<tr><th scope="col" class="ic-hd">Driver</th>' + cols.map(function (x, i) {
       return '<th scope="col" class="ic-hc' + (i === 0 ? ' is-me' : '') + '">' + flag(x, 'ic-flag') + '<span>' + esc(x.name) + '</span>' + (i > 0 ? '<button type="button" class="ic-rm" data-rm="' + x.id + '" aria-label="Remove ' + esc(x.name) + '">×</button>' : '') + '</th>';
     }).join('') + (P.length ? '<th scope="col" class="ic-hc ic-pavg"><span>Peer avg</span></th>' : '') + '<th scope="col" class="ic-hc"><span>vs ' + esc(bn.short) + '</span></th></tr>';
-    var lvl = state.plevel || 'driver', R = [];
+    var lvl = 'lever', R = [];
     if (lvl === 'lever') {
+      R.push({ id: 'T', lab: 'Total score', acc: '#6478FF', get: function (y) { return y.score; }, ref: avg(bn.list, function (x) { return x.score; }) });
       LEV.forEach(function (L, k) { R.push({ id: String(k + 1), lab: L.name, acc: L.accent, get: function (y) { return y.l[k]; }, ref: avg(bn.list, function (x) { return x.l[k]; }) }); });
     } else if (lvl === 'driver') {
       drivers.forEach(function (x) { R.push({ id: x.id, lab: DLAB[x.id], acc: LEV[x.k].accent, get: function (y) { return y.d[x.i]; }, ref: x.ref }); });
@@ -218,8 +220,8 @@
     }).join('');
     var firstCol = lvl === 'lever' ? 'Lever' : lvl === 'driver' ? 'Driver' : 'Indicator';
     head = head.replace('<th scope="col" class="ic-hd">Driver</th>', '<th scope="col" class="ic-hd">' + firstCol + '</th>');
-    var seg = '<div class="ic-seg" role="group" aria-label="Compare at level"><span class="ic-lbl">Compare at</span>' + [['lever', 'Levers'], ['driver', 'Drivers'], ['indicator', 'Indicators']].map(function (o) { return '<button type="button" class="ic-sbtn' + (lvl === o[0] ? ' on' : '') + '" data-plv="' + o[0] + '" aria-pressed="' + (lvl === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>';
-    return '<div class="ic-card ic-pcard"><div class="ic-dhead"><div><h4 class="ic-h4">Compare with chosen peers</h4><p class="ic-psub">Scores side by side, at lever, driver or indicator level. Choose up to five countries.</p></div></div>' + seg +
+    var seg = '';
+    return '<div class="ic-card ic-pcard"><div class="ic-dhead"><div><h4 class="ic-h4">Compare countries side by side</h4><p class="ic-psub">Total and lever scores for up to five countries. Add or remove countries, or use a quick pick.</p></div></div>' + seg +
       '<div class="ic-ppick"><span class="ic-lbl">Quick picks</span>' +
       [['region', 'Same region'], ['income', 'Same income group'], ['closest', 'Closest profile'], ['clear', 'Clear']].map(function (o) { return '<button type="button" class="ic-qp" data-qp="' + o[0] + '">' + o[1] + '</button>'; }).join('') +
       (P.length < 5 ? '<label class="ic-field ic-add"><span class="ic-sr">Add a country</span><select class="ic-padd"><option value="">Add a country…</option>' + opts.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
@@ -229,10 +231,10 @@
   function csvDownload() {
     var c = byId[state.sel], bn = benchFor(c), P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
     var q = function (v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-    var head = ['Country', 'Driver', 'Description', 'Lever', 'Score', 'Comparison group', 'Comparison average', 'Difference', 'Rank (of countries with data)'].concat(P.map(function (p) { return p.name; }));
+    var head = ['Country', 'Driver', 'Description', 'Lever', 'Score', 'Comparison group', 'Comparison average', 'Difference'].concat(P.map(function (p) { return p.name; }));
     var rows = DID.map(function (id, i) {
       var v = c.d[i], ref = avg(bn.list, function (x) { return x.d[i]; }), rk = rankIn(function (x) { return x.d[i]; }, c);
-      return [c.name, id, DLAB[id], LEV[driverLever[id]].name, v == null ? '' : v, bn.label, ref == null ? '' : ref.toFixed(1), (v == null || ref == null) ? '' : Math.round(v - ref), rk ? rk.r + ' of ' + rk.n : ''].concat(P.map(function (p) { return p.d[i]; }));
+      return [c.name, id, DLAB[id], LEV[driverLever[id]].name, v == null ? '' : v, bn.label, ref == null ? '' : ref.toFixed(1), (v == null || ref == null) ? '' : Math.round(v - ref)].concat(P.map(function (p) { return p.d[i]; }));
     });
     var lines = [head].concat(rows).map(function (r) { return r.map(q).join(','); });
     var blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -365,6 +367,31 @@
       '<div class="ic-cx"><b>' + ev.n + '<em>/' + ev.of + '</em></b><span>Evidence coverage</span><small>Scored indicators with data. Missing data is not treated as zero.</small></div>' +
       '</div></div>';
   }
+  function ctxCard(c, bn) {
+    var x = c.x || {}, all = C.filter(function (y) { return y.x; });
+    function r(k) { var P = all.filter(function (y) { return y.x[k] != null; }), X = P.map(function (y) { return y.score; }), Y = P.map(function (y) { return y.x[k]; });
+      var mx = X.reduce(function (s, v) { return s + v; }, 0) / X.length, my = Y.reduce(function (s, v) { return s + v; }, 0) / Y.length, a = 0, b = 0, d = 0;
+      X.forEach(function (v, i) { a += (v - mx) * (Y[i] - my); b += (v - mx) * (v - mx); d += (Y[i] - my) * (Y[i] - my); }); return { r: a / Math.sqrt(b * d), P: P, sl: a / b, ic: my - a / b * mx }; }
+    function plot(k, label) {
+      var o = r(k), P = o.P; if (!P.length) return '';
+      var Y = P.map(function (y) { return y.x[k]; }), W = 300, H = 200, l = 30, rr = 8, t = 12, bt = 26, x0 = 20, x1 = 80, y0 = Math.floor(Math.min.apply(null, Y) / 10) * 10, y1 = Math.ceil(Math.max.apply(null, Y) / 10) * 10;
+      var sx = function (v) { return l + (v - x0) / (x1 - x0) * (W - l - rr); }, sy = function (v) { return H - bt - (v - y0) / (y1 - y0) * (H - t - bt); };
+      var cmpId = state.bench === 'country' ? state.benchId : '';
+      var sv = '<svg class="ic-scat" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(label) + ' against Index score, ' + esc(c.name) + ' highlighted">';
+      [20, 40, 60, 80].forEach(function (v) { sv += '<line x1="' + sx(v) + '" x2="' + sx(v) + '" y1="' + t + '" y2="' + (H - bt) + '" class="g"/><text x="' + sx(v) + '" y="' + (H - bt + 13) + '" text-anchor="middle">' + v + '</text>'; });
+      for (var g = y0; g <= y1; g += 20) sv += '<text x="' + (l - 5) + '" y="' + (sy(g) + 3) + '" text-anchor="end">' + g + '</text>';
+      sv += '<line x1="' + sx(x0) + '" y1="' + sy(o.sl * x0 + o.ic) + '" x2="' + sx(x1) + '" y2="' + sy(o.sl * x1 + o.ic) + '" class="fit"/>';
+      P.forEach(function (y) { if (y.id !== c.id && y.id !== cmpId) sv += '<circle cx="' + sx(y.score).toFixed(1) + '" cy="' + sy(y.x[k]).toFixed(1) + '" r="3.2" class="o"><title>' + esc(y.name) + '</title></circle>'; });
+      if (cmpId && byId[cmpId] && byId[cmpId].x && byId[cmpId].x[k] != null) { var q = byId[cmpId]; sv += '<circle cx="' + sx(q.score).toFixed(1) + '" cy="' + sy(q.x[k]).toFixed(1) + '" r="5.5" class="cm"><title>' + esc(q.name) + '</title></circle>'; }
+      if (x[k] != null) sv += '<circle cx="' + sx(c.score).toFixed(1) + '" cy="' + sy(x[k]).toFixed(1) + '" r="6.5" class="me"><title>' + esc(c.name) + '</title></circle>';
+      sv += '<text x="' + (W - rr) + '" y="' + (H - 1) + '" text-anchor="end">Index score →</text></svg>';
+      return '<figure class="ic-scatf"><figcaption><b>' + esc(label) + '</b> · ' + (x[k] == null ? 'no data for ' + esc(c.name) : esc(c.name) + ' ' + (Math.round(x[k] * 10) / 10).toFixed(1)) + ' · r = ' + o.r.toFixed(2) + '</figcaption>' + sv + '</figure>';
+    }
+    var gd = x.gdppc == null ? '' : '<p class="ic-note">GDP per capita: <b>$' + Math.round(x.gdppc).toLocaleString('en-GB') + '</b> (current USD, World Bank 2025)' + (bn.none ? '' : ', comparison $' + Math.round(avg(bn.list, function (y) { return y.x ? y.x.gdppc : null; })).toLocaleString('en-GB')) + '.</p>';
+    return '<div class="ic-card ic-ctxc"><p class="ic-ctxx">The Index measures the <b>conditions and behaviours</b> that make an impact economy possible, not social or environmental outcomes. To check that it captures what matters, we compare it with two established outcome indices: the <b>Social Progress Index</b> (how well a country meets basic needs and supports wellbeing and opportunity) and the <b>Environmental Performance Index</b> (environmental health and ecosystem vitality). Across the 54 countries, higher Index scores go with better outcomes on both. These indices are shown for context and are not part of the Index score.</p>' +
+      '<div class="ic-scats">' + plot('spi', 'Social Progress Index') + plot('epi', 'Environmental Performance Index') + '</div>' +
+      '<p class="ic-scatk"><span><i class="me"></i>' + esc(c.name) + '</span>' + (state.bench === 'country' && byId[state.benchId] ? '<span><i class="cm"></i>' + esc(byId[state.benchId].name) + '</span>' : '') + '<span><i class="o"></i>Other countries</span><span><i class="fit"></i>Trend</span></p>' + gd + '</div>';
+  }
   function divCard(c, bn, drivers) {
     var ok = drivers.filter(function (x) { return x.v != null && x.ref != null; });
     var mx = Math.max(20, Math.ceil(Math.max.apply(null, ok.map(function (x) { return Math.abs(x.v - x.ref); }).concat([0])) / 10) * 10);
@@ -403,13 +430,14 @@
     if (state.sort === 'strength') rows.sort(function (a, b) { return (a.d == null) - (b.d == null) || b.d - a.d; });
     var missing = drivers.filter(function (x) { return x.v == null; }).length;
 
-    var summary = '<b>' + esc(c.name) + '</b> ranks <b>#' + tr.r + '</b> of ' + N + ' with a total score of <b>' + c.score + '</b> (' + esc(c.tier) + '). ' +
-      (best.d === worst.d ? 'Its levers are in line with ' + esc(bn.short) + '.' :
-        best.d <= 0 ? 'It sits below ' + esc(bn.short) + ' on every lever: the smallest gap is on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and the largest on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
-        worst.d >= 0 ? 'It is at or above ' + esc(bn.short) + ' on every lever, strongest on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and narrowest on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
-        'Relative to ' + esc(bn.short) + ', its strongest lever is <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and its largest gap is <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').');
-
-    if (strengths.length && gaps.length && gaps[0].d < 0) summary += ' At driver level, the largest relative gap is <b>' + esc(DLAB[gaps[0].id]) + '</b> (' + sgn(gaps[0].d) + ')' + (strengths[0].d > 0 ? ' and the strongest relative lead is <b>' + esc(DLAB[strengths[0].id]) + '</b> (' + sgn(strengths[0].d) + ')' : '') + '. These are starting points for local validation, not automatic policy priorities.';
+    var lv = levers.slice().sort(function (a, b) { return b.v - a.v; });
+    var summary = '<b>' + esc(c.name) + '</b> has a total score of <b>' + c.score + '</b> out of 100, which places it at the <b>' + esc(c.tier) + '</b> stage. ';
+    if (bn.none) summary += 'Its strongest lever is <b>' + esc(lv[0].L.short) + '</b> (' + lv[0].v + ') and its weakest is <b>' + esc(lv[3].L.short) + '</b> (' + lv[3].v + ').';
+    else summary += 'Compared with ' + esc(bn.short) + ' (' + Math.round(refTotal) + '), ' +
+      (best.d === worst.d ? 'its levers are broadly in line.' :
+        best.d <= 0 ? 'it is behind on every lever: least on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + '), most on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
+        worst.d >= 0 ? 'it is level or ahead on every lever, most on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ').' :
+        'it is ahead on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and furthest behind on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').');
     var peers = C.filter(function (x) { return x.id !== c.id; }).map(function (x) {
       var dist = Math.sqrt(x.l.reduce(function (s, v, k) { return s + Math.pow(v - c.l[k], 2); }, 0));
       return { c: x, dist: dist };
@@ -417,21 +445,22 @@
 
     var f = filtered(), idx = f.map(function (x) { return x.id; }).indexOf(c.id);
 
-    var benchSel = '<div class="ic-bench"><label class="ic-field"><span class="ic-lbl">Compare with</span><select class="ic-bsel">' +
-      [['income', 'Same income group'], ['tier', 'Same stage'], ['region', 'Same region'], ['all', 'Global (all countries)'], ['best', 'Best in class (TBD)'], ['country', 'Another country…']].map(function (o) { return '<option value="' + o[0] + '"' + (state.bench === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
-      (state.bench === 'country' ? '<label class="ic-field"><span class="ic-sr">Country to compare</span><select class="ic-bcsel">' + C.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (state.benchId === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') +
-      '<p class="ic-bnote">' + esc(bn.label) + (bn.n > 1 ? ' · ' + bn.n + ' countries' : '') + '</p></div>';
-
+    var CMPO = [['none', 'No comparison'], ['income', 'Income group'], ['region', 'Region'], ['tier', 'Stage'], ['all', 'All countries'], ['country', 'Another country']];
+    var cmpBar = '<div class="ic-cmpbar' + (bn.none ? '' : ' on') + '"><p class="ic-cmpl">Compare <b>' + esc(c.name) + '</b> with</p><div class="ic-cmpbtns" role="group" aria-label="Comparison">' +
+      CMPO.map(function (o) { return '<button type="button" data-cmp="' + o[0] + '" aria-pressed="' + (state.bench === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>' +
+      (state.bench === 'country' ? '<label class="ic-field ic-cmpc"><span class="ic-sr">Country to compare</span><select class="ic-bcsel">' + C.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (state.benchId === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') +
+      (bn.none || state.bench === 'country' ? '' : '<p class="ic-cmpn">' + esc(bn.label) + (bn.n > 1 ? ' · ' + bn.n + ' countries' : '') + '</p>') + '</div>';
+    var benchSel = '';
     var levCards = levers.map(function (x) {
       return '<div class="ic-lev" style="--a:' + x.L.accent + '"><p class="ic-lname"><i></i>' + esc(x.L.short) + '</p>' +
         '<p class="ic-lval">' + x.v + '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em></p>' +
         '<div class="ic-bar"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.l[x.k]; }, x.ref, x.v) + '</div>' +
-        '<p class="ic-lmeta">Rank #' + x.rk.r + ' of ' + x.rk.n + ' · comparison ' + Math.round(x.ref) + '</p>' + cbtn('L:' + (x.k + 1), 'for this lever') + '</div>';
+        '<p class="ic-lmeta">' + (bn.none ? '&nbsp;' : esc(state.bench === 'country' ? bn.label : 'Comparison') + ': <b>' + Math.round(x.ref) + '</b>') + '</p>' + cbtn('L:' + (x.k + 1), 'for this lever') + '</div>';
     }).join('');
 
     function sg(arr, cls) {
       return arr.map(function (x) {
-        return '<li><span class="ic-did" style="--a:' + LEV[x.k].accent + '">' + x.id + '</span><span class="ic-slab">' + esc(DLAB[x.id]) + '</span><em class="ic-d ' + cls + '">' + sgn(x.d) + '</em></li>';
+        return '<li><span class="ic-ldot" style="--a:' + LEV[x.k].accent + '" title="' + esc(LEV[x.k].name) + '"></span><span class="ic-slab">' + esc(DLAB[x.id]) + '</span></li>';
       }).join('');
     }
 
@@ -450,38 +479,41 @@
         '<tr class="ic-dx" data-for="' + x.id + '"' + (isOpen ? '' : ' hidden') + '><td colspan="4">' + (isOpen ? driverPanel(x.id, c, bn) : '') + '</td></tr>';
     }).join('');
 
+    var ev = evidenceOf(c), noCmp = '<p class="ic-note">Choose a comparison above to see this analysis.</p>';
+    report.classList.toggle('ic-lean', !!bn.none);
     report.innerHTML =
       '<div class="ic-card ic-head">' +
       '  <div class="ic-hl">' + flag(c, 'ic-hflag') + '<div><h3 class="ic-name">' + esc(c.name) + standoutBadge(c) + '</h3><p class="ic-sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div></div>' +
       '  <div class="ic-share"><button type="button" class="ic-sh" data-share="link">Copy link</button><button type="button" class="ic-sh" data-share="print">Printable profile (PDF)</button><button type="button" class="ic-sh" data-share="embed" aria-expanded="false">Embed</button><span class="ic-shmsg" aria-live="polite"></span></div>' +
       '  <div class="ic-nav"><button type="button" class="ic-step" data-step="-1" aria-label="Previous country"' + (idx <= 0 ? ' disabled' : '') + '>←</button>' +
       '  <button type="button" class="ic-step" data-step="1" aria-label="Next country"' + (idx < 0 || idx >= f.length - 1 ? ' disabled' : '') + '>→</button></div>' +
-      '</div>' +
+      '</div>' + cmpBar +
+      '<p class="ic-sec"><span>1</span>Total score</p>' +
       '<div class="ic-card ic-hero">' +
       '  <div class="ic-score"><div class="ic-big">' + c.score + '</div><span class="ic-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span>' +
-      '  <p class="ic-wnote">Average of the 14 equally-weighted drivers</p><p class="ic-rank">Rank <b>#' + tr.r + '</b> of ' + N + '</p><p class="ic-vs">' + sgn(Math.round(c.score - refTotal)) + ' vs. comparison (' + Math.round(refTotal) + ')</p></div>' +
-      '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span><span><i class="b"></i>' + esc(bn.label) + '</span></p></div>' +
-      '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
+      '  <p class="ic-wnote">Out of 100. Average of the 14 equally weighted drivers.</p>' + (bn.none ? '' : '<p class="ic-vs"><b>' + sgn(Math.round(c.score - refTotal)) + '</b> vs ' + esc(state.bench === 'country' ? bn.label : 'comparison') + ' (' + Math.round(refTotal) + ')</p>') +
+      '  <p class="ic-cov">Data for ' + ev.n + ' of ' + ev.of + ' scored indicators</p></div>' +
+      '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span>' + (bn.none ? '' : '<span><i class="b"></i>' + esc(bn.label) + '</span>') + '</p></div>' +
+      '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p></div>' +
       '</div>' +
-      ctxStrip(c, bn) + '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
-      '<div class="ic-two">' +
-      '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
-      '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div>' +
-      '</div>' +
-      '<p class="ic-more-k">More detail</p>' +
-      acc('dvg', 'Over- and under-performance vs comparison', 'All 14 drivers, country score minus the comparison average', divCard(c, bn, drivers)) +
-      acc('drivers', 'All 14 drivers', 'Scores, gaps and the indicators behind each driver', '<div class="ic-card ic-drivers">' +
-      '  <div class="ic-dhead"><h4 class="ic-h4">All 14 drivers</h4><div class="ic-sort" role="group" aria-label="Sort drivers">' +
-      [['lever', 'By lever'], ['gap', 'Largest gaps'], ['strength', 'Strengths']].map(function (o) { return '<button type="button" data-sort="' + o[0] + '" aria-pressed="' + (state.sort === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div><div class="ic-dbtns"><button type="button" class="ic-dl" data-expand="1">' + (DID.every(function (id) { return state.open[id]; }) ? 'Collapse all' : 'Expand all') + '</button><button type="button" class="ic-dl" data-csv="1">Drivers CSV</button><button type="button" class="ic-dl" data-csv-ind="1">Indicators CSV</button></div></div>' +
-      '  <p class="ic-hint">Select a driver to see its indicators, the facts behind each score and how it compares.</p>' +
-      '  <p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' +
+      '<p class="ic-sec"><span>2</span>The four levers</p>' +
+      '<div class="ic-levs">' + levCards + '</div>' + tickKey() +
+      '<p class="ic-sec"><span>3</span>Enabling conditions and behaviour</p>' + ebCard(c, bn) +
+      '<p class="ic-sec"><span>4</span>Detail by indicator</p>' +
+      '<div class="ic-card ic-drivers">' +
+      '  <div class="ic-dhead"><p class="ic-hint">Indicators are grouped by lever and by driver, a set of related indicators. Select a row to see its indicators, the facts behind each score and how they compare.</p><div class="ic-dbtns"><button type="button" class="ic-dl" data-expand="1">' + (DID.every(function (id) { return state.open[id]; }) ? 'Collapse all' : 'Expand all') + '</button><button type="button" class="ic-dl" data-csv-ind="1">Indicators CSV</button></div></div>' +
       '  <div class="ic-tscroll"><table class="ic-table"><thead class="ic-sr"><tr><th>Driver</th><th>Description</th><th>Score</th><th>Value</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
       (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data”. This is not a score of zero or a low score: the driver is left out of the averages and comparisons.</p>' : '') +
-      '</div>') +
-      acc('eb', 'Enabling conditions and behaviour', 'Policies and institutions versus what actors actually do', ebCard(c, bn)) +
-      acc('why', 'What explains the differences', 'The facts behind the biggest gaps and leads, and what would move them', indCard(c, bn)) +
-      acc('act', 'Learn &amp; act', 'Five drivers to explore, a peer to learn from and a way to turn a finding into an ask', '<div class="ic-card ic-actwrap"><div id="ieiAct" class="ia-dark"></div></div>') +
-      acc('peers', 'Compare with chosen peers', 'Lever, driver and indicator scores side by side', peerCard(c, bn, drivers, peers)) +
+      '</div>' +
+      '<p class="ic-sec"><span>5</span>Compare countries</p>' + peerCard(c, bn, drivers, peers) +
+      '<p class="ic-more-k">More analysis</p>' +
+      acc('sg', 'Relative strengths and gaps', 'Where ' + esc(c.name) + ' is furthest ahead of and behind ' + (bn.none ? 'the comparison' : esc(bn.short)), bn.none ? noCmp : '<div class="ic-two">' +
+        '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
+        '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div></div>') +
+      acc('why', 'What explains the differences', 'The facts behind the biggest gaps and leads, ideas for action and examples from other countries', bn.none ? noCmp : indCard(c, bn)) +
+      acc('dvg', 'Over- and under-performance by driver', 'All 14 drivers, country score minus the comparison', bn.none ? noCmp : divCard(c, bn, drivers)) +
+      acc('act', 'Learn &amp; act', 'Five areas to explore, a peer to learn from and a way to turn a finding into an ask', '<div class="ic-card ic-actwrap"><div id="ieiAct" class="ia-dark"></div></div>') +
+      acc('ctx', 'Outcomes context: social progress and environment', 'How ' + esc(c.name) + ' does on the Social Progress and Environmental Performance indices, and why we show them', ctxCard(c, bn)) +
       acc('similar', 'Countries with a similar lever profile', peers.slice(0, 3).map(function (p) { return esc(p.c.name); }).join(' · '), '<div class="ic-card ic-peers"><div class="ic-chips">' +
       peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>') +
       (c.link ? '<a class="ic-profile" href="' + esc(c.link) + '" target="_blank" rel="noopener">Open full country profile ↗</a>' : '');
@@ -625,15 +657,15 @@
     if (c.e == null && c.b == null) return '';
     function row(key, label, cls, v) {
       var ref = avg(bn.list, function (x) { return x[key]; }), rk = rankIn(function (x) { return x[key]; }, c), d = (v == null || ref == null) ? null : Math.round(v - ref);
-      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span>' + (ref == null ? '' : tk('', bn.label, ref, v == null ? null : Math.round(v))) + '</div>' +
-        '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + '<span class="ic-rk">' + (rk ? '#' + rk.r + '/' + rk.n : '') + '</span></p></div>';
+      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span>' + (ref == null || bn.none ? '' : tk('', bn.label, ref, v == null ? null : Math.round(v))) + '</div>' +
+        '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + '</p></div>';
     }
     var diff = (c.e != null && c.b != null) ? c.e - c.b : null;
     var msg = diff == null ? '' : diff >= 5 ? 'Policy and regulatory frameworks are ahead of practice: enabling conditions score ' + Math.round(diff) + ' points above behaviour.' :
       diff <= -5 ? 'Practice is ahead of frameworks: behaviour scores ' + Math.round(-diff) + ' points above enabling conditions.' : 'Frameworks and practice are broadly in step (within 5 points).';
     return '<div class="ic-card ic-eb"><h4 class="ic-h4">Enabling conditions and behaviour</h4>' +
       '<p class="ic-note ic-ebn"><b>Enabling conditions</b> are the policies, rules and institutions that make an impact economy possible. <b>Behaviour</b> is what companies, investors, consumers and governments actually do. Each score averages the indicators of that type within each driver, then across drivers. It is a diagnostic view of the same indicators, not a separate score.</p>' +
-      '<p class="ic-key"><u></u> ' + esc(bn.label) + '</p>' + row('e', 'Enabling conditions', 'e', c.e) + row('b', 'Behaviour', 'b', c.b) +
+      (bn.none ? '' : '<p class="ic-eblg"><span><i class="me"></i>' + esc(c.name) + ' (bar)</span><span><i class="cm"></i>' + esc(bn.label) + ' (marker)</span></p>') + row('e', 'Enabling conditions', 'e', c.e) + row('b', 'Behaviour', 'b', c.b) +
       (msg ? '<p class="ic-ebm">' + esc(msg) + '</p>' : '') + '</div>';
   }
   function gapsHtml(c, bn) {
@@ -693,7 +725,7 @@
     var html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(c.name) + ' · Impact Economy Index profile</title><style>' + css + '</style></head><body>' +
       '<div class="top"><img src="' + abs('../brand/logo/gsg-impact-lilac-navy.png') + '" alt="GSG Impact"><div class="r"><b>Impact Economy Index · Country profile</b><br>Draft for validation</div></div>' +
       '<div class="hero"><div><div class="big">' + c.score + '</div><span class="tier" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span></div>' +
-      '<div><h1>' + esc(c.name) + '</h1><p class="sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p><p>Rank <b>#' + tr.r + '</b> of ' + N + '. Total score ' + c.score + ' out of 100, ' + sgn(Math.round(c.score - refT)) + ' against the comparison (' + esc(bn.label) + ', ' + Math.round(refT) + ').</p>' +
+      '<div><h1>' + esc(c.name) + '</h1><p class="sub">' + esc(c.region) + ' · ' + esc(c.income) + '</p><p>Total score ' + c.score + ' out of 100, ' + sgn(Math.round(c.score - refT)) + ' against the comparison (' + esc(bn.label) + ', ' + Math.round(refT) + ').</p>' +
       '<p class="sub it">The total is the average of 14 equally weighted drivers. The marker on each bar shows the comparison.</p></div></div>' +
       '<h2>The four levers</h2><div class="levs">' + levs + '</div>' + (eb ? '<h2>Enabling conditions and behaviour</h2>' + eb : '') +
       '<h2>All 14 drivers</h2><table><thead><tr><th></th><th>Driver</th><th></th><th class="n">Score</th><th class="n">Comparison</th><th class="n">Gap</th></tr></thead><tbody>' + rows + '</tbody></table>' +
@@ -749,8 +781,8 @@
     var box;
     if (m.star) box = '<p>' + esc(m.name) + ' is a leading-edge model: it is tracked and shown for context but does <b>not</b> enter any driver or total score.</p>' + (e.v != null ? '<p class="icm-big">' + esc(c.name) + ': <b>' + fmt(e.v) + '</b></p>' : '<p class="icm-big">No data for ' + esc(c.name) + '</p>');
     else if (e.s == null) box = '<p class="icm-big">' + esc(c.name) + ': <b>no data</b></p><p>The indicator is left out of the driver average for this country. It is not scored as zero.</p>';
-    else if (m.comps) box = '<p class="icm-big">' + esc(c.name) + ': score <b>' + fmt(e.s) + '</b>' + (rk ? ' · rank #' + rk.r + ' of ' + rk.n : '') + '</p><ul class="icm-comp">' + m.comps.map(function (cp, i) { return '<li><b>' + esc(cp.label) + '</b>: ' + (e.p && e.p[i] != null ? 'component score ' + fmt(e.p[i]) + (e.v && e.v[i] != null ? ' (value ' + fmt(e.v[i]) + ')' : '') : 'no data') + '</li>'; }).join('') + '</ul>';
-    else box = '<p class="icm-big">' + esc(c.name) + ': ' + (m.lic || e.v == null ? '' : 'value <b>' + fmt(e.v) + '</b> → ') + 'score <b>' + fmt(e.s) + '</b>' + (rk ? ' · rank #' + rk.r + ' of ' + rk.n : '') + '</p>' + (m.lic ? '<p>The underlying value comes from licensed data and is not shown on this page.</p>' : '');
+    else if (m.comps) box = '<p class="icm-big">' + esc(c.name) + ': score <b>' + fmt(e.s) + '</b>' + '' + '</p><ul class="icm-comp">' + m.comps.map(function (cp, i) { return '<li><b>' + esc(cp.label) + '</b>: ' + (e.p && e.p[i] != null ? 'component score ' + fmt(e.p[i]) + (e.v && e.v[i] != null ? ' (value ' + fmt(e.v[i]) + ')' : '') : 'no data') + '</li>'; }).join('') + '</ul>';
+    else box = '<p class="icm-big">' + esc(c.name) + ': ' + (m.lic || e.v == null ? '' : 'value <b>' + fmt(e.v) + '</b> → ') + 'score <b>' + fmt(e.s) + '</b>' + '' + '</p>' + (m.lic ? '<p>The underlying value comes from licensed data and is not shown on this page.</p>' : '');
     parts.push('<div class="icm-country" style="--a:' + LEV[k].accent + '">' + box + '</div>');
     var bn0 = benchFor(c), x0 = explain(m, c, bn0), sp0 = FACTS[m.id] || {};
     if (!m.star && e.s != null && others(c, bn0).length) {
@@ -861,6 +893,13 @@
     }
     if ((b = t.closest('[data-sort]'))) { state.sort = b.getAttribute('data-sort'); render(); return; }
     if ((b = t.closest('[data-rm]'))) { state.peers = state.peers.filter(function (id) { return id !== b.getAttribute('data-rm'); }); render(); return; }
+    if ((b = t.closest('[data-cmp]'))) {
+      state.bench = b.getAttribute('data-cmp'); armed = true;
+      if (state.bench === 'country' && (!state.benchId || state.benchId === state.sel)) {
+        var oc = state.peers.filter(function (id) { return id !== state.sel; })[0] || C.filter(function (x) { return x.id !== state.sel; }).sort(function (a, b2) { return b2.score - a.score; })[0].id; state.benchId = oc;
+      }
+      render(); var bb = report.querySelector('[data-cmp="' + state.bench + '"]'); if (bb) bb.focus({ preventScroll: true }); return;
+    }
     if ((b = t.closest('[data-acc]'))) { var ak = b.getAttribute('data-acc'); state.acc[ak] = !state.acc[ak]; var pn = b.nextElementSibling; pn.hidden = !state.acc[ak]; b.setAttribute('aria-expanded', state.acc[ak]); b.parentNode.classList.toggle('on', state.acc[ak]); return; }
     if ((b = t.closest('[data-plv]'))) { state.plevel = b.getAttribute('data-plv'); render(); return; }
     if ((b = t.closest('[data-qp]'))) { setPeers(b.getAttribute('data-qp')); return; }

@@ -75,7 +75,7 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
 <main class="wrap">
   <p class="eyebrow">Impact Economy Index</p>
   <h1>What-if simulator</h1>
-  <p class="lede">Change a country's indicator scores to see how its drivers, levers, total score, maturity stage and rank would move. The calculation follows the Index method: indicators are averaged into drivers, and the total is the average of the 14 drivers. Results are illustrative only.</p>
+  <p class="lede">Change a country's indicator scores to see how its drivers, levers, total score and maturity stage would move. The calculation follows the Index method: indicators are averaged into drivers, and the total is the average of the 14 drivers. Results are illustrative only.</p>
   <div class="controls">
     <label class="f"><span>Country</span><select id="sCountry"></select></label>
     <label class="f"><span>Targets based on</span><select id="sBench"><option value="income">Same income group</option><option value="region">Same region</option><option value="tier">Same stage</option><option value="all">All countries</option></select></label>
@@ -89,9 +89,9 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
     <aside class="card sum" id="sSum" aria-live="polite"></aside>
   </div>
 </main>
-<script src="data/iei-data.js?v=v3-20261125e"></script>
-<script src="data/iei-indicators.js?v=v3-20261125e"></script>
-<script src="data/iei-facts.js?v=v3-20261125e"></script>
+<script src="data/iei-data.js?v=v3-20261125g"></script>
+<script src="data/iei-indicators.js?v=v3-20261125g"></script>
+<script src="data/iei-facts.js?v=v3-20261125g"></script>
 <script>
 (function () {
   var D = window.IEI_DATA, I = window.IEI_IND, F = window.IEI_FACTS || {};
@@ -168,7 +168,6 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
     document.getElementById('sSum').innerHTML = '<h2>' + esc(c.name) + '</h2>' +
       '<div class="tot">' + (changed.length ? '<span class="from">' + t0 + '</span>' : '') + '<span class="to">' + (changed.length ? t1 : t0) + '</span>' + (changed.length ? '<span class="d ' + (dlt > 0.05 ? 'up' : dlt < -0.05 ? 'down' : '') + '">' + sgn(dlt) + ' points</span>' : '') + '</div>' +
       '<div class="row2">Maturity stage: <span class="tier" style="background:' + TB[tier0] + ';color:' + TF[tier0] + '">' + tier0 + '</span>' + (tier1 !== tier0 ? ' → <span class="tier" style="background:' + TB[tier1] + ';color:' + TF[tier1] + '">' + tier1 + '</span>' : '') + '</div>' +
-      '<div class="row2">Rank: #' + r0 + (r1 !== r0 ? ' → <b>#' + r1 + '</b>' : '') + ' of ' + C.length + '</div>' +
       '<div class="levs">' + META.levers.map(function (L, k) {
         var b = base.l[k], n = now.l[k];
         return '<div class="lev"><p><span>' + esc(L.name) + '</span><span>' + Math.round(b) + (Math.abs(n - b) > 0.05 ? ' → <b>' + Math.round(n) + '</b>' : '') + '</span></p><div class="bar"><span style="width:' + n + '%;background:' + LC[k] + '"></span><span class="base" style="width:' + Math.min(b, n) + '%"></span></div></div>';

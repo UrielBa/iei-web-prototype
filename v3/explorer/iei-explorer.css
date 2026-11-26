@@ -223,3 +223,8 @@ button.ix-leg-item:hover{background:var(--soft)}
 .ix-sug li span{flex:1}
 .ix-sug li b{font-weight:800;color:#5d6479}
 .ix-sug li:hover,.ix-sug li.on{background:#EEF0FF}
+/* no rank column (the Index is not a league table) */
+.ix-th-rank,.ix-rk{display:none !important}
+.ix-ring-bg{stroke:#E4E7F7}
+.ix-row:focus-visible td.ix-nm{box-shadow:inset 3px 0 0 var(--blue)}
+.ix-row.is-selected td.ix-nm{box-shadow:inset 4px 0 0 var(--ink)}

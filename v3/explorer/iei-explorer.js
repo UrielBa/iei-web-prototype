@@ -1,5 +1,5 @@
 /*!
- * IEI Explorer – interactive map + ranking table for the Impact Economy Index.
+ * IEI Explorer – interactive map + results table for the Impact Economy Index.
  * Vanilla JS, no dependencies. Reads window.IEI_DATA (data/iei-data.js) and
  * window.IEI_WORLD (data/iei-world.js) and renders into #ieiExplorer.
  */
@@ -152,7 +152,7 @@
     '        </div>' +
     '      </div>' +
     '      <div class="ix-mapwrap">' +
-    '        <svg class="ix-map" viewBox="' + [BASE.x, BASE.y, BASE.w, BASE.h].join(' ') + '" role="img" aria-label="World map coloured by Impact Economy Index score. The ranking table below lists the same data."></svg>' +
+    '        <svg class="ix-map" viewBox="' + [BASE.x, BASE.y, BASE.w, BASE.h].join(' ') + '" role="img" aria-label="World map coloured by Impact Economy Index score. The table below lists the same data."></svg>' +
     '        <div class="ix-tip" hidden></div>' +
     '      </div>' +
     '      <div class="ix-legend"></div>' +
@@ -160,9 +160,9 @@
     '    </section>' +
     '    <aside class="ix-card ix-panel" aria-live="polite"></aside>' +
     '  </div>' +
-    '  <section class="ix-card ix-tablecard" id="ixTable" aria-label="Ranking table">' +
+    '  <section class="ix-card ix-tablecard" id="ixTable" aria-label="Results table">' +
     '    <div class="ix-tablebar">' +
-    '      <div><p class="ix-tabletitle">Country ranking</p><p class="ix-count"></p></div>' +
+    '      <div><p class="ix-tabletitle">All countries</p><p class="ix-count"></p></div>' +
     '      <button type="button" class="ix-ghost ix-dl">Download data (CSV)</button>' +
     '    </div>' +
     '    <div class="ix-scroll"><table class="ix-table"><thead><tr>' +
@@ -377,7 +377,7 @@
   }
   function ring(score, tier) {
     var r = 42, circ = 2 * Math.PI * r;
-    return '<svg class="ix-ring" viewBox="0 0 100 100" role="img" aria-label="Score ' + score + ' out of 100"><circle cx="50" cy="50" r="' + r + '" class="ix-ring-bg"/><circle cx="50" cy="50" r="' + r + '" class="ix-ring-fg" style="stroke:' + (({ 'Nascent': '#BFEDEC', 'Emerging': '#77DAD9', 'Early Developing': '#4FC9C8', 'Late Developing': '#6478FF', 'Advanced': '#2942B5', 'Thriving': '#0F1428' })[tier] || '#2942B5') + ';stroke-dasharray:' + (circ * score / 100).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" class="ix-ring-t">' + score + '</text></svg>';
+    return '<svg class="ix-ring" viewBox="0 0 100 100" role="img" aria-label="Score ' + score + ' out of 100"><circle cx="50" cy="50" r="' + r + '" class="ix-ring-bg"/><circle cx="50" cy="50" r="' + r + '" class="ix-ring-fg" style="stroke:#6478FF;stroke-dasharray:' + (circ * score / 100).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" class="ix-ring-t">' + score + '</text></svg>';
   }
   function firstOther() { var o = C.filter(function (x) { return x.id !== state.selected; }).sort(function (a, b) { return b.score - a.score; }); return o.length ? o[0].id : ''; }
   function avgOf(list, fn) {
@@ -422,7 +422,6 @@
     panel.innerHTML = '<div class="ix-pb">' +
       '<div class="ix-phead">' + flag(c, 'ix-pflag') + '<div><h3 class="ix-ptitle">' + esc(c.name) + '</h3><p class="ix-psub">' + esc(c.region) + ' · ' + esc(c.income) + '</p></div><button type="button" class="ix-x" aria-label="Back to overview">×</button></div>' +
       '<div class="ix-scorebox">' + ring(c.score, c.tier) + '<div><span class="ix-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span>' +
-      '<p class="ix-rankline">Ranked <b>#' + M.score.rank[c.id] + '</b> of ' + N + '</p>' +
       '<p class="ix-diffline">' + (diff === 0 ? 'At the comparison average (' + avgTotal + ')' : '<b>' + (diff > 0 ? '+' : '−') + Math.abs(diff) + '</b> vs. ' + esc(bn.label.toLowerCase().replace(/ \(.*$/, '')) + ' (' + avgTotal + ')') + '</p></div></div>' +
       benchUi +
       '<p class="ix-sub">Levers <span class="ix-key"><u></u> ' + esc(bn.label) + '</span></p>' + levers +
@@ -469,7 +468,7 @@
             (mm.id === 'score' ? '<td class="ix-tcell"><span class="ix-badge sm" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span></td>' : '');
         }).join('') + (m.driver ? (function () { var v = m.val(c); if (v == null) return '<td class="ix-h is-active ix-nd-cell">No data</td>'; var col = colour(m, v); return '<td class="ix-h is-active" style="background:' + col.bg + ';color:' + col.fg + '">' + v + '</td>'; })() : '') + '</tr>';
     }).join('') : '<tr><td colspan="11" class="ix-empty">No countries match these filters.</td></tr>';
-    $('.ix-count').textContent = 'Showing ' + (list.length ? from + '–' + (from + list.length - 1) : 0) + ' of ' + full.length + (full.length === N ? '' : ' (filtered from ' + N + ')') + ' countries · ranks follow ' + m.name.toLowerCase();
+    $('.ix-count').textContent = 'Showing ' + (list.length ? from + '–' + (from + list.length - 1) : 0) + ' of ' + full.length + (full.length === N ? '' : ' (filtered from ' + N + ')') + ' countries · sorted by ' + m.name.toLowerCase();
     $('.ix-pageinfo').textContent = state.all ? 'All ' + full.length + ' countries shown' : 'Page ' + (state.page + 1) + ' of ' + pages;
     $('.ix-pager').classList.toggle('is-single', full.length <= PAGE);
     $('.ix-pgall').textContent = state.all ? 'Show ' + PAGE + ' per page' : 'Show all';

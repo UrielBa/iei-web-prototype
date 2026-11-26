@@ -56,7 +56,7 @@
   /* Overview: section index on the right edge */
   var ov = document.querySelector('.s-view[data-view="overview"]');
   if (ov) {
-    var secs = [['.s-hero', 'Introduction'], ['.s-def', 'Definition'], ['.s-use', 'Levers'], ['.s-ins', 'Key results'], ['.s-nextb', 'Next steps']]
+    var secs = [['.s-hero', 'Introduction'], ['.s-def', 'Definition'], ['.s-snap', 'Global snapshot'], ['.s-use', 'Levers'], ['.s-ins', 'Key messages'], ['.s-nextb', 'Explore further']]
       .map(function (x) { var el = ov.querySelector(x[0]); return el ? { el: el, label: x[1] } : null; }).filter(Boolean);
     var rail = document.createElement('nav'); rail.className = 's-rail'; rail.setAttribute('aria-label', 'Sections of this page'); rail.hidden = true;
     rail.innerHTML = '<ul>' + secs.map(function (x, i) { return '<li><button type="button" data-i="' + i + '" aria-label="' + x.label + '"><span>' + x.label + '</span><i></i></button></li>'; }).join('') + '</ul>';

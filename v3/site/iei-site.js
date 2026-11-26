@@ -105,7 +105,49 @@ function insights(){
   // M4: outcome comparisons from the report (SPI, EPI and WEF data are not part of this site)
   var e4='<div class="s-cchips"><span>'+esc(TT('Above what social outcomes alone would predict'))+'</span>'+['KEN','ZAF'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below the broader trendline'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
     '<p class="s-cap">Index scores compared with the Social Progress Index.<small>Source: Impact Economy Index 2026 report. The Index measures conditions that may contribute to growth quality and social progress over time, not the outcomes themselves.</small></p>';
-  var ev=[e1,e2,e3,e4];
+  // NEW M1: Index scores vs outcome indices (SPI, EPI): association, computed live
+  function corr(X,Y){var mx=avg(X),my=avg(Y),a=0,b=0,d=0;X.forEach(function(x,i){a+=(x-mx)*(Y[i]-my);b+=(x-mx)*(x-mx);d+=(Y[i]-my)*(Y[i]-my)});return a/Math.sqrt(b*d)}
+  function pcorr(k){var P=C.filter(function(c){return c.x&&c.x[k]!=null&&c.x.gdppc});var S=P.map(function(c){return c.score}),Y=P.map(function(c){return c.x[k]}),G=P.map(function(c){return Math.log(c.x.gdppc)});
+    var rxy=corr(S,Y),rxz=corr(S,G),ryz=corr(Y,G);return (rxy-rxz*ryz)/Math.sqrt((1-rxz*rxz)*(1-ryz*ryz))}
+  function scat(k,label){
+    var P=C.filter(function(c){return c.x&&c.x[k]!=null});if(P.length<5)return {svg:'',r:null,n:0};
+    var X=P.map(function(c){return c.score}),Y=P.map(function(c){return c.x[k]}),r=corr(X,Y);
+    var W=300,H=210,l=34,rr=8,t=10,b=30,x0=20,x1=80,y0=Math.floor(Math.min.apply(null,Y)/10)*10,y1=Math.ceil(Math.max.apply(null,Y)/10)*10;
+    var sx=function(v){return l+(v-x0)/(x1-x0)*(W-l-rr)},sy=function(v){return H-b-(v-y0)/(y1-y0)*(H-t-b)};
+    var mx=avg(X),my=avg(Y),num=0,den=0;X.forEach(function(x,i){num+=(x-mx)*(Y[i]-my);den+=(x-mx)*(x-mx)});var sl=num/den,ic=my-sl*mx;
+    var sv='<svg class="s-swarm s-scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+' plotted against Index score">';
+    [20,40,60,80].forEach(function(v){sv+='<line x1="'+sx(v)+'" x2="'+sx(v)+'" y1="'+t+'" y2="'+(H-b)+'" stroke="#E4E6EF"/><text x="'+sx(v)+'" y="'+(H-b+14)+'" text-anchor="middle">'+v+'</text>'});
+    for(var g=y0;g<=y1;g+=Math.max(10,Math.round((y1-y0)/40)*10)){sv+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+sy(g)+'" y2="'+sy(g)+'" stroke="#E4E6EF"/><text x="'+(l-5)+'" y="'+(sy(g)+3)+'" text-anchor="end">'+g+'</text>'}
+    sv+='<line x1="'+sx(x0)+'" y1="'+sy(sl*x0+ic)+'" x2="'+sx(x1)+'" y2="'+sy(sl*x1+ic)+'" stroke="#0F1428" stroke-width="1.5" stroke-dasharray="5 4"/>';
+    P.forEach(function(c){sv+='<circle class="s-dot" tabindex="0" cx="'+sx(c.score).toFixed(1)+'" cy="'+sy(c.x[k]).toFixed(1)+'" r="4.2" fill="#6478FF" fill-opacity=".85" stroke="#0F1428" stroke-opacity=".35" stroke-width=".6" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'});
+    sv+='<text x="'+(W-rr)+'" y="'+(H-2)+'" text-anchor="end">Index score →</text><text x="'+l+'" y="'+(t-1)+'">'+esc(label)+' ↑</text></svg>';
+    return {svg:sv,r:r,n:P.length};
+  }
+  var sp=scat('spi','Social Progress Index'),ep=scat('epi','Environmental Performance Index');
+  var n1='<div class="s-scats"><figure>'+sp.svg+'<figcaption>Social Progress Index · r = '+(sp.r==null?'–':sp.r.toFixed(2))+'</figcaption></figure><figure>'+ep.svg+'<figcaption>Environmental Performance Index · r = '+(ep.r==null?'–':ep.r.toFixed(2))+'</figcaption></figure></div>'+
+    '<p class="s-cap">Across '+sp.n+' countries, higher Index scores go with better social and environmental outcomes. After accounting for income (GDP per capita), the association weakens but remains positive (partial r = '+pcorr('spi').toFixed(2)+' for SPI, '+pcorr('epi').toFixed(2)+' for EPI).'+
+    '<small>The Social Progress Index measures how well countries meet people’s basic needs, wellbeing and opportunity; the Environmental Performance Index measures environmental health and ecosystem vitality. The IEI measures the conditions and behaviours that make such outcomes more likely, not the outcomes themselves. Correlation does not establish cause. Each dot is a country; hover for the name.</small></p>';
+  // NEW M2: stages + income
+  var n2=e1+sv+'<div class="s-cchips"><span>'+esc(TT('Above income peers'))+'</span>'+['GBR','FRA','FIN'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below income peers'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
+    '<p class="s-cap">'+(advHi===adv.length?'All '+adv.length+' Advanced countries are high-income':advHi+' of '+adv.length+' Advanced countries are high-income')+', yet high-income economies range from '+Math.min.apply(null,rows[0][1].map(function(c){return c.score}))+' to '+Math.max.apply(null,rows[0][1].map(function(c){return c.score}))+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
+  // NEW M3: frameworks vs practice, by actor (live indicator averages)
+  var PAIRS=[['Governments','2.B.2','Social-value procurement framework','2.B.3','Outcomes-based procurement'],['Companies','1.A.2','Corporate sustainability reporting','3.E.4','Leading corporates’ social practices'],['Consumers','2.C.3','Climate influences household decisions','2.C.2','Certified sustainable consumption']];
+  var n3='<div class="s-pairs"><p class="s-pkey"><span><i class="f"></i>Framework or intent</span><span><i class="p"></i>Practice</span></p>'+PAIRS.map(function(p){var a=iavg(p[1]),b=iavg(p[3]);if(a==null||b==null)return '';
+    return '<div class="s-pair"><p class="s-pact">'+esc(p[0])+'</p><div class="s-bar f"><span>'+esc(p[2])+'</span><b>'+a.toFixed(0)+'</b><div><span style="width:'+a.toFixed(1)+'%"></span></div></div><div class="s-bar p"><span>'+esc(p[4])+'</span><b>'+b.toFixed(0)+'</b><div><span style="width:'+b.toFixed(1)+'%"></span></div></div></div>'}).join('')+'</div>';
+  var LA=(window.IEI_DATA&&window.IEI_DATA.meta.levers)||[],lav=LA.map(function(L,k){return {n:L.name,v:avg(C.map(function(c){return c.l[k]}))}}).sort(function(a,b){return b.v-a.v});
+  n3+='<p class="s-cap">Average indicator scores across '+C.length+' countries.'+(lav.length?' '+esc(lav[0].n)+' is the highest-scoring lever ('+lav[0].v.toFixed(1)+'); '+esc(lav[lav.length-1].n)+' the lowest ('+lav[lav.length-1].v.toFixed(1)+').':'')+'<small>Frameworks are the rules, policies and stated intentions; practice is what governments, companies and consumers actually do.</small></p>';
+  // NEW M4: pathways (from the 2026 report draft; illustrative groupings)
+  var PW=[['Policy-led','Regulation, carbon pricing and social-economy law lead; investors and outcomes buyers still to follow.',['DEU','ITA','ESP','KOR']],
+    ['Catalysed private capital','Private impact investment and investor rules lead, with development finance as catalyst.',['ZAF','KEN','COL','BRA','IND']],
+    ['Market-led','Capital markets and investor regulation lead; shared standards such as taxonomies and disclosure lag.',['USA','CAN','CHE','JPN']],
+    ['Donor- and philanthropy-anchored','Concessional and philanthropic capital lead; domestic frameworks and public finance still to catch up.',['HND','KHM','ZMB','BFA']],
+    ['Emerging integrated','Policy, public capital instruments and private markets reinforce one another.',['GBR','FRA','NLD','SWE','AUS']]];
+  var n4='<div class="s-paths">'+PW.map(function(p){return '<div class="s-path"><p class="s-pname">'+esc(p[0])+'</p><p class="s-pdesc">'+esc(p[1])+'</p><div class="s-cchips">'+p[2].map(chip).join('')+'</div></div>'}).join('')+'</div>'+
+    '<p class="s-cap">Common starting points identified in the 2026 report.<small>Illustrative groupings, not formal classifications; countries can show features of more than one pathway.</small></p>';
+  // live numbers in the message text
+  var hi=rows[0][1].map(function(c){return c.score}),LIVE={'r-spi':sp.r==null?'':sp.r.toFixed(2),'r-epi':ep.r==null?'':ep.r.toFixed(2),'max':Math.max.apply(null,C.map(function(c){return c.score})),'hi-min':Math.min.apply(null,hi),'hi-max':Math.max.apply(null,hi),'n':C.length};
+  $$('[data-live]').forEach(function(el){var v=LIVE[el.getAttribute('data-live')];if(v!==''&&v!=null)el.textContent=v});
+  var ev=[n1,n2,n3,n4];
   $$('.s-find').forEach(function(f,i){var h=$('.s-evid',f);if(h)h.innerHTML='<div class="s-evid-in"><p class="s-evid-t">In the data</p>'+ev[i]+'</div>'});
   // country tooltip on the insight dots: flag, name, values; tap pins it with a link to the profile
   (function(){
@@ -234,5 +276,5 @@ document.addEventListener('click',function(e){
   var t=document.getElementById(b.getAttribute('aria-controls'));if(!t)return;
   var open=t.hidden;t.hidden=!open;b.setAttribute('aria-expanded',open);
   var sp=b.querySelector('span'),T=window.IEI_T||function(x){return x};
-  if(sp){if(!b.dataset.l0)b.dataset.l0=sp.textContent;sp.textContent=open?(b.classList.contains('s-evbtn')?T('Hide the data'):T('Hide the country ranking')):b.dataset.l0;}
+  if(sp){if(!b.dataset.l0)b.dataset.l0=sp.textContent;sp.textContent=open?(b.classList.contains('s-evbtn')?T('Hide the data'):T('Hide the country list')):b.dataset.l0;}
 });
