@@ -538,6 +538,7 @@
       '  <div class="ic-tscroll"><table class="ic-table"><thead class="ic-sr"><tr><th>Driver</th><th>Description</th><th>Score</th><th>Value</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
       (missing ? '<p class="ic-note">' + missing + ' driver' + (missing > 1 ? 's' : '') + ' without data for this country are shown as “No data”. This is not a score of zero or a low score: the driver is left out of the averages and comparisons.</p>' : '') +
       '</div>' +
+      '<p class="ic-sec"><span>5</span>Compare countries</p>' + peerCard(c, bn, drivers, peers) +
       '<p class="ic-more-k">More analysis</p>' +
       acc('path', 'Pathways: who is driving change', (function () { var p = pathways(c); return p.integrated ? 'Integrated: all four pathways' : p.lead ? 'Strongest: ' + p.lead.p.name + ' · ' + p.ex.length + ' of 4 exhibited' : 'No pathway exhibited yet'; })(), pathCard(c)) +
       acc('sg', 'Relative strengths and gaps', 'Where ' + esc(c.name) + ' is furthest ahead of and behind ' + (bn.none ? 'the comparison' : esc(bn.short)), bn.none ? noCmp : '<div class="ic-two">' +
