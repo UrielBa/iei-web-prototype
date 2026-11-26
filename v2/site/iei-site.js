@@ -58,7 +58,7 @@ $$('.s-chip').forEach(function(c){c.addEventListener('click',function(){
 
 /* ---- how to read: tier list ---- */
 (function(){var ul=$('#sTierList');if(!ul||!C.length)return;var k=ST.map(function(){return 0});C.forEach(function(c){k[tier(c.score)]++});
-  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+ST[i].stage+'. '+t+'</b><span>'+TR[i]+'</span><em>'+k[i]+' '+(k[i]===1?'country':'countries')+'</em></li>'}).join('')})();
+  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+ST[i].stage+'. '+t+'</b><span>'+TR[i]+'</span><em>'+k[i]+' '+(k[i]===1?'country':'countries')+'</em>'+(ST[i].desc?'<small class="s-tdesc">'+esc(ST[i].desc)+'</small>':'')+'</li>'}).join('')})();
 
 /* ---- insights (evidence computed from data) ---- */
 function insights(){
@@ -105,7 +105,30 @@ function insights(){
   // M4: outcome comparisons from the report (SPI, EPI and WEF data are not part of this site)
   var e4='<div class="s-cchips"><span>'+esc(TT('Above what social outcomes alone would predict'))+'</span>'+['KEN','ZAF'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below the broader trendline'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
     '<p class="s-cap">Index scores compared with the Social Progress Index.<small>Source: Impact Economy Index 2026 report. The Index measures conditions that may contribute to growth quality and social progress over time, not the outcomes themselves.</small></p>';
-  var ev=[e1,e2,e3,e4];
+  function corr(X,Y){var mx=avg(X),my=avg(Y),a=0,b=0,d=0;X.forEach(function(x,i){a+=(x-mx)*(Y[i]-my);b+=(x-mx)*(x-mx);d+=(Y[i]-my)*(Y[i]-my)});return a/Math.sqrt(b*d)}
+  function pcorr(k){var P=C.filter(function(c){return c.x&&c.x[k]!=null&&c.x.gdppc});var S=P.map(function(c){return c.score}),Y=P.map(function(c){return c.x[k]}),G=P.map(function(c){return Math.log(c.x.gdppc)});
+    var rxy=corr(S,Y),rxz=corr(S,G),ryz=corr(Y,G);return (rxy-rxz*ryz)/Math.sqrt((1-rxz*rxz)*(1-ryz*ryz))}
+  function scat(k,label){
+    var P=C.filter(function(c){return c.x&&c.x[k]!=null});if(P.length<5)return {svg:'',r:null,n:0};
+    var X=P.map(function(c){return c.score}),Y=P.map(function(c){return c.x[k]}),r=corr(X,Y);
+    var W=300,H=210,l=34,rr=8,t=10,b=30,x0=20,x1=80,y0=Math.floor(Math.min.apply(null,Y)/10)*10,y1=Math.ceil(Math.max.apply(null,Y)/10)*10;
+    var sx=function(v){return l+(v-x0)/(x1-x0)*(W-l-rr)},sy=function(v){return H-b-(v-y0)/(y1-y0)*(H-t-b)};
+    var mx=avg(X),my=avg(Y),num=0,den=0;X.forEach(function(x,i){num+=(x-mx)*(Y[i]-my);den+=(x-mx)*(x-mx)});var sl=num/den,ic=my-sl*mx;
+    var sv='<svg class="s-swarm s-scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+' plotted against Index score">';
+    [20,40,60,80].forEach(function(v){sv+='<line x1="'+sx(v)+'" x2="'+sx(v)+'" y1="'+t+'" y2="'+(H-b)+'" stroke="#E4E6EF"/><text x="'+sx(v)+'" y="'+(H-b+14)+'" text-anchor="middle">'+v+'</text>'});
+    for(var g=y0;g<=y1;g+=Math.max(10,Math.round((y1-y0)/40)*10)){sv+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+sy(g)+'" y2="'+sy(g)+'" stroke="#E4E6EF"/><text x="'+(l-5)+'" y="'+(sy(g)+3)+'" text-anchor="end">'+g+'</text>'}
+    sv+='<line x1="'+sx(x0)+'" y1="'+sy(sl*x0+ic)+'" x2="'+sx(x1)+'" y2="'+sy(sl*x1+ic)+'" stroke="#0F1428" stroke-width="1.5" stroke-dasharray="5 4"/>';
+    P.forEach(function(c){sv+='<circle class="s-dot" tabindex="0" cx="'+sx(c.score).toFixed(1)+'" cy="'+sy(c.x[k]).toFixed(1)+'" r="4.2" fill="#6478FF" fill-opacity=".85" stroke="#0F1428" stroke-opacity=".35" stroke-width=".6" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'});
+    sv+='<text x="'+(W-rr)+'" y="'+(H-2)+'" text-anchor="end">Index score →</text><text x="'+l+'" y="'+(t-1)+'">'+esc(label)+' ↑</text></svg>';
+    return {svg:sv,r:r,n:P.length};
+  }
+  var sp=scat('spi','Social Progress Index'),ep=scat('epi','Environmental Performance Index');
+  var n1='<div class="s-scats"><figure>'+sp.svg+'<figcaption>Social Progress Index · r = '+(sp.r==null?'–':sp.r.toFixed(2))+'</figcaption></figure><figure>'+ep.svg+'<figcaption>Environmental Performance Index · r = '+(ep.r==null?'–':ep.r.toFixed(2))+'</figcaption></figure></div>'+
+    '<p class="s-cap">Across '+sp.n+' countries, higher Index scores go with better social and environmental outcomes. After accounting for income (GDP per capita), the association weakens but remains positive (partial r = '+pcorr('spi').toFixed(2)+' for SPI, '+pcorr('epi').toFixed(2)+' for EPI).'+
+    '<small>The Social Progress Index measures how well countries meet people’s basic needs, wellbeing and opportunity; the Environmental Performance Index measures environmental health and ecosystem vitality. The IEI measures the conditions and behaviours that make such outcomes more likely, not the outcomes themselves. Correlation does not establish cause. The 2026 report also finds higher scores go with stronger conditions for innovative, inclusive, sustainable and resilient growth (World Economic Forum Future of Growth Framework, 46 countries). Each dot is a country; hover for the name.</small></p>';
+  var hi=rows[0][1].map(function(c){return c.score}),LIVE={'r-spi':sp.r==null?'':sp.r.toFixed(2),'r-epi':ep.r==null?'':ep.r.toFixed(2),'max':Math.max.apply(null,C.map(function(c){return c.score})),'hi-min':Math.min.apply(null,hi),'hi-max':Math.max.apply(null,hi),'n':C.length,'c1':cnt[1],'c2':cnt[2],'c3':cnt[3],'c4':cnt[4]};
+  $$('[data-live]').forEach(function(el){var v=LIVE[el.getAttribute('data-live')];if(v!==''&&v!=null)el.textContent=v});
+  var ev=[e1,e2,e3,n1];
   $$('.s-find').forEach(function(f,i){var h=$('.s-evid',f);if(h)h.innerHTML='<div class="s-evid-in"><p class="s-evid-t">In the data</p>'+ev[i]+'</div>'});
   // country tooltip on the insight dots: flag, name, values; tap pins it with a link to the profile
   (function(){

@@ -58,7 +58,7 @@ $$('.s-chip').forEach(function(c){c.addEventListener('click',function(){
 
 /* ---- how to read: tier list ---- */
 (function(){var ul=$('#sTierList');if(!ul||!C.length)return;var k=ST.map(function(){return 0});C.forEach(function(c){k[tier(c.score)]++});
-  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+ST[i].stage+'. '+t+'</b><span>'+TR[i]+'</span><em>'+k[i]+' '+(k[i]===1?'country':'countries')+'</em></li>'}).join('')})();
+  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+ST[i].stage+'. '+t+'</b><span>'+TR[i]+'</span><em>'+k[i]+' '+(k[i]===1?'country':'countries')+'</em>'+(ST[i].desc?'<small class="s-tdesc">'+esc(ST[i].desc)+'</small>':'')+'</li>'}).join('')})();
 
 /* ---- insights (evidence computed from data) ---- */
 function insights(){
@@ -145,9 +145,19 @@ function insights(){
   var n4='<div class="s-paths">'+PW.map(function(p){return '<div class="s-path"><p class="s-pname">'+esc(p[0])+'</p><p class="s-pdesc">'+esc(p[1])+'</p><div class="s-cchips">'+p[2].map(chip).join('')+'</div></div>'}).join('')+'</div>'+
     '<p class="s-cap">Common starting points identified in the 2026 report.<small>Illustrative groupings, not formal classifications; countries can show features of more than one pathway.</small></p>';
   // live numbers in the message text
-  var hi=rows[0][1].map(function(c){return c.score}),LIVE={'r-spi':sp.r==null?'':sp.r.toFixed(2),'r-epi':ep.r==null?'':ep.r.toFixed(2),'max':Math.max.apply(null,C.map(function(c){return c.score})),'hi-min':Math.min.apply(null,hi),'hi-max':Math.max.apply(null,hi),'n':C.length};
+  var hi=rows[0][1].map(function(c){return c.score}),LIVE={'r-spi':sp.r==null?'':sp.r.toFixed(2),'r-epi':ep.r==null?'':ep.r.toFixed(2),'max':Math.max.apply(null,C.map(function(c){return c.score})),'hi-min':Math.min.apply(null,hi),'hi-max':Math.max.apply(null,hi),'n':C.length,'c1':cnt[1],'c2':cnt[2],'c3':cnt[3],'c4':cnt[4]};
   $$('[data-live]').forEach(function(el){var v=LIVE[el.getAttribute('data-live')];if(v!==''&&v!=null)el.textContent=v});
-  var ev=[n1,n2,n3,n4];
+  // report message 2: foundations vs approaches directing capital/activity to outcomes (navy vs lilac)
+  var GF=[['Foundations','#0F1428',['3.B.1','1.A.2','1.C.1','2.C.1']],['Directing capital and activity to outcomes','#6478FF',['2.B.3','3.E.3','3.B.4','3.E.4']]];
+  var m2='<div class="s-ibars">'+GF.map(function(g){return '<p class="s-ibh"><i style="background:'+g[1]+'"></i>'+esc(g[0])+'</p>'+g[2].map(function(id){var m=iavg(id);if(m==null)return '';
+    return '<div class="s-bar" style="--c:'+g[1]+'"><span>'+esc(nm[id]||id)+'</span><b>'+m.toFixed(1)+'</b><div><span style="width:'+m.toFixed(1)+'%"></span></div></div>'}).join('')}).join('')+'</div>'+
+    '<p class="s-cap">Average indicator scores across '+C.length+' countries.<small>Foundations are the transparency, accountability and integrity mechanisms that make impact credible.</small></p><p class="s-pact s-pgap">The same gap, actor by actor</p>'+n3;
+  // report message 1: stages; message 3: income
+  var m1=e1+'<p class="s-cap">No country has reached the Thriving stage (80 and above); the highest score is '+LIVE.max+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
+  var m3=sv+'<div class="s-cchips"><span>'+esc(TT('Above income peers'))+'</span>'+['GBR','FRA','FIN'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below income peers'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
+    '<p class="s-cap">'+(advHi===adv.length?'All '+adv.length+' Advanced countries are high-income':advHi+' of '+adv.length+' Advanced countries are high-income')+', yet high-income economies range from '+LIVE['hi-min']+' to '+LIVE['hi-max']+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
+  var m4=n1.replace('<p class="s-cap">','<p class="s-cap">The 2026 report also finds higher scores go with stronger conditions for innovative, inclusive, sustainable and resilient growth (World Economic Forum Future of Growth Framework, 46 countries); those data are not shown here. ');
+  var ev=[m1,m2,m3,m4];
   $$('.s-find').forEach(function(f,i){var h=$('.s-evid',f);if(h)h.innerHTML='<div class="s-evid-in"><p class="s-evid-t">In the data</p>'+ev[i]+'</div>'});
   // country tooltip on the insight dots: flag, name, values; tap pins it with a link to the profile
   (function(){

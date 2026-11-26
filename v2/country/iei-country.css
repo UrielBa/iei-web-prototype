@@ -459,3 +459,35 @@ html.icm-open{overflow:hidden}
 .ic-head .ic-hl{grid-area:hl;min-height:64px}
 .ic-head .ic-nav{grid-area:nav;justify-self:end;align-self:start;flex:none}
 .ic-head .ic-share{grid-area:share;margin:0;width:auto;order:0;justify-content:flex-start}
+/* 26 Nov: stage description, pathways */
+.ic-tdesc{margin-top:10px !important;font:400 13px/1.45 "Urbanist",sans-serif !important;color:#E6E9F5 !important;max-width:24ch}
+.ic-pwcard>.ic-h4{margin-bottom:12px}
+.ic-pwc{padding:0 !important;background:none !important;border:0 !important}
+.ic-pwhead{margin:0 0 16px !important;font:400 16px/1.5 "Urbanist",sans-serif !important;color:#E6E9F5 !important}
+.ic-pwhead b{color:#fff}
+.ic-pws{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 28px}
+.ic-pw{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12)}
+.ic-pw.ex{border-color:rgba(255,255,255,.4)}
+.ic-pw.lead{border-color:#6478FF;background:rgba(100,120,255,.12)}
+.ic-pwh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.ic-pwh b{font:700 16px/1.2 "Urbanist",sans-serif;color:#fff}
+.ic-pwtag{padding:3px 9px;border-radius:99px;background:#6478FF;color:#fff;font:700 11px/1 "Urbanist",sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.ic-pwst{margin-left:auto;font:600 12px/1 "Urbanist",sans-serif;color:#A9B0C8}
+.ic-pw.ex .ic-pwst{color:#fff}
+.ic-pwwho{margin:6px 0 10px !important;font:400 13px/1.45 "Urbanist",sans-serif !important;color:#A9B0C8 !important}
+.ic-pwbar{position:relative;height:10px;border-radius:99px;background:rgba(255,255,255,.1)}
+.ic-pwbar span{display:block;height:100%;border-radius:99px;background:#8C9BFF}
+.ic-pw.lead .ic-pwbar span{background:#6478FF}
+.ic-pwbar u{position:absolute;top:-4px;bottom:-4px;width:2px}
+.ic-pwbar u.th{background:repeating-linear-gradient(to bottom,#fff 0 3px,transparent 3px 6px);width:1px}
+.ic-pwbar u.mn{background:rgba(255,255,255,.6)}
+.ic-pwbar u.cm{background:#fff;width:3px;box-shadow:0 0 0 1px #0F1428}
+.ic-pwv{margin:8px 0 0 !important;font:400 13px/1.3 "Urbanist",sans-serif !important;color:#A9B0C8 !important}
+.ic-pwv b{font-size:16px;color:#fff}
+.ic-scatk{display:flex;flex-wrap:wrap;gap:8px 18px;margin:12px 0 0 !important;font:500 12.5px/1.3 "Urbanist",sans-serif !important;color:#A9B0C8 !important}
+.ic-scatk i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.ic-scatk i.me{background:#8C9BFF}
+.ic-scatk i.cm{background:#fff}
+.ic-scatk i.th{width:0;height:12px;border-left:1px dashed #fff}
+.ic-scatk i.mn{width:2px;height:12px;background:rgba(255,255,255,.6)}
+@media (max-width:767px){.ic-pws{grid-template-columns:1fr}}

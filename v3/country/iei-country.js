@@ -367,6 +367,38 @@
       '<div class="ic-cx"><b>' + ev.n + '<em>/' + ev.of + '</em></b><span>Evidence coverage</span><small>Scored indicators with data. Missing data is not treated as zero.</small></div>' +
       '</div></div>';
   }
+  /* ---------- impact economy pathways (2026 report, 16 Nov draft): who is driving change ---------- */
+  var PW = [
+    { k: 'gov', name: 'Government-led', who: 'Governments acting directly, as reporters, buyers, funders and conveners', d: ['1.B', '2.B', '3.C', '4.A'] },
+    { k: 'mkt', name: 'Market practice-led', who: 'Companies, consumers, intermediaries and citizens acting on impact in everyday economic decisions', d: ['1.A', '2.A', '2.C', '3.E', '4.B', '4.C'] },
+    { k: 'inv', name: 'Investment capital-led', who: 'Private and institutional investors embedding impact in how capital is allocated, managed and measured', d: ['1.C', '3.A', '3.B'] },
+    { k: 'phi', name: 'Philanthropic capital-led', who: 'Philanthropies and development finance institutions deploying grants, blended finance and dedicated capital', d: ['3.D'] }
+  ];
+  function pwScore(x, p) { var v = p.d.map(function (id) { return x.d[DID.indexOf(id)]; }).filter(function (y) { return y != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; }
+  PW.forEach(function (p) { p.mean = avg(C, function (x) { return pwScore(x, p); }); });
+  function pathways(x) {
+    var rows = PW.map(function (p) { var v = pwScore(x, p); return { p: p, v: v, ex: v != null && v >= 50 }; });
+    var ex = rows.filter(function (r) { return r.ex; }), lead = ex.slice().sort(function (a, b) { return (b.v - b.p.mean) - (a.v - a.p.mean); })[0] || null;
+    return { rows: rows, ex: ex, lead: lead, integrated: ex.length === PW.length };
+  }
+  function pathCard(c) {
+    var P = pathways(c), cmpId = state.bench === 'country' ? state.benchId : '', Q = cmpId && byId[cmpId] ? pathways(byId[cmpId]) : null;
+    var nInt = C.filter(function (x) { return pathways(x).integrated; }).length;
+    var rows = P.rows.map(function (r, i) {
+      var q = Q ? Q.rows[i] : null, lead = P.lead && P.lead.p.k === r.p.k;
+      return '<div class="ic-pw' + (r.ex ? ' ex' : '') + (lead ? ' lead' : '') + '"><div class="ic-pwh"><b>' + r.p.name + '</b>' + (lead ? '<span class="ic-pwtag">Strongest pathway</span>' : '') + '<span class="ic-pwst">' + (r.v == null ? 'No data' : r.ex ? 'Exhibited' : 'Not yet (below 50)') + '</span></div>' +
+        '<p class="ic-pwwho">' + esc(r.p.who) + '</p>' +
+        '<div class="ic-pwbar"><span style="width:' + (r.v == null ? 0 : r.v.toFixed(1)) + '%"></span><u class="th" style="left:50%" title="Threshold: 50"></u><u class="mn" style="left:' + r.p.mean.toFixed(1) + '%" title="Average of all countries: ' + Math.round(r.p.mean) + '"></u>' + (q && q.v != null ? '<u class="cm" style="left:' + q.v.toFixed(1) + '%" title="' + esc(byId[cmpId].name) + ': ' + Math.round(q.v) + '"></u>' : '') + '</div>' +
+        '<p class="ic-pwv"><b>' + (r.v == null ? '–' : Math.round(r.v)) + '</b> · all-country average ' + Math.round(r.p.mean) + (q && q.v != null ? ' · ' + esc(byId[cmpId].name) + ' ' + Math.round(q.v) : '') + '</p></div>';
+    }).join('');
+    var head = P.integrated ? esc(c.name) + ' exhibits <b>all four pathways</b>: an integrated impact economy, where government, capital providers and market actors all contribute. ' + nInt + ' of ' + N + ' countries are in this position.' :
+      P.ex.length ? esc(c.name) + ' exhibits ' + P.ex.length + ' of 4 pathways' + (P.lead ? '; the strongest is <b>' + P.lead.p.name + '</b>' : '') + '.' :
+      esc(c.name) + ' does not yet exhibit any pathway: no group of actors averages 50 or more.';
+    return '<div class="ic-card ic-pwc"><p class="ic-pwhead">' + head + '</p><div class="ic-pws">' + rows + '</div>' +
+      '<p class="ic-scatk"><span><i class="me"></i>' + esc(c.name) + '</span><span><i class="th"></i>Threshold (50)</span><span><i class="mn"></i>All-country average</span>' + (Q ? '<span><i class="cm"></i>' + esc(byId[cmpId].name) + '</span>' : '') + '</p>' +
+      '<p class="ic-note">Pathways show which actors are driving progress, following the 2026 report: a country exhibits a pathway when the average of the drivers linked to those actors is 50 or more (the Late Developing threshold); the strongest is the one furthest above the all-country average. Pathways are not formal classifications and can change as institutions and markets develop. Calculated here from the current driver scores.</p></div>';
+  }
+  function tierDesc(n) { var t = META.tiers.filter(function (x) { return x.name === n; })[0]; return t && t.desc ? t.desc : ''; }
   function ctxCard(c, bn) {
     var x = c.x || {}, all = C.filter(function (y) { return y.x; });
     function r(k) { var P = all.filter(function (y) { return y.x[k] != null; }), X = P.map(function (y) { return y.score; }), Y = P.map(function (y) { return y.x[k]; });
@@ -432,6 +464,7 @@
 
     var lv = levers.slice().sort(function (a, b) { return b.v - a.v; });
     var summary = '<b>' + esc(c.name) + '</b> has a total score of <b>' + c.score + '</b> out of 100, which places it at the <b>' + esc(c.tier) + '</b> stage. ';
+    var pwx = pathways(c), pwTxt = pwx.integrated ? ' It exhibits all four impact economy pathways.' : pwx.lead ? ' Its strongest pathway is <b>' + pwx.lead.p.name + '</b>.' : '';
     if (bn.none) summary += 'Its strongest lever is <b>' + esc(lv[0].L.short) + '</b> (' + lv[0].v + ') and its weakest is <b>' + esc(lv[3].L.short) + '</b> (' + lv[3].v + ').';
     else summary += 'Compared with ' + esc(bn.short) + ' (' + Math.round(refTotal) + '), ' +
       (best.d === worst.d ? 'its levers are broadly in line.' :
@@ -450,7 +483,7 @@
       CMPO.map(function (o) { return '<button type="button" data-cmp="' + o[0] + '" aria-pressed="' + (state.bench === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>' +
       (state.bench === 'country' ? '<label class="ic-field ic-cmpc"><span class="ic-sr">Country to compare</span><select class="ic-bcsel">' + C.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (state.benchId === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') +
       (bn.none || state.bench === 'country' ? '' : '<p class="ic-cmpn">' + esc(bn.label) + (bn.n > 1 ? ' · ' + bn.n + ' countries' : '') + '</p>') + '</div>';
-    var benchSel = '';
+    var benchSel = ''; summary += pwTxt;
     var levCards = levers.map(function (x) {
       return '<div class="ic-lev" style="--a:' + x.L.accent + '"><p class="ic-lname"><i></i>' + esc(x.L.short) + '</p>' +
         '<p class="ic-lval">' + x.v + '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em></p>' +
@@ -491,7 +524,7 @@
       '<p class="ic-sec"><span>1</span>Total score</p>' +
       '<div class="ic-card ic-hero">' +
       '  <div class="ic-score"><div class="ic-big">' + c.score + '</div><span class="ic-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span>' +
-      '  <p class="ic-wnote">Out of 100. Average of the 14 equally weighted drivers.</p>' + (bn.none ? '' : '<p class="ic-vs"><b>' + sgn(Math.round(c.score - refTotal)) + '</b> vs ' + esc(state.bench === 'country' ? bn.label : 'comparison') + ' (' + Math.round(refTotal) + ')</p>') +
+      (tierDesc(c.tier) ? '  <p class="ic-tdesc">' + esc(tierDesc(c.tier)) + '</p>' : '') + '  <p class="ic-wnote">Out of 100. Average of the 14 equally weighted drivers.</p>' + (bn.none ? '' : '<p class="ic-vs"><b>' + sgn(Math.round(c.score - refTotal)) + '</b> vs ' + esc(state.bench === 'country' ? bn.label : 'comparison') + ' (' + Math.round(refTotal) + ')</p>') +
       '  <p class="ic-cov">Data for ' + ev.n + ' of ' + ev.of + ' scored indicators</p></div>' +
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span>' + (bn.none ? '' : '<span><i class="b"></i>' + esc(bn.label) + '</span>') + '</p></div>' +
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p></div>' +
@@ -507,6 +540,7 @@
       '</div>' +
       '<p class="ic-sec"><span>5</span>Compare countries</p>' + peerCard(c, bn, drivers, peers) +
       '<p class="ic-more-k">More analysis</p>' +
+      acc('path', 'Pathways: who is driving change', (function () { var p = pathways(c); return p.integrated ? 'Integrated: all four pathways' : p.lead ? 'Strongest: ' + p.lead.p.name + ' · ' + p.ex.length + ' of 4 exhibited' : 'No pathway exhibited yet'; })(), pathCard(c)) +
       acc('sg', 'Relative strengths and gaps', 'Where ' + esc(c.name) + ' is furthest ahead of and behind ' + (bn.none ? 'the comparison' : esc(bn.short)), bn.none ? noCmp : '<div class="ic-two">' +
         '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
         '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div></div>') +

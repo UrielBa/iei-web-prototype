@@ -403,6 +403,7 @@
         'Relative to ' + esc(bn.short) + ', its strongest lever is <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and its largest gap is <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').');
 
     if (strengths.length && gaps.length && gaps[0].d < 0) summary += ' At driver level, the largest relative gap is <b>' + esc(DLAB[gaps[0].id]) + '</b> (' + sgn(gaps[0].d) + ')' + (strengths[0].d > 0 ? ' and the strongest relative lead is <b>' + esc(DLAB[strengths[0].id]) + '</b> (' + sgn(strengths[0].d) + ')' : '') + '. These are starting points for local validation, not automatic policy priorities.';
+    var pwx = pathways(c); summary += pwx.integrated ? ' It exhibits all four impact economy pathways.' : pwx.lead ? ' Its strongest pathway is <b>' + pwx.lead.p.name + '</b>.' : '';
     var peers = C.filter(function (x) { return x.id !== c.id; }).map(function (x) {
       var dist = Math.sqrt(x.l.reduce(function (s, v, k) { return s + Math.pow(v - c.l[k], 2); }, 0));
       return { c: x, dist: dist };
@@ -451,7 +452,7 @@
       '  <button type="button" class="ic-step" data-step="1" aria-label="Next country"' + (idx < 0 || idx >= f.length - 1 ? ' disabled' : '') + '>→</button></div>' +
       '</div>' +
       '<div class="ic-card ic-hero">' +
-      '  <div class="ic-score"><div class="ic-big">' + c.score + '</div><span class="ic-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span>' +
+      '  <div class="ic-score"><div class="ic-big">' + c.score + '</div><span class="ic-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span>' + (tierDesc(c.tier) ? '<p class="ic-tdesc">' + esc(tierDesc(c.tier)) + '</p>' : '') +
       '  <p class="ic-wnote">Average of the 14 equally-weighted drivers</p><p class="ic-rank">Rank <b>#' + tr.r + '</b> of ' + N + '</p><p class="ic-vs">' + sgn(Math.round(c.score - refTotal)) + ' vs. comparison (' + Math.round(refTotal) + ')</p></div>' +
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span><span><i class="b"></i>' + esc(bn.label) + '</span></p></div>' +
       '  <div class="ic-sum"><p class="ic-summary">' + summary + '</p>' + benchSel + '</div>' +
@@ -473,6 +474,7 @@
       '</div>' +
       indCard(c, bn) +
       peerCard(c, bn, drivers, peers) +
+      '<div class="ic-card ic-pwcard"><h4 class="ic-h4">Pathways: who is driving change</h4>' + pathCard(c) + '</div>' +
       '<div class="ic-card ic-actwrap ic-actcard"><h4 class="ic-h4">Learn &amp; act</h4><div id="ieiAct" class="ia-panel"></div></div>' +
       '<div class="ic-card ic-peers"><h4 class="ic-h4">Countries with a similar lever profile</h4><div class="ic-chips">' +
       peers.map(function (p) { return '<button type="button" class="ic-chip" data-id="' + p.c.id + '">' + flag(p.c, 'ic-flag') + '<span>' + esc(p.c.name) + '</span><b>' + p.c.score + '</b></button>'; }).join('') + '</div></div>' +
@@ -613,6 +615,38 @@
       '<span class="ic-ty e">Enabling</span> ' + (de[0] == null ? '–' : Math.round(de[0])) + ' · <span class="ic-ty b">Behaviour</span> ' + (de[1] == null ? '–' : Math.round(de[1])) + '</p>' + cbtn('D:' + id, 'for this driver') +
       list.map(function (m) { return indItem(m, c, bn); }).join('') + '</div>';
   }
+  /* ---------- impact economy pathways (2026 report, 16 Nov draft): who is driving change ---------- */
+  var PW = [
+    { k: 'gov', name: 'Government-led', who: 'Governments acting directly, as reporters, buyers, funders and conveners', d: ['1.B', '2.B', '3.C', '4.A'] },
+    { k: 'mkt', name: 'Market practice-led', who: 'Companies, consumers, intermediaries and citizens acting on impact in everyday economic decisions', d: ['1.A', '2.A', '2.C', '3.E', '4.B', '4.C'] },
+    { k: 'inv', name: 'Investment capital-led', who: 'Private and institutional investors embedding impact in how capital is allocated, managed and measured', d: ['1.C', '3.A', '3.B'] },
+    { k: 'phi', name: 'Philanthropic capital-led', who: 'Philanthropies and development finance institutions deploying grants, blended finance and dedicated capital', d: ['3.D'] }
+  ];
+  function pwScore(x, p) { var v = p.d.map(function (id) { return x.d[DID.indexOf(id)]; }).filter(function (y) { return y != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; }
+  PW.forEach(function (p) { p.mean = avg(C, function (x) { return pwScore(x, p); }); });
+  function pathways(x) {
+    var rows = PW.map(function (p) { var v = pwScore(x, p); return { p: p, v: v, ex: v != null && v >= 50 }; });
+    var ex = rows.filter(function (r) { return r.ex; }), lead = ex.slice().sort(function (a, b) { return (b.v - b.p.mean) - (a.v - a.p.mean); })[0] || null;
+    return { rows: rows, ex: ex, lead: lead, integrated: ex.length === PW.length };
+  }
+  function pathCard(c) {
+    var P = pathways(c), cmpId = state.bench === 'country' ? state.benchId : '', Q = cmpId && byId[cmpId] ? pathways(byId[cmpId]) : null;
+    var nInt = C.filter(function (x) { return pathways(x).integrated; }).length;
+    var rows = P.rows.map(function (r, i) {
+      var q = Q ? Q.rows[i] : null, lead = P.lead && P.lead.p.k === r.p.k;
+      return '<div class="ic-pw' + (r.ex ? ' ex' : '') + (lead ? ' lead' : '') + '"><div class="ic-pwh"><b>' + r.p.name + '</b>' + (lead ? '<span class="ic-pwtag">Strongest pathway</span>' : '') + '<span class="ic-pwst">' + (r.v == null ? 'No data' : r.ex ? 'Exhibited' : 'Not yet (below 50)') + '</span></div>' +
+        '<p class="ic-pwwho">' + esc(r.p.who) + '</p>' +
+        '<div class="ic-pwbar"><span style="width:' + (r.v == null ? 0 : r.v.toFixed(1)) + '%"></span><u class="th" style="left:50%" title="Threshold: 50"></u><u class="mn" style="left:' + r.p.mean.toFixed(1) + '%" title="Average of all countries: ' + Math.round(r.p.mean) + '"></u>' + (q && q.v != null ? '<u class="cm" style="left:' + q.v.toFixed(1) + '%" title="' + esc(byId[cmpId].name) + ': ' + Math.round(q.v) + '"></u>' : '') + '</div>' +
+        '<p class="ic-pwv"><b>' + (r.v == null ? '–' : Math.round(r.v)) + '</b> · all-country average ' + Math.round(r.p.mean) + (q && q.v != null ? ' · ' + esc(byId[cmpId].name) + ' ' + Math.round(q.v) : '') + '</p></div>';
+    }).join('');
+    var head = P.integrated ? esc(c.name) + ' exhibits <b>all four pathways</b>: an integrated impact economy, where government, capital providers and market actors all contribute. ' + nInt + ' of ' + N + ' countries are in this position.' :
+      P.ex.length ? esc(c.name) + ' exhibits ' + P.ex.length + ' of 4 pathways' + (P.lead ? '; the strongest is <b>' + P.lead.p.name + '</b>' : '') + '.' :
+      esc(c.name) + ' does not yet exhibit any pathway: no group of actors averages 50 or more.';
+    return '<div class="ic-card ic-pwc"><p class="ic-pwhead">' + head + '</p><div class="ic-pws">' + rows + '</div>' +
+      '<p class="ic-scatk"><span><i class="me"></i>' + esc(c.name) + '</span><span><i class="th"></i>Threshold (50)</span><span><i class="mn"></i>All-country average</span>' + (Q ? '<span><i class="cm"></i>' + esc(byId[cmpId].name) + '</span>' : '') + '</p>' +
+      '<p class="ic-note">Pathways show which actors are driving progress, following the 2026 report: a country exhibits a pathway when the average of the drivers linked to those actors is 50 or more (the Late Developing threshold); the strongest is the one furthest above the all-country average. Pathways are not formal classifications and can change as institutions and markets develop. Calculated here from the current driver scores.</p></div>';
+  }
+  function tierDesc(n) { var t = META.tiers.filter(function (x) { return x.name === n; })[0]; return t && t.desc ? t.desc : ''; }
   function ebCard(c, bn) {
     if (c.e == null && c.b == null) return '';
     function row(key, label, cls, v) {
