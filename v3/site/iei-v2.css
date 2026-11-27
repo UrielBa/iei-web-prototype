@@ -744,3 +744,6 @@ a.cs-go,.cs-go,.cs-card h3,.cs-card h3 a{color:var(--v-navy) !important}
 }
 .s-drawer-p{box-sizing:border-box}
 .s-ins .s-find .s-evid{max-width:none !important}
+/* pyramid restored: lever master-detail sits in the Levers layer */
+.s-pyr-deckslot .s-md{margin:20px 0 0}
+.s-md[hidden]{display:none !important}
