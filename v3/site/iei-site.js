@@ -58,7 +58,20 @@ $$('.s-chip').forEach(function(c){c.addEventListener('click',function(){
 
 /* ---- how to read: tier list ---- */
 (function(){var ul=$('#sTierList');if(!ul||!C.length)return;var k=ST.map(function(){return 0});C.forEach(function(c){k[tier(c.score)]++});
-  ul.innerHTML=TN.map(function(t,i){return '<li><i style="background:'+TC[i]+'"></i><b>'+ST[i].stage+'. '+t+'</b><span>'+TR[i]+'</span><em>'+k[i]+' '+(k[i]===1?'country':'countries')+'</em>'+(ST[i].desc?'<small class="s-tdesc">'+esc(ST[i].desc)+'</small>':'')+'</li>'}).join('')})();
+  // same six lilac steps as the Overview map
+  var FILL=['#E9ECFF','#CBD2FF','#AEB8FF','#8F9DFF','#6478FF','#3D4FD9'],lo=function(i){return i===0?0:ST[i].min},hi=function(i){return i===ST.length-1?100:ST[i+1].min};
+  var bar='<div class="s-spec" aria-hidden="true"><div class="s-spec-n">'+ST.map(function(t,i){return '<span style="flex:'+(hi(i)-lo(i))+'" data-i="'+i+'"><b>'+t.stage+'</b><em>'+esc(t.name)+'</em></span>'}).join('')+'</div>'+
+    '<div class="s-spec-bar">'+ST.map(function(t,i){return '<i style="flex:'+(hi(i)-lo(i))+';background:'+FILL[i]+'" data-i="'+i+'"></i>'}).join('')+'</div>'+
+    '<div class="s-spec-x">'+[0].concat(ST.map(function(t,i){return hi(i)})).map(function(v){return '<span style="left:'+v+'%">'+v+'</span>'}).join('')+'</div></div>';
+  var rows='<li class="s-stg-h" aria-hidden="true"><span>Score range</span><span>Stage</span><span>What it means</span><span>Countries in 2026</span></li>'+ST.map(function(t,i){
+    return '<li class="s-stg" data-i="'+i+'"><span class="s-stg-r"><i style="background:'+FILL[i]+'"></i>'+TR[i]+'</span><b class="s-stg-n">Stage '+t.stage+' · '+esc(t.name)+'</b><span class="s-stg-d">'+esc(t.desc||'')+'</span><span class="s-stg-c">'+k[i]+' '+(k[i]===1?'country':'countries')+'</span></li>'}).join('');
+  ul.className='s-stglist';ul.innerHTML=rows;ul.insertAdjacentHTML('beforebegin',bar);
+  var spec=ul.previousElementSibling,hl=function(i){[].forEach.call(spec.querySelectorAll('[data-i]'),function(e){e.classList.toggle('on',+e.getAttribute('data-i')===i)});spec.classList.toggle('is-hl',i!=null);
+    [].forEach.call(ul.querySelectorAll('.s-stg'),function(e){e.classList.toggle('on',+e.getAttribute('data-i')===i)})};
+  ul.addEventListener('mouseover',function(e){var r=e.target.closest('.s-stg');if(r)hl(+r.getAttribute('data-i'))});
+  ul.addEventListener('mouseleave',function(){hl(null)});
+  spec.addEventListener('mouseover',function(e){var r=e.target.closest('[data-i]');if(r)hl(+r.getAttribute('data-i'))});
+  spec.addEventListener('mouseleave',function(){hl(null)})})();
 
 /* ---- insights (evidence computed from data) ---- */
 function insights(){
