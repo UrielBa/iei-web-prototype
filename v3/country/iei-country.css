@@ -46,7 +46,6 @@
 .ic-score{text-align:left}
 .ic-big{font-size:84px;font-weight:700;letter-spacing:-.05em;line-height:.9}
 .ic-badge{display:inline-block;margin-top:12px;padding:5px 13px;border-radius:99px;font-weight:700;font-size:13px}
-.ic-rank{margin-top:12px !important;font-size:15px !important;color:#fff !important}
 .ic-vs{margin-top:3px !important;font-size:13px !important;color:var(--muted) !important}
 .ic-radarwrap{width:260px}
 .ic-radar{width:100%;height:auto;display:block;overflow:visible}

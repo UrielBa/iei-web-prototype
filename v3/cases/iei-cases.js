@@ -30,8 +30,8 @@
       if (s.t === 'L') return k.drivers.some(function (d) { return d.charAt(0) === String(s.v); });
       return false;
     });
-    function rank(k) { var i = k.i[0]; return (s.t === 'I' ? i === s.v : s.t === 'D' ? i.slice(0, 3) === s.v : i.charAt(0) === String(s.v)) ? 0 : 1; }
-    return out.map(function (k, n) { return { k: k, n: n }; }).sort(function (a, b) { return rank(a.k) - rank(b.k) || a.n - b.n; }).map(function (x) { return x.k; });
+    function relevance(k) { var i = k.i[0]; return (s.t === 'I' ? i === s.v : s.t === 'D' ? i.slice(0, 3) === s.v : i.charAt(0) === String(s.v)) ? 0 : 1; }
+    return out.map(function (k, n) { return { k: k, n: n }; }).sort(function (a, b) { return relevance(a.k) - relevance(b.k) || a.n - b.n; }).map(function (x) { return x.k; });
   }
   function title(scope) {
     var s = parse(scope), INDS = (window.IEI_IND && window.IEI_IND.inds) || [];

@@ -41,8 +41,8 @@ a.go:hover{background:#6478FF}
 </head>
 <body>
 <div class="card" id="card" aria-live="polite"></div>
-<script src="data/iei-data.js?v=v3-20261126d"></script>
-<script src="i18n/iei-i18n.js?v=v3-20261126d"></script>
+<script src="data/iei-data.js?v=v3-20261127a"></script>
+<script src="i18n/iei-i18n.js?v=v3-20261127a"></script>
 <script>
 (function () {
   var D = window.IEI_DATA, el = document.getElementById('card');
@@ -54,7 +54,6 @@ a.go:hover{background:#6478FF}
   var C = D.countries, N = C.length;
   var TB = {}, TF = {}; (D.meta.tiers || []).forEach(function (t) { TB[t.name] = t.bg; TF[t.name] = t.fg; });
   var LC = ['#3DCC7D', '#77DAD9', '#F094B5', '#FFBD87'];
-  var rank = 1 + C.filter(function (x) { return x.score > c.score; }).length;
   var avg = function (k) { return C.reduce(function (s, x) { return s + x.l[k]; }, 0) / N; };
   var full = new URL('./', location.href).href + (q.get('lang') ? '?lang=' + encodeURIComponent(q.get('lang')) : '') + '#country=' + c.id;
   el.innerHTML =

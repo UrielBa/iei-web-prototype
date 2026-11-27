@@ -89,9 +89,9 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
     <aside class="card sum" id="sSum" aria-live="polite"></aside>
   </div>
 </main>
-<script src="data/iei-data.js?v=v3-20261126d"></script>
-<script src="data/iei-indicators.js?v=v3-20261126d"></script>
-<script src="data/iei-facts.js?v=v3-20261126d"></script>
+<script src="data/iei-data.js?v=v3-20261127a"></script>
+<script src="data/iei-indicators.js?v=v3-20261127a"></script>
+<script src="data/iei-facts.js?v=v3-20261127a"></script>
 <script>
 (function () {
   var D = window.IEI_DATA, I = window.IEI_IND, F = window.IEI_FACTS || {};
@@ -124,7 +124,6 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
     if (!L.length) return null;
     return { avg: avg(L), best: Math.max.apply(null, L) };
   }
-  function rankOf(total, iso) { return 1 + C.filter(function (x) { return x.id !== iso && x.score > Math.round(total); }).length; }
 
   var selC = document.getElementById('sCountry');
   selC.innerHTML = C.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + '</option>'; }).join('');
@@ -163,7 +162,7 @@ select{height:44px;border:1.5px solid var(--grey);border-radius:12px;background:
     });
     document.getElementById('sList').innerHTML = html;
     // summary
-    var t0 = c.score, t1 = Math.round(now.t), dlt = now.t - base.t, tier0 = c.tier, tier1 = tierOf(now.t), r0 = rankOf(t0, c.id), r1 = rankOf(now.t, c.id);
+    var t0 = c.score, t1 = Math.round(now.t), dlt = now.t - base.t, tier0 = c.tier, tier1 = tierOf(now.t);
     var changed = Object.keys(state.over).filter(function (id) { return Math.abs(state.over[id] - sc(id, c.id)) > 0.01; });
     document.getElementById('sSum').innerHTML = '<h2>' + esc(c.name) + '</h2>' +
       '<div class="tot">' + (changed.length ? '<span class="from">' + t0 + '</span>' : '') + '<span class="to">' + (changed.length ? t1 : t0) + '</span>' + (changed.length ? '<span class="d ' + (dlt > 0.05 ? 'up' : dlt < -0.05 ? 'down' : '') + '">' + sgn(dlt) + ' points</span>' : '') + '</div>' +

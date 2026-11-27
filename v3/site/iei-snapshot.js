@@ -34,7 +34,7 @@
   var counts = tiers.map(function () { return 0; });
   Object.keys(byId).forEach(function (id) { counts[stageOf(byId[id].score)]++; });
   if (leg) leg.innerHTML = '<ul>' + tiers.map(function (t, i) {
-    return '<li' + (counts[i] ? '' : ' class="zero"') + '><i style="background:' + FILL[i] + '"></i><b>' + esc(T(t.name)) + '</b><span>' + t.min + '–' + t.max + ' · ' + (counts[i] ? counts[i] + ' ' + (counts[i] === 1 ? 'country' : 'countries') : (t.name === 'Thriving' ? 'no country yet' : 'none')) + '</span>' + (t.desc ? '<em>' + esc(T(t.desc)) + '</em>' : '') + '</li>';
+    return '<li' + (counts[i] ? '' : ' class="zero"') + '><i style="background:' + FILL[i] + '"></i><b>Stage ' + t.stage + ' · ' + esc(T(t.name)) + '</b><span>' + t.min + '–' + t.max + ' · ' + (counts[i] ? counts[i] + ' ' + (counts[i] === 1 ? 'country' : 'countries') : (t.name === 'Thriving' ? 'no country yet' : 'none')) + '</span>' + (t.desc ? '<em>' + esc(T(t.desc)) + '</em>' : '') + '</li>';
   }).join('') + '</ul><p class="s-snap-note">Grey: not assessed in the 2026 Index.</p>';
 
   var tip = document.createElement('div'); tip.className = 's-snaptip'; tip.hidden = true; document.body.appendChild(tip);

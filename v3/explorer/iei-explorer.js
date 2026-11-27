@@ -37,8 +37,8 @@
     m.min = Math.min.apply(null, v);
     m.max = Math.max.apply(null, v);
     m.avg = v.reduce(function (a, b) { return a + b; }, 0) / v.length;
-    m.rank = {};
-    C.forEach(function (c) { m.rank[c.id] = 1 + v.filter(function (x) { return x > m.val(c); }).length; });
+    m.pos = {};
+    C.forEach(function (c) { m.pos[c.id] = 1 + v.filter(function (x) { return x > m.val(c); }).length; });
     M[m.id] = m;
   });
   META.driverIds.forEach(function (id, i) {
@@ -48,8 +48,8 @@
     var v = C.map(m.val).filter(function (x) { return x != null; });
     m.min = Math.min.apply(null, v); m.max = Math.max.apply(null, v);
     m.avg = v.reduce(function (a, b) { return a + b; }, 0) / v.length;
-    m.rank = {};
-    C.forEach(function (c) { var x = m.val(c); m.rank[c.id] = x == null ? null : 1 + v.filter(function (y) { return y > x; }).length; });
+    m.pos = {};
+    C.forEach(function (c) { var x = m.val(c); m.pos[c.id] = x == null ? null : 1 + v.filter(function (y) { return y > x; }).length; });
     M[m.id] = m;
   });
 
@@ -62,8 +62,8 @@
     if (!v.length) return;
     m.min = Math.min.apply(null, v); m.max = Math.max.apply(null, v);
     m.avg = v.reduce(function (a, b) { return a + b; }, 0) / v.length;
-    m.rank = {};
-    C.forEach(function (c) { var x = m.val(c); m.rank[c.id] = x == null ? null : 1 + v.filter(function (y) { return y > x; }).length; });
+    m.pos = {};
+    C.forEach(function (c) { var x = m.val(c); m.pos[c.id] = x == null ? null : 1 + v.filter(function (y) { return y > x; }).length; });
     M[m.id] = m;
   });
 
@@ -166,7 +166,6 @@
     '      <button type="button" class="ix-ghost ix-dl">Download data (CSV)</button>' +
     '    </div>' +
     '    <div class="ix-scroll"><table class="ix-table"><thead><tr>' +
-    '      <th class="ix-th-rank" scope="col"><span>#</span></th>' +
     COLS.map(function (c) {
       var mm = c.metric ? M[c.metric] : null;
       return '<th scope="col" class="' + (c.cls || '') + (mm ? ' ix-th-m' : '') + '" data-k="' + c.k + '" aria-sort="none"><button type="button">' + (mm ? '<i class="ix-dot" style="--a:' + (mm.id === 'score' ? '#6478ff' : mm.accent) + '"></i>' : '') + '<span>' + esc(c.label) + '</span><span class="ix-sort" aria-hidden="true"></span></button></th>';
@@ -359,7 +358,7 @@
   }
   function renderOverview() {
     var m = metric();
-    var ranked = C.filter(function (c) { return m.val(c) != null; }).sort(function (a, b) { return m.val(b) - m.val(a) || a.name.localeCompare(b.name); });
+    var scored = C.filter(function (c) { return m.val(c) != null; }).sort(function (a, b) { return m.val(b) - m.val(a) || a.name.localeCompare(b.name); });
     var tiers = '';
     if (m.id === 'score') {
       var counts = META.tiers.map(function (t) { return { t: t.name, n: C.filter(function (c) { return c.tier === t.name; }).length }; });
@@ -369,10 +368,10 @@
     }
     panel.innerHTML = '<div class="ix-pb">' +
       '<p class="ix-kicker">Global snapshot</p><h3 class="ix-ptitle">' + esc(m.name) + '</h3>' +
-      '<div class="ix-avg"><span style="color:' + '#0F1428' + '">' + Math.round(m.avg) + '</span><small>average across ' + ranked.length + ' countries<br>range ' + m.min + '–' + m.max + '</small></div>' +
+      '<div class="ix-avg"><span style="color:' + '#0F1428' + '">' + Math.round(m.avg) + '</span><small>average across ' + scored.length + ' countries<br>range ' + m.min + '–' + m.max + '</small></div>' +
       tiers +
-      '<p class="ix-sub">Highest</p>' + listItems(ranked.slice(0, 3), m) +
-      '<p class="ix-sub">Lowest</p>' + listItems(ranked.slice(-3).reverse(), m) +
+      '<p class="ix-sub">Highest</p>' + listItems(scored.slice(0, 3), m) +
+      '<p class="ix-sub">Lowest</p>' + listItems(scored.slice(-3).reverse(), m) +
       '<p class="ix-hint">Select a country on the map or in the table to see its full profile.</p></div>';
   }
   function ring(score, tier) {
@@ -458,7 +457,6 @@
     var from = state.all ? 1 : state.page * PAGE + 1;
     tbody.innerHTML = list.length ? list.map(function (c) {
       return '<tr class="ix-row' + (state.selected === c.id ? ' is-selected' : '') + '" data-id="' + c.id + '" tabindex="0" aria-label="' + esc(c.name) + ', total score ' + c.score + '">' +
-        '<td class="ix-rk">' + (m.rank[c.id] == null ? '–' : m.rank[c.id]) + '</td>' +
         '<td class="ix-nm">' + flag(c) + '<span>' + esc(c.name) + '</span>' + (cov(c) < 14 ? '<span class="ix-cov" title="' + cov(c) + ' of 14 drivers have data. Missing drivers are left out of the average, not scored as zero.">' + cov(c) + '/14 drivers</span>' : '') + '</td>' +
         '<td class="hide-sm ix-mut">' + esc(c.region) + '</td>' +
         '<td class="hide-md ix-mut">' + esc(c.income) + '</td>' +

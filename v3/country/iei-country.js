@@ -32,7 +32,7 @@
     var v = list.map(fn).filter(function (x) { return x != null; });
     return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null;
   }
-  function rankIn(fn, c) {
+  function posIn(fn, c) {
     var v = fn(c); if (v == null) return null;
     var vals = C.map(fn).filter(function (x) { return x != null; });
     return { r: 1 + vals.filter(function (x) { return x > v; }).length, n: vals.length };
@@ -112,13 +112,12 @@
   }
   function ticks(bn, fn, cmp, own) {
     var out = '';
-    if (cmp != null && !bn.none) out += tk('', bn.label, cmp, own);
-    return out;
+    return out; /* comparator is drawn as its own bar, not a marker */
   }
   function tickKey() {
     if (state.bench === 'none') return '';
     var c = byId[state.sel], bn = benchFor(c);
-    return '<p class="ic-tkey"><span>Bars: ' + esc(c.name) + '</span><span><i></i>Marker: ' + esc(bn.label) + '</span></p>';
+    return '<p class="ic-tkey ic-cmpkey"><span><i class="me"></i>' + esc(c.name) + ' · coloured bars</span><span><i class="cm"></i>' + esc(bn.label) + ' · white bars</span></p>';
   }
 
 
@@ -213,7 +212,7 @@
         return v == null ? '<td class="ic-hv na"><span class="ic-na">No data</span></td>' : '<td class="ic-hv' + (j === 0 ? ' me' : '') + '" style="background:' + hc.bg + ';color:' + hc.fg + '">' + v + '</td>';
       }).join('');
       var mine = x.get(c), dd = (mine == null || x.ref == null) ? null : Math.round(mine - x.ref);
-      var cls = dd == null ? '' : dd >= 5 ? 'up' : dd <= -5 ? 'down' : 'eq', lab = dd == null ? '–' : dd >= 5 ? 'Ahead' : dd <= -5 ? 'Behind' : 'In line';
+      var cls = dd == null ? '' : dd >= 5 ? 'up' : dd <= -5 ? 'down' : 'eq', lab = dd == null ? '–' : dd >= 5 ? 'Above' : dd <= -5 ? 'Below' : 'In line';
       return '<tr><th scope="row" class="ic-hd"><span class="ic-did" style="--a:' + x.acc + '">' + x.id + '</span><span class="ic-hl2">' + esc(x.lab) + (x.key ? ' <i class="ic-keym" title="Key impact model">◆</i>' : '') + '</span></th>' + cells +
         (P.length ? '<td class="ic-hv avg">' + (pavg == null ? '–' : Math.round(pavg)) + '</td>' : '') +
         '<td class="ic-hv st ' + cls + '">' + lab + (dd == null ? '' : ' <em>' + sgn(dd) + '</em>') + '</td></tr>';
@@ -226,14 +225,14 @@
       [['region', 'Same region'], ['income', 'Same income group'], ['closest', 'Closest profile'], ['clear', 'Clear']].map(function (o) { return '<button type="button" class="ic-qp" data-qp="' + o[0] + '">' + o[1] + '</button>'; }).join('') +
       (P.length < 5 ? '<label class="ic-field ic-add"><span class="ic-sr">Add a country</span><select class="ic-padd"><option value="">Add a country…</option>' + opts.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
       '<div class="ic-tscroll"><table class="ic-heat"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
-      '<p class="ic-note">A stronger shade means a higher ' + (lvl === 'lever' ? 'lever' : lvl === 'driver' ? 'driver' : 'indicator') + ' score' + (lvl === 'indicator' ? ' (35 scored indicators; leading-edge models are not scored)' : '') + '. “Ahead” / “Behind” mark a gap of 5 points or more against ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
+      '<p class="ic-note">A stronger shade means a higher ' + (lvl === 'lever' ? 'lever' : lvl === 'driver' ? 'driver' : 'indicator') + ' score' + (lvl === 'indicator' ? ' (35 scored indicators; leading-edge models are not scored)' : '') + '. “Above” / “Below” mark a difference of 5 points or more from ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
   }
   function csvDownload() {
     var c = byId[state.sel], bn = benchFor(c), P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
     var q = function (v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     var head = ['Country', 'Driver', 'Description', 'Lever', 'Score', 'Comparison group', 'Comparison average', 'Difference'].concat(P.map(function (p) { return p.name; }));
     var rows = DID.map(function (id, i) {
-      var v = c.d[i], ref = avg(bn.list, function (x) { return x.d[i]; }), rk = rankIn(function (x) { return x.d[i]; }, c);
+      var v = c.d[i], ref = avg(bn.list, function (x) { return x.d[i]; }), rk = posIn(function (x) { return x.d[i]; }, c);
       return [c.name, id, DLAB[id], LEV[driverLever[id]].name, v == null ? '' : v, bn.label, ref == null ? '' : ref.toFixed(1), (v == null || ref == null) ? '' : Math.round(v - ref)].concat(P.map(function (p) { return p.d[i]; }));
     });
     var lines = [head].concat(rows).map(function (r) { return r.map(q).join(','); });
@@ -276,7 +275,7 @@
       var g = placeIn(C, o.get, c), rg = placeIn(reg, o.get, c), ig = placeIn(inc, o.get, c);
       if (!g) return null;
       var ref = avg(inc, o.get), gap = ref == null ? 0 : v - ref;
-      // effective rank (ties counted pessimistically) keeps "joint #1 with 20 countries" from looking special
+      // effective position (ties counted pessimistically) keeps "joint #1 with 20 countries" from looking special
       var tier = g.eff <= 3 ? 1 : (rg && rg.eff === 1) || (ig && ig.eff === 1) ? 2 : g.eff <= 10 ? 3 : (rg && rg.eff <= 3) || (ig && ig.eff <= 3) ? 4 : 5;
       var sc = tier * 10 + lvlW[o.lvl] + g.eff / g.n * 5 - Math.max(gap, 0) / 80;
       return { o: o, v: v, g: g, rg: rg, ig: ig, gap: gap, ref: ref, tier: tier, sc: sc };
@@ -398,6 +397,7 @@
       '<p class="ic-scatk"><span><i class="me"></i>' + esc(c.name) + '</span><span><i class="th"></i>Threshold (50)</span><span><i class="mn"></i>All-country average</span>' + (Q ? '<span><i class="cm"></i>' + esc(byId[cmpId].name) + '</span>' : '') + '</p>' +
       '<p class="ic-note">Pathways show which actors are driving progress, following the 2026 report: a country exhibits a pathway when the average of the drivers linked to those actors is 50 or more (the Late Developing threshold); the strongest is the one furthest above the all-country average. Pathways are not formal classifications and can change as institutions and markets develop. Calculated here from the current driver scores.</p></div>';
   }
+  function tierLabel(n) { var t = META.tiers.filter(function (x) { return x.name === n; })[0]; return t ? 'Stage ' + t.stage + ' · ' + n + ' (' + t.min + '–' + t.max + ')' : n; }
   function tierDesc(n) { var t = META.tiers.filter(function (x) { return x.name === n; })[0]; return t && t.desc ? t.desc : ''; }
   function ctxCard(c, bn) {
     var x = c.x || {}, all = C.filter(function (y) { return y.x; });
@@ -420,7 +420,7 @@
       return '<figure class="ic-scatf"><figcaption><b>' + esc(label) + '</b> · ' + (x[k] == null ? 'no data for ' + esc(c.name) : esc(c.name) + ' ' + (Math.round(x[k] * 10) / 10).toFixed(1)) + ' · r = ' + o.r.toFixed(2) + '</figcaption>' + sv + '</figure>';
     }
     var gd = x.gdppc == null ? '' : '<p class="ic-note">GDP per capita: <b>$' + Math.round(x.gdppc).toLocaleString('en-GB') + '</b> (current USD, World Bank 2025)' + (bn.none ? '' : ', comparison $' + Math.round(avg(bn.list, function (y) { return y.x ? y.x.gdppc : null; })).toLocaleString('en-GB')) + '.</p>';
-    return '<div class="ic-card ic-ctxc"><p class="ic-ctxx">The Index measures the <b>conditions and behaviours</b> that make an impact economy possible, not social or environmental outcomes. To check that it captures what matters, we compare it with two established outcome indices: the <b>Social Progress Index</b> (how well a country meets basic needs and supports wellbeing and opportunity) and the <b>Environmental Performance Index</b> (environmental health and ecosystem vitality). Across the 54 countries, higher Index scores go with better outcomes on both. These indices are shown for context and are not part of the Index score.</p>' +
+    return '<div class="ic-card ic-ctxc"><p class="ic-ctxx">The Index measures the <b>conditions and behaviours</b> that make an impact economy possible, not social or environmental outcomes. To check that it captures what matters, we compare it with two established outcome indices: the <b>Social Progress Index</b> (how well a country meets basic needs and supports wellbeing and opportunity) and the <b>Environmental Performance Index</b> (environmental health and ecosystem vitality). Across the 54 countries, higher Index scores go with better outcomes on both, also among countries of similar income. This is an association, not evidence that one causes the other. These indices are shown for context and are not part of the Index score.</p>' +
       '<div class="ic-scats">' + plot('spi', 'Social Progress Index') + plot('epi', 'Environmental Performance Index') + '</div>' +
       '<p class="ic-scatk"><span><i class="me"></i>' + esc(c.name) + '</span>' + (state.bench === 'country' && byId[state.benchId] ? '<span><i class="cm"></i>' + esc(byId[state.benchId].name) + '</span>' : '') + '<span><i class="o"></i>Other countries</span><span><i class="fit"></i>Trend</span></p>' + gd + '</div>';
   }
@@ -437,22 +437,22 @@
     return '<div class="ic-card ic-dvg"><div class="ic-dvg-ax" aria-hidden="true"><span></span><span></span><span class="ic-dvg-sc"><em>−' + mx + '</em><em>0</em><em>+' + mx + '</em></span><span></span></div>' + rows +
       '<p class="ic-note">Driver score minus the average for ' + esc(bn.short) + ' (' + esc(bn.label) + '). Bars to the right mark relative strengths, bars to the left relative gaps. The comparison does not imply a causal explanation.</p></div>';
   }
-  function actLink(c) { return '<button type="button" class="ic-actgo" data-act="' + c.id + '">Turn these gaps into action: Learn &amp; Act →</button>'; }
+  function actLink(c) { return '<button type="button" class="ic-actgo" data-act="' + c.id + '">Turn these opportunities into action: Learn &amp; Act →</button>'; }
   function render() { renderCore(); syncHash(); }
   function renderCore() {
     var c = byId[state.sel], bn = benchFor(c);
     var refTotal = avg(bn.list, function (x) { return x.score; });
-    var tr = rankIn(function (x) { return x.score; }, c);
+    var tr = posIn(function (x) { return x.score; }, c);
 
     var levers = LEV.map(function (L, k) {
-      var v = c.l[k], ref = avg(bn.list, function (x) { return x.l[k]; }), d = Math.round(v - ref), rk = rankIn(function (x) { return x.l[k]; }, c);
+      var v = c.l[k], ref = avg(bn.list, function (x) { return x.l[k]; }), d = Math.round(v - ref), rk = posIn(function (x) { return x.l[k]; }, c);
       return { k: k, L: L, v: v, ref: ref, d: d, rk: rk };
     });
     var best = levers.slice().sort(function (a, b) { return b.d - a.d; })[0], worst = levers.slice().sort(function (a, b) { return a.d - b.d; })[0];
 
     var drivers = DID.map(function (id, i) {
       var v = c.d[i], ref = avg(bn.list, function (x) { return x.d[i]; });
-      return { id: id, i: i, k: driverLever[id], v: v, ref: ref, d: (v == null || ref == null) ? null : Math.round(v - ref), rk: rankIn(function (x) { return x.d[i]; }, c) };
+      return { id: id, i: i, k: driverLever[id], v: v, ref: ref, d: (v == null || ref == null) ? null : Math.round(v - ref), rk: posIn(function (x) { return x.d[i]; }, c) };
     });
     var scored = drivers.filter(function (x) { return x.d != null; });
     var strengths = scored.slice().sort(function (a, b) { return b.d - a.d; }).slice(0, 3);
@@ -468,9 +468,9 @@
     if (bn.none) summary += 'Its strongest lever is <b>' + esc(lv[0].L.short) + '</b> (' + lv[0].v + ') and its weakest is <b>' + esc(lv[3].L.short) + '</b> (' + lv[3].v + ').';
     else summary += 'Compared with ' + esc(bn.short) + ' (' + Math.round(refTotal) + '), ' +
       (best.d === worst.d ? 'its levers are broadly in line.' :
-        best.d <= 0 ? 'it is behind on every lever: least on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + '), most on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
-        worst.d >= 0 ? 'it is level or ahead on every lever, most on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ').' :
-        'it is ahead on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and furthest behind on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').');
+        best.d <= 0 ? 'it has room to grow on every lever, above all on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + '); it comes closest on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ').' :
+        worst.d >= 0 ? 'it performs at or above the comparison on every lever, most strongly on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ').' :
+        'it performs above the comparison on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + '), while <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ') offers the most room to grow.');
     var peers = C.filter(function (x) { return x.id !== c.id; }).map(function (x) {
       var dist = Math.sqrt(x.l.reduce(function (s, v, k) { return s + Math.pow(v - c.l[k], 2); }, 0));
       return { c: x, dist: dist };
@@ -482,12 +482,13 @@
     var cmpBar = '<div class="ic-cmpbar' + (bn.none ? '' : ' on') + '"><p class="ic-cmpl">Compare <b>' + esc(c.name) + '</b> with</p><div class="ic-cmpbtns" role="group" aria-label="Comparison">' +
       CMPO.map(function (o) { return '<button type="button" data-cmp="' + o[0] + '" aria-pressed="' + (state.bench === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>' +
       (state.bench === 'country' ? '<label class="ic-field ic-cmpc"><span class="ic-sr">Country to compare</span><select class="ic-bcsel">' + C.filter(function (x) { return x.id !== c.id; }).sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (x) { return '<option value="' + x.id + '"' + (state.benchId === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') +
+      (bn.none ? '' : '<button type="button" class="ic-cclear" data-cmp="none" aria-label="Clear comparison"><span aria-hidden="true">×</span> Clear comparison</button>') +
       (bn.none || state.bench === 'country' ? '' : '<p class="ic-cmpn">' + esc(bn.label) + (bn.n > 1 ? ' · ' + bn.n + ' countries' : '') + '</p>') + '</div>';
     var benchSel = ''; summary += pwTxt;
     var levCards = levers.map(function (x) {
       return '<div class="ic-lev" style="--a:' + x.L.accent + '"><p class="ic-lname"><i></i>' + esc(x.L.short) + '</p>' +
         '<p class="ic-lval">' + x.v + '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em></p>' +
-        '<div class="ic-bar"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.l[x.k]; }, x.ref, x.v) + '</div>' +
+        '<div class="ic-bar"><span style="width:' + x.v + '%"></span></div>' + (bn.none || x.ref == null ? '' : '<div class="ic-cbar" title="' + esc(bn.label) + ': ' + Math.round(x.ref) + '"><span style="width:' + x.ref.toFixed(1) + '%"></span></div>') +
         '<p class="ic-lmeta">' + (bn.none ? '&nbsp;' : esc(state.bench === 'country' ? bn.label : 'Comparison') + ': <b>' + Math.round(x.ref) + '</b>') + '</p>' + cbtn('L:' + (x.k + 1), 'for this lever') + '</div>';
     }).join('');
 
@@ -507,8 +508,8 @@
         '<td class="ic-c2"><span class="ic-dtxt">' + esc(DLAB[x.id]) + '</span><span class="ic-chev" aria-hidden="true"></span></td>' +
         '<td class="ic-c3">' + (x.v == null ? '<span class="ic-na">No data</span>' :
           '<div class="ic-bar thin" style="--a:' + LEV[x.k].accent + '"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.d[x.i]; }, x.ref, x.v) + '</div>') + '</td>' +
-        '<td class="ic-c4">' + (x.v == null ? '–' : '<b>' + x.v + '</b>' + (x.d == null ? '' : '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em>')) +
-        '<span class="ic-rk">' + (x.rk ? '#' + x.rk.r + '/' + x.rk.n : '') + '</span></td></tr>' +
+        '<td class="ic-c4">' + (x.v == null ? '–' : '<b>' + x.v + '</b>') +
+        '</td></tr>' +
         '<tr class="ic-dx" data-for="' + x.id + '"' + (isOpen ? '' : ' hidden') + '><td colspan="4">' + (isOpen ? driverPanel(x.id, c, bn) : '') + '</td></tr>';
     }).join('');
 
@@ -523,7 +524,7 @@
       '</div>' + cmpBar +
       '<p class="ic-sec"><span>1</span>Total score</p>' +
       '<div class="ic-card ic-hero">' +
-      '  <div class="ic-score"><div class="ic-big">' + c.score + '</div><span class="ic-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(c.tier) + '</span>' +
+      '  <div class="ic-score"><div class="ic-big">' + c.score + '</div><span class="ic-badge" style="background:' + TIER_BG[c.tier] + ';color:' + TIER_FG[c.tier] + '">' + esc(tierLabel(c.tier)) + '</span>' +
       (tierDesc(c.tier) ? '  <p class="ic-tdesc">' + esc(tierDesc(c.tier)) + '</p>' : '') + '  <p class="ic-wnote">Out of 100. Average of the 14 equally weighted drivers.</p>' + (bn.none ? '' : '<p class="ic-vs"><b>' + sgn(Math.round(c.score - refTotal)) + '</b> vs ' + esc(state.bench === 'country' ? bn.label : 'comparison') + ' (' + Math.round(refTotal) + ')</p>') +
       '  <p class="ic-cov">Data for ' + ev.n + ' of ' + ev.of + ' scored indicators</p></div>' +
       '  <div class="ic-radarwrap">' + radar(c, bn) + '<p class="ic-legend"><span><i class="a"></i>' + esc(c.name) + '</span>' + (bn.none ? '' : '<span><i class="b"></i>' + esc(bn.label) + '</span>') + '</p></div>' +
@@ -541,11 +542,10 @@
       '<p class="ic-sec"><span>5</span>Compare countries</p>' + peerCard(c, bn, drivers, peers) +
       '<p class="ic-more-k">More analysis</p>' +
       acc('path', 'Pathways: who is driving change', (function () { var p = pathways(c); return p.integrated ? 'Integrated: all four pathways' : p.lead ? 'Strongest: ' + p.lead.p.name + ' · ' + p.ex.length + ' of 4 exhibited' : 'No pathway exhibited yet'; })(), pathCard(c)) +
-      acc('sg', 'Relative strengths and gaps', 'Where ' + esc(c.name) + ' is furthest ahead of and behind ' + (bn.none ? 'the comparison' : esc(bn.short)), bn.none ? noCmp : '<div class="ic-two">' +
+      acc('sg', 'Relative strengths and opportunities', 'Where ' + esc(c.name) + ' stands out, and where it has most room to grow, compared with ' + (bn.none ? 'the comparison' : esc(bn.short)), bn.none ? noCmp : '<div class="ic-two">' +
         '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
-        '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Largest gaps</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div></div>') +
-      acc('why', 'What explains the differences', 'The facts behind the biggest gaps and leads, ideas for action and examples from other countries', bn.none ? noCmp : indCard(c, bn)) +
-      acc('dvg', 'Over- and under-performance by driver', 'All 14 drivers, country score minus the comparison', bn.none ? noCmp : divCard(c, bn, drivers)) +
+        '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Most room to grow</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div></div>') +
+      acc('why', 'What explains the differences', 'The facts behind the main strengths and opportunities, ideas for action and examples from other countries', bn.none ? noCmp : indCard(c, bn)) +
       acc('act', 'Learn &amp; act', 'Five areas to explore, a peer to learn from and a way to turn a finding into an ask', '<div class="ic-card ic-actwrap"><div id="ieiAct" class="ia-dark"></div></div>') +
       acc('ctx', 'Outcomes context: social progress and environment', 'How ' + esc(c.name) + ' does on the Social Progress and Environmental Performance indices, and why we show them', ctxCard(c, bn)) +
       acc('similar', 'Countries with a similar lever profile', peers.slice(0, 3).map(function (p) { return esc(p.c.name); }).join(' · '), '<div class="ic-card ic-peers"><div class="ic-chips">' +
@@ -581,7 +581,7 @@
     var s = Number(v.toPrecision(4)); return String(s);
   }
   function indVal(iso, id) { return (IV[iso] && IV[iso][id]) || null; }
-  function indRank(m, c) {
+  function indPos(m, c) {
     var mine = indVal(c.id, m.id); if (!mine || mine.s == null) return null;
     var all = C.map(function (x) { var e = indVal(x.id, m.id); return e ? e.s : null; }).filter(function (x) { return x != null; });
     return { r: 1 + all.filter(function (x) { return x > mine.s; }).length, n: all.length };
@@ -665,7 +665,7 @@
   function typeTag(m) { var t = TYPE[m.type]; return (t ? '<em class="ic-ty ' + t[1] + '">' + t[0] + '</em>' : '') + (m.key ? '<em class="ic-ty k">Key impact model</em>' : ''); }
   function indItem(m, c, bn) {
     var k = parseInt(m.id.charAt(0), 10) - 1, x = explain(m, c, bn), e = x.e, s = e.s;
-    var rk = m.star ? null : indRank(m, c), ref = m.star ? null : x.ref;
+    var rk = m.star ? null : indPos(m, c), ref = m.star ? null : x.ref;
     var d = (x.d == null) ? null : Math.round(x.d);
     var cell;
     if (m.star) cell = '<span class="ic-ni-tag">Not scored</span>';
@@ -690,16 +690,16 @@
   function ebCard(c, bn) {
     if (c.e == null && c.b == null) return '';
     function row(key, label, cls, v) {
-      var ref = avg(bn.list, function (x) { return x[key]; }), rk = rankIn(function (x) { return x[key]; }, c), d = (v == null || ref == null) ? null : Math.round(v - ref);
-      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span>' + (ref == null || bn.none ? '' : tk('', bn.label, ref, v == null ? null : Math.round(v))) + '</div>' +
-        '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + '</p></div>';
+      var ref = avg(bn.list, function (x) { return x[key]; }), rk = posIn(function (x) { return x[key]; }, c), d = (v == null || ref == null) ? null : Math.round(v - ref);
+      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-ebbars"><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span></div>' + (ref == null || bn.none ? '' : '<div class="ic-cbar" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"><span style="width:' + ref.toFixed(1) + '%"></span></div>') + '</div>' +
+        '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null || bn.none ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + (ref == null || bn.none ? '' : '<span class="ic-cval">' + esc(state.bench === 'country' ? bn.label : 'Comparison') + ' ' + Math.round(ref) + '</span>') + '</p></div>';
     }
     var diff = (c.e != null && c.b != null) ? c.e - c.b : null;
     var msg = diff == null ? '' : diff >= 5 ? 'Policy and regulatory frameworks are ahead of practice: enabling conditions score ' + Math.round(diff) + ' points above behaviour.' :
       diff <= -5 ? 'Practice is ahead of frameworks: behaviour scores ' + Math.round(-diff) + ' points above enabling conditions.' : 'Frameworks and practice are broadly in step (within 5 points).';
     return '<div class="ic-card ic-eb"><h4 class="ic-h4">Enabling conditions and behaviour</h4>' +
       '<p class="ic-note ic-ebn"><b>Enabling conditions</b> are the policies, rules and institutions that make an impact economy possible. <b>Behaviour</b> is what companies, investors, consumers and governments actually do. Each score averages the indicators of that type within each driver, then across drivers. It is a diagnostic view of the same indicators, not a separate score.</p>' +
-      (bn.none ? '' : '<p class="ic-eblg"><span><i class="me"></i>' + esc(c.name) + ' (bar)</span><span><i class="cm"></i>' + esc(bn.label) + ' (marker)</span></p>') + row('e', 'Enabling conditions', 'e', c.e) + row('b', 'Behaviour', 'b', c.b) +
+      (bn.none ? '' : '<p class="ic-eblg ic-cmpkey"><span><i class="me"></i>' + esc(c.name) + ' · coloured bars</span><span><i class="cm"></i>' + esc(bn.label) + ' · white bars</span></p>') + row('e', 'Enabling conditions', 'e', c.e) + row('b', 'Behaviour', 'b', c.b) +
       (msg ? '<p class="ic-ebm">' + esc(msg) + '</p>' : '') + '</div>';
   }
   function gapsHtml(c, bn) {
@@ -715,8 +715,8 @@
         (withAct ? gapCases(m, c) : '') +
         '<button type="button" class="ic-mlink" data-ind="' + esc(m.id) + '">More detail</button></li>';
     }
-    return '<div class="ic-gaps"><div class="ic-gcol"><h5><i class="down"></i>Where it falls behind ' + esc(bn.short) + '</h5>' + (behind.length ? '<ul>' + behind.map(function (r) { return li(r, true); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points below the comparison.</p>') + '</div>' +
-      '<div class="ic-gcol"><h5><i class="up"></i>Where it leads</h5>' + (ahead.length ? '<ul>' + ahead.map(function (r) { return li(r, false); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points above the comparison.</p>') + '</div></div>';
+    return '<div class="ic-gaps"><div class="ic-gcol"><h5><i class="down"></i>Where there is most room to grow, compared with ' + esc(bn.short) + '</h5>' + (behind.length ? '<ul>' + behind.map(function (r) { return li(r, true); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points below the comparison.</p>') + '</div>' +
+      '<div class="ic-gcol"><h5><i class="up"></i>Where it stands out</h5>' + (ahead.length ? '<ul>' + ahead.map(function (r) { return li(r, false); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points above the comparison.</p>') + '</div></div>';
   }
   function gapCases(m, c) {
     if (!window.IEI_CASES_MATCH) return '';
@@ -729,7 +729,7 @@
   }
   function printProfile(c, bn, url) {
     var V = window.IEI_VERSION || {}, abs = function (p) { return new URL(p, location.href).href; };
-    var tr = rankIn(function (x) { return x.score; }, c), refT = avg(bn.list, function (x) { return x.score; });
+    var tr = posIn(function (x) { return x.score; }, c), refT = avg(bn.list, function (x) { return x.score; });
     function bar(v, ref, col) { return '<div class="bar"><span style="width:' + (v || 0) + '%;background:' + col + '"></span>' + (ref == null ? '' : '<u style="left:' + ref.toFixed(1) + '%"></u>') + '</div>'; }
     function dd(d) { return d == null ? '' : '<em class="' + (d >= 5 ? 'up' : d <= -5 ? 'dn' : '') + '">' + sgn(d) + '</em>'; }
     var levs = LEV.map(function (L, k) { var ref = avg(bn.list, function (x) { return x.l[k]; }); return '<div class="lev"><p><i style="background:' + L.accent + '"></i>' + esc(L.short) + '</p><b>' + c.l[k] + '</b>' + dd(Math.round(c.l[k] - ref)) + bar(c.l[k], ref, L.accent) + '</div>'; }).join('');
@@ -763,7 +763,7 @@
       '<p class="sub it">The total is the average of 14 equally weighted drivers. The marker on each bar shows the comparison.</p></div></div>' +
       '<h2>The four levers</h2><div class="levs">' + levs + '</div>' + (eb ? '<h2>Enabling conditions and behaviour</h2>' + eb : '') +
       '<h2>All 14 drivers</h2><table><thead><tr><th></th><th>Driver</th><th></th><th class="n">Score</th><th class="n">Comparison</th><th class="n">Gap</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-      (gaps ? '<h2 class="pg">Where ' + esc(c.name) + ' falls behind, and what would help</h2><ul class="g">' + gaps + '</ul>' : '') +
+      (gaps ? '<h2 class="pg">Where ' + esc(c.name) + ' has most room to grow, and what would help</h2><ul class="g">' + gaps + '</ul>' : '') +
       '<div class="foot">Comparison: ' + esc(bn.label) + '. ' + (V.status ? esc(V.status) + ' ' : '') + 'Online profile: ' + esc(url) + '<br>Source: GSG Impact, Impact Economy Index' + (V.source ? '. ' + esc(V.source) : '') + '.</div>' +
       '<script>window.addEventListener("load",function(){(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})});<\/script></body></html>';
     var w = window.open('', '_blank');
@@ -809,7 +809,7 @@
     }).join(' ');
   }
   function methodHtml(m, c) {
-    var k = parseInt(m.id.charAt(0), 10) - 1, e = indVal(c.id, m.id) || {}, rk = m.star ? null : indRank(m, c);
+    var k = parseInt(m.id.charAt(0), 10) - 1, e = indVal(c.id, m.id) || {}, rk = m.star ? null : indPos(m, c);
     var parts = [];
     /* country box */
     var box;
