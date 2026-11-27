@@ -56,7 +56,7 @@
   /* Overview: section index on the right edge */
   var ov = document.querySelector('.s-view[data-view="overview"]');
   if (ov) {
-    var secs = [['.s-hero', 'Introduction'], ['.s-def', 'Definition'], ['.s-snap', 'Global snapshot'], ['.s-use', 'Levers'], ['.s-ins', 'Key messages'], ['.s-nextb', 'Explore further']]
+    var secs = [['.s-hero', 'Introduction'], ['.s-def', 'Definition'], ['.s-use', 'Levers'], ['.s-snap', 'Global snapshot'], ['.s-ins', 'Key messages'], ['.s-nextb', 'Explore further']]
       .map(function (x) { var el = ov.querySelector(x[0]); return el ? { el: el, label: x[1] } : null; }).filter(Boolean);
     var rail = document.createElement('nav'); rail.className = 's-rail'; rail.setAttribute('aria-label', 'Sections of this page'); rail.hidden = true;
     rail.innerHTML = '<ul>' + secs.map(function (x, i) { return '<li><button type="button" data-i="' + i + '" aria-label="' + x.label + '"><span>' + x.label + '</span><i></i></button></li>'; }).join('') + '</ul>';
@@ -76,5 +76,29 @@
       window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
     });
     window.addEventListener('scroll', railUpd, { passive: true }); window.addEventListener('resize', railUpd); window.addEventListener('hashchange', function () { setTimeout(railUpd, 80); }); railUpd();
+  }
+
+  /* Explore: methodology in a drawer, so the current selection is kept */
+  var dr = document.getElementById('sHowDrawer');
+  if (dr) {
+    var dLast = null, dBody = document.getElementById('sHowBody');
+    var dFill = function () {
+      if (dBody.childNodes.length) return;
+      var D = window.IEI_DATA, T = (D && D.meta.tiers) || [];
+      dBody.innerHTML = '<ul class="s-dlist">' +
+        '<li><b>Scale.</b> Every indicator is scored 1–100 against a fixed “plausible best” goalpost, the best conditions that could realistically be observed today.</li>' +
+        '<li><b>Total score.</b> The average of 14 equally weighted drivers. Lever scores are shown for interpretation and are not an input to the total.</li>' +
+        '<li><b>Enabling conditions and behaviour.</b> Each indicator is either a policy or framework (enabling) or observed activity (behaviour). Their averages are a diagnostic view of the same indicators, not a separate score.</li>' +
+        '<li><b>No data is not zero.</b> Missing values are left out of averages and comparisons.</li>' +
+        '<li><b>Leading-edge models.</b> Three newer models are recorded with a star and do not change the score.</li></ul>' +
+        (T.length ? '<p class="s-dsub">Maturity stages</p><ul class="s-dstages">' + T.map(function (t) { return '<li><i style="background:' + t.bg + '"></i><b>' + t.stage + ' · ' + t.name + '</b><span>' + t.min + '–' + t.max + '</span></li>'; }).join('') + '</ul>' : '');
+    };
+    var dOpen = function (e) { if (e) e.preventDefault(); dFill(); dLast = document.activeElement; dr.hidden = false; document.documentElement.classList.add('s-modal-open'); setTimeout(function () { dr.querySelector('.s-drawer-p').focus(); }, 20); };
+    var dClose = function () { dr.hidden = true; document.documentElement.classList.remove('s-modal-open'); if (dLast && dLast.focus) dLast.focus({ preventScroll: true }); };
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('[data-howdrawer]')) { dOpen(e); return; }
+      if (!dr.hidden && e.target.closest && e.target.closest('[data-dclose]')) { var a = e.target.closest('a'); dClose(); if (!a) e.preventDefault(); }
+    });
+    document.addEventListener('keydown', function (e) { if (!dr.hidden && e.key === 'Escape') dClose(); });
   }
 })();

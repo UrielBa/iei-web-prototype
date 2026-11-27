@@ -176,7 +176,8 @@ function insights(){
   // strategic message 4: no Thriving yet
   var s4=e1+'<p class="s-cap">No country has reached the Thriving stage (80 and above); the highest score is '+LIVE.max+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
   $$('[data-live="star"]').forEach(function(el){el.textContent=star});
-  var ev=[m4,s2,s3,s4];
+  var br=function(h,t){return '<p class="s-bridge"><a href="'+h+'">'+esc(t)+' <span aria-hidden="true">→</span></a></p>'};
+  var ev=[m4+br('#explore&tab=country','See social progress and environmental context in any country profile'),s2+br('#case-studies','See examples of these models in the case studies'),s3+br('#explore&tab=country','Compare enabling conditions and behaviour by country'),s4+br('#explore','See where every country stands')];
   $$('.s-find').forEach(function(f,i){var h=$('.s-evid',f);if(h)h.innerHTML='<div class="s-evid-in"><p class="s-evid-t">In the data</p>'+ev[i]+'</div>'});
   // country tooltip on the insight dots: flag, name, values; tap pins it with a link to the profile
   (function(){
