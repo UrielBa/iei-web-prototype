@@ -169,7 +169,7 @@ function insights(){
   var n4='<div class="s-paths">'+PW.map(function(p){return '<div class="s-path"><p class="s-pname">'+esc(p[0])+'</p><p class="s-pdesc">'+esc(p[1])+'</p><div class="s-cchips">'+p[2].map(chip).join('')+'</div></div>'}).join('')+'</div>'+
     '<p class="s-cap">Common starting points identified in the 2026 report.<small>Illustrative groupings, not formal classifications; countries can show features of more than one pathway.</small></p>';
   // live numbers in the message text
-  var hi=rows[0][1].map(function(c){return c.score}),LIVE={'r-spi':sp.r==null?'':sp.r.toFixed(2),'r-epi':ep.r==null?'':ep.r.toFixed(2),'max':Math.max.apply(null,C.map(function(c){return c.score})),'hi-min':Math.min.apply(null,hi),'hi-max':Math.max.apply(null,hi),'n':C.length,'c1':cnt[1],'c2':cnt[2],'c3':cnt[3],'c4':cnt[4]};
+  var hi=rows[0][1].map(function(c){return c.score}),LIVE={'r-spi':sp.r==null?'':sp.r.toFixed(2),'r-epi':ep.r==null?'':ep.r.toFixed(2),'max':Math.max.apply(null,C.map(function(c){return c.score})),'hi-min':Math.min.apply(null,hi),'hi-max':Math.max.apply(null,hi),'n':C.length,'l3':Math.round(avg(C.map(function(c){return c.l[2]}))),'c1':cnt[1],'c2':cnt[2],'c3':cnt[3],'c4':cnt[4]};
   $$('[data-live]').forEach(function(el){var v=LIVE[el.getAttribute('data-live')];if(v!==''&&v!=null)el.textContent=v});
   // report message 2: foundations vs approaches directing capital/activity to outcomes (navy vs lilac)
   var GF=[['Foundations','#0F1428',['3.B.1','1.A.2','1.C.1','2.C.1']],['Directing capital and activity to outcomes','#6478FF',['2.B.3','3.E.3','3.B.4','3.E.4']]];
