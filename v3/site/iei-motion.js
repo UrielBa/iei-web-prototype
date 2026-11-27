@@ -91,7 +91,7 @@
         '<li><b>Enabling conditions and behaviour.</b> Each indicator is either a policy or framework (enabling) or observed activity (behaviour). Their averages are a diagnostic view of the same indicators, not a separate score.</li>' +
         '<li><b>No data is not zero.</b> Missing values are left out of averages and comparisons.</li>' +
         '<li><b>Leading-edge models.</b> Three newer models are recorded with a star and do not change the score.</li></ul>' +
-        (T.length ? '<p class="s-dsub">Maturity stages</p><ul class="s-dstages">' + T.map(function (t) { return '<li><i style="background:' + t.bg + '"></i><b>' + t.stage + ' · ' + t.name + '</b><span>' + t.min + '–' + t.max + '</span></li>'; }).join('') + '</ul>' : '');
+        (T.length ? '<p class="s-dsub">Maturity stages</p><ul class="s-dstages">' + T.map(function (t, i) { return '<li><i style="background:' + ['#E9ECFF', '#CBD2FF', '#AEB8FF', '#8F9DFF', '#6478FF', '#3D4FD9'][i] + '"></i><b>' + t.stage + ' · ' + t.name + '</b><span>' + t.min + '–' + t.max + '</span></li>'; }).join('') + '</ul>' : '');
     };
     var dOpen = function (e) { if (e) e.preventDefault(); dFill(); dLast = document.activeElement; dr.hidden = false; document.documentElement.classList.add('s-modal-open'); setTimeout(function () { dr.querySelector('.s-drawer-p').focus(); }, 20); };
     var dClose = function () { dr.hidden = true; document.documentElement.classList.remove('s-modal-open'); if (dLast && dLast.focus) dLast.focus({ preventScroll: true }); };

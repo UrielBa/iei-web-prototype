@@ -50,11 +50,8 @@ if(C.length){
   }
 }
 
-/* ---- definition chips -> lever deck ---- */
-$$('.s-chip').forEach(function(c){c.addEventListener('click',function(){
-  var i=+c.getAttribute('data-i'),t=document.getElementById('lever-tab-'+i),d=document.getElementById('leverDeck');
-  if(window.IEI_openLevers)window.IEI_openLevers();t=document.getElementById('lever-tab-'+i);if(t&&t.getAttribute('aria-expanded')!=='true')t.click();var pz=document.getElementById('sPyrX');if(pz)pz.scrollIntoView({behavior:'smooth',block:'start'});
-})});
+/* ---- definition chips -> lever master-detail ---- */
+$$('.s-chip').forEach(function(c){c.addEventListener('click',function(){if(window.IEI_openLevers)window.IEI_openLevers(+c.getAttribute('data-i'))})});
 
 /* ---- how to read: tier list ---- */
 (function(){var ul=$('#sTierList');if(!ul||!C.length)return;var k=ST.map(function(){return 0});C.forEach(function(c){k[tier(c.score)]++});
@@ -274,55 +271,82 @@ window.IEI_HASH=(function(){
   function url(){return location.href.split('#')[0]+(location.hash||'')}
   return {get:get,set:set,url:url,route:route};
 })();
-/* ---- interactive framework pyramid ---- */
+/* ---- framework: levers master-detail + how-the-scores tabs (editorial lists, live data) ---- */
 (function(){
   function init(){
-    var root=document.querySelector('.s-pyr');if(!root||root.__init)return;root.__init=1;
     var D=window.IEI_DATA,M=D&&D.meta,C=D&&D.countries||[],I=window.IEI_IND||{inds:[],vals:{}};if(!M)return;
     var T=function(x){return window.IEI_T?window.IEI_T(x):x};
     var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
-    var LC=['#3DCC7D','#77DAD9','#F094B5','#FFBD87'],LOGIC=[['Better information','Long-term risks, costs and opportunities become visible.'],['Demand signals impact','Governments, businesses and consumers buy what creates value.'],['Capital follows','Funders make that demand investable and finance it.'],['Coordination accelerates','Institutions cut barriers, align incentives and set standards.']];
+    var LC=['#3DCC7D','#77DAD9','#F094B5','#FFBD87'];
     var DID=M.driverIds,mean=function(a){a=a.filter(function(v){return v!=null&&!isNaN(v)});return a.length?a.reduce(function(s,v){return s+v},0)/a.length:null};
     var dAvg={};DID.forEach(function(id,i){dAvg[id]=mean(C.map(function(c){return c.d[i]}))});
-    var lAvg=M.levers.map(function(L){return mean(C.map(function(c){return mean(L.drivers.map(function(d){return c.d[DID.indexOf(d)]}))}))});
-    var iAvg=function(id){return mean(Object.keys(I.vals).map(function(k){var e=I.vals[k][id];return e&&e.s}))};
-    var lev=function(id){return +String(id).charAt(0)-1};
-    var hint=T('Hover a code to see what it measures; select it to see it on the map.');
-    function cap(){return '<p class="s-pyr-cap" aria-live="polite">'+esc(hint)+'</p>'}
-    var X={};
-    X[1]='<blockquote class="s-pyr-q">'+esc(T('An impact economy is an economic system where all participants put long-term economic, social and environmental value at the heart of decision making.'))+'</blockquote>';
-    X[2]='';
-    M.levers.forEach(function(L,k){var tb=document.getElementById('lever-tab-'+k);if(tb&&!tb.querySelector('.lever-avg')&&lAvg[k]!=null){var a=document.createElement('span');a.className='lever-avg';a.innerHTML='<span>'+esc(T('Global average'))+'</span><strong>'+lAvg[k].toFixed(1)+'</strong>';var ar=tb.querySelector('.lever-arrow');tb.insertBefore(a,ar)}});
-    X[3]='<div class="s-pyr-drv">'+M.levers.map(function(L,k){return '<div class="g" style="--c:'+LC[k]+'"><span class="gl">'+esc(T(L.name))+'</span><div>'+L.drivers.map(function(d){var a=dAvg[d];return '<button type="button" class="s-pyr-chip" data-map="d'+d+'" data-cap="'+esc(d+' · '+T(M.driverLabels[d]))+(a==null?'':' · '+esc(T('Global average'))+' '+a.toFixed(1))+'"><span>'+d+'</span><i style="width:'+(a||0).toFixed(0)+'%"></i></button>'}).join('')+'</div></div>'}).join('')+'</div>'+cap();
-    var byD={};I.inds.forEach(function(m){(byD[m.driver]=byD[m.driver]||[]).push(m)});
-    var TY={E:'Enabling condition',B:'Behaviour',L:'Leading-edge impact model'};
-    X[4]='<div class="s-pyr-ind">'+DID.map(function(d){var k=lev(d);return '<div class="col" style="--c:'+LC[k]+'"><span class="cd">'+d+'</span><div class="dots">'+(byD[d]||[]).map(function(m){var a=m.star?null:iAvg(m.id),t=T(TY[m.type]||'')+(m.key?' · '+T('Key impact model'):'');
-      return '<button type="button" class="s-pyr-dot t'+(m.star?'L':m.type)+(m.key?' k':'')+'"'+(m.star?'':' data-map="i'+m.id+'"')+' data-cap="'+esc(m.id+' · '+T(m.name)+' · '+t)+(a==null?'':' · '+esc(T('Global average'))+' '+a.toFixed(1))+'" aria-label="'+esc(m.id+' '+T(m.name))+'">'+(m.star?'★':'')+'</button>'}).join('')+'</div></div>'}).join('')+'</div>'+
-      '<p class="s-pyr-leg"><span><i class="tE"></i>'+esc(T('Enabling condition'))+'</span><span><i class="tB"></i>'+esc(T('Behaviour'))+'</span><span><i class="tE k"></i>'+esc(T('Key impact model'))+'</span><span><i class="tL">★</i>'+esc(T('Leading-edge impact model'))+'</span></p>'+cap();
-    var rows=[].slice.call(root.querySelectorAll('.s-pyr-row')),cur=0,det=root.querySelector('.s-pyr-detail');
-    function open(n){
-      if(cur===n)return;cur=n;
-      rows.forEach(function(r){var on=+r.getAttribute('data-l')===n;r.classList.toggle('on',on);r.querySelector('.s-pyr-shape').setAttribute('aria-expanded',on?'true':'false')});
-      root.classList.add('has-on');det.setAttribute('data-l',n);
-      var deck=document.getElementById('leverDeck'),hold=document.getElementById('leverHold');
-      if(!hold){hold=document.createElement('div');hold.id='leverHold';hold.hidden=true;root.parentNode.parentNode.appendChild(hold)}
-      if(deck&&det.contains(deck))hold.appendChild(deck);if(deck)deck.hidden=(n!==2);
-      var dd=rows[n-1].querySelector('.s-pyr-txt>p');det.innerHTML='<div class="s-pyr-dx"><p class="s-pyr-dd">'+(dd?dd.innerHTML:'')+'</p>'+(n===2?'<div class="s-pyr-deckslot"></div>':X[n])+'</div>';
-      if(n===2&&deck)det.querySelector('.s-pyr-deckslot').appendChild(deck);
+    var scored=I.inds.filter(function(m){return !m.star}),byD={};scored.forEach(function(m){(byD[m.driver]=byD[m.driver]||[]).push(m)});
+    var pct=function(n){return (n/DID.length*100).toFixed(1)+'%'};
+    var hover=function(list,spec){if(!list||!spec)return;var hl=function(i){[].forEach.call(spec.querySelectorAll('[data-g]'),function(e){e.classList.toggle('on',e.getAttribute('data-g')===i)});spec.classList.toggle('is-hl',i!=null);[].forEach.call(list.querySelectorAll('[data-g]'),function(e){e.classList.toggle('on',e.getAttribute('data-g')===i)})};
+      list.addEventListener('mouseover',function(e){var r=e.target.closest('li[data-g]');if(r)hl(r.getAttribute('data-g'))});list.addEventListener('mouseleave',function(){hl(null)});
+      spec.addEventListener('mouseover',function(e){var r=e.target.closest('[data-g]');if(r)hl(r.getAttribute('data-g'))});spec.addEventListener('mouseleave',function(){hl(null)})};
+
+    /* levers: master-detail; desktop keeps one lever open, mobile works as an accordion */
+    var md=document.getElementById('leverMD');
+    if(md&&!md.__init){md.__init=1;
+      M.levers.forEach(function(L,k){
+        var c=md.querySelector('[data-lcount="'+k+'"]');if(c)c.textContent=L.drivers.length+' '+T('drivers');
+        var box=md.querySelector('.s-md-drv[data-lever="'+k+'"]');if(!box)return;
+        box.innerHTML='<ul class="s-stglist s-mdlist"><li class="s-stg-h" aria-hidden="true"><span>Driver</span><span></span><span>Indicators</span><span>Avg. of 54</span></li>'+L.drivers.map(function(d){var n=(byD[d]||[]).length,a=dAvg[d];
+          return '<li><span class="s-md-code">'+d+'</span><span class="s-md-dl">'+esc(T(M.driverLabels[d]))+'</span><span class="s-md-ni">'+n+' '+T(n===1?'indicator':'indicators')+'</span><span class="s-md-av">'+(a==null?'–':a.toFixed(1))+'</span></li>'}).join('')+'</ul>';
+      });
+      var tabs=[].slice.call(md.querySelectorAll('.s-md-tab')),pans=[].slice.call(md.querySelectorAll('.s-md-p')),wide=function(){return window.matchMedia('(min-width:992px)').matches};
+      var sel=function(i,toggle){var cur=tabs[i].getAttribute('aria-expanded')==='true';if(toggle&&cur&&!wide()){tabs[i].setAttribute('aria-expanded','false');pans[i].hidden=true;return}
+        tabs.forEach(function(t,k){t.setAttribute('aria-expanded',k===i?'true':'false')});pans.forEach(function(p,k){p.hidden=k!==i})};
+      tabs.forEach(function(t,k){t.addEventListener('click',function(){sel(k,true)});
+        t.addEventListener('keydown',function(e){if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();var j=(k+(e.key==='ArrowDown'?1:3))%4;tabs[j].focus();sel(j)}})});
+      window.addEventListener('resize',function(){if(wide()&&!tabs.some(function(t){return t.getAttribute('aria-expanded')==='true'}))sel(0)});
+      window.IEI_openLevers=function(i){sel(i||0);md.scrollIntoView({behavior:'smooth',block:'start'})};
     }
-    window.IEI_openLevers=function(){cur=0;open(2)};
-    rows.forEach(function(r){var n=+r.getAttribute('data-l');
-      r.querySelector('.s-pyr-shape').addEventListener('click',function(){open(n)});
-      r.querySelector('.s-pyr-txt>p').addEventListener('click',function(){open(n)});
-      r.querySelector('.s-pyr-shape').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open(n)}});
-    });
-    root.addEventListener('mouseover',function(e){var b=e.target.closest('[data-cap]');if(!b)return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=b.getAttribute('data-cap');c.classList.add('live')}});
-    root.addEventListener('focusin',function(e){var b=e.target.closest('[data-cap]');if(!b)return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=b.getAttribute('data-cap');c.classList.add('live')}});
-    root.addEventListener('mouseout',function(e){var b=e.target.closest('[data-cap]');if(!b||(e.relatedTarget&&b.contains(e.relatedTarget)))return;var c=root.querySelector('.s-pyr-detail .s-pyr-cap');if(c){c.textContent=hint;c.classList.remove('live')}});
-    root.addEventListener('click',function(e){
-      var mp=e.target.closest('[data-map]');if(mp){var sel=document.querySelector('.ix-drvsel');if(sel){sel.value=mp.getAttribute('data-map');sel.dispatchEvent(new Event('change',{bubbles:true}));if(window.IEI_GO)window.IEI_GO('explore',{tab:'map'});else{var ex=document.getElementById('explore');if(ex)ex.scrollIntoView({behavior:'smooth',block:'start'})}}}
-    });
-    open(2);
+
+    /* Score & weights: 14 equal blocks grouped by lever */
+    var ws=document.getElementById('sWSpec'),wl=document.getElementById('sWList');
+    if(ws&&!ws.__init){ws.__init=1;
+      ws.innerHTML='<div class="s-spec-n">'+M.levers.map(function(L,k){return '<span style="flex:'+L.drivers.length+'" data-g="'+k+'"><b>Lever 0'+(k+1)+'</b><em>'+pct(L.drivers.length)+'</em></span>'}).join('')+'</div>'+
+        '<div class="s-wbar">'+M.levers.map(function(L,k){return L.drivers.map(function(d){return '<i style="background:'+LC[k]+'" data-g="'+k+'" title="'+d+'"></i>'}).join('')}).join('')+'</div>'+
+        '<div class="s-wcodes">'+M.levers.map(function(L,k){return L.drivers.map(function(d){return '<span data-g="'+k+'">'+d+'</span>'}).join('')}).join('')+'</div>';
+      var SC=['Corporates, governments and investors report on impact','Corporate, public and consumer purchasing','Institutional and private investors, government, philanthropy and corporates','National platforms, specialist service providers and citizens'];
+      wl.innerHTML='<li class="s-stg-h" aria-hidden="true"><span>Lever</span><span></span><span>Actors and scope</span><span>Weight</span></li>'+M.levers.map(function(L,k){var n=L.drivers.length;
+        return '<li class="s-stg" data-g="'+k+'"><span class="s-stg-r"><i style="background:'+LC[k]+';border-color:'+LC[k]+'"></i>0'+(k+1)+'</span><b class="s-stg-n">'+esc(T(L.name))+'</b><span class="s-stg-d">'+esc(T(SC[k]))+'</span><span class="s-stg-c">'+n+' '+T('drivers')+' · '+pct(n)+'</span></li>'}).join('');
+      hover(wl,ws);
+      var le=document.getElementById('sLEList'),LE={'2.B.4':'Readiness to pay for verified social outcomes rather than for inputs','4.A.2':'A national platform that coordinates finance for a fair low-carbon transition','4.B.1':'A wholesale fund that capitalises local impact investment intermediaries'};
+      if(le)le.innerHTML=I.inds.filter(function(m){return m.star}).map(function(m){return '<li class="s-le"><b class="s-stg-n">'+esc(T(m.name.replace(/^Presence of an? /,'').replace(/^./,function(c){return c.toUpperCase()})))+'</b><span class="s-stg-d">'+esc(T(LE[m.id]||''))+'</span><span class="s-stg-c">Qualitative ★ · Not in 1–100</span></li>'}).join('');
+    }
+
+    /* Gaps & normalisation: the fixed 1–100 scale and the observed range */
+    var gs=document.getElementById('sGScale');
+    if(gs&&!gs.__init&&C.length){gs.__init=1;var sc=C.map(function(c){return c.score}),lo=Math.min.apply(null,sc),hi=Math.max.apply(null,sc),x=function(v){return (v-1)/99*100};
+      gs.innerHTML='<div class="s-gs-top"><span style="left:'+x(lo)+'%;width:'+(x(hi)-x(lo))+'%">Observed range in 2026 · '+lo+'–'+hi+'</span><span class="s-gs-head" style="left:'+x(hi)+'%;width:'+(100-x(hi))+'%">Headroom</span></div>'+
+        '<div class="s-gs-bar"><i class="s-gs-obs" style="left:'+x(lo)+'%;width:'+(x(hi)-x(lo))+'%"></i><u style="left:0"></u><u style="left:'+x(hi)+'%"></u><u style="left:100%"></u></div>'+
+        '<div class="s-gs-lab"><span style="left:0"><b>1</b>Floor</span><span style="left:'+x(hi)+'%"><b>'+hi+'</b>Highest in 2026</span><span style="left:100%"><b>100</b>Plausible best</span></div>';
+    }
+
+    /* Enabling & behaviour: live global averages + two rows */
+    var eb=document.getElementById('sEBBars'),el=document.getElementById('sEBList');
+    if(eb&&!eb.__init&&C.length){eb.__init=1;var e=mean(C.map(function(c){return c.e})),b=mean(C.map(function(c){return c.b}));
+      var nE=scored.filter(function(m){return m.type==='E'}).length,nB=scored.filter(function(m){return m.type==='B'}).length;
+      var bar=function(cls,lab,v){return '<div class="s-ebb"><span class="s-ebb-l"><i class="s-ebsw '+cls+'"></i>'+lab+'</span><span class="s-ebb-t"><i class="'+cls+'" style="width:'+v.toFixed(1)+'%"></i></span><b>'+v.toFixed(1)+'</b></div>'};
+      eb.innerHTML='<p class="s-subk">Average of the '+C.length+' countries · 1–100</p>'+bar('e','Enabling conditions',e)+bar('b','Behaviour',b);
+      el.innerHTML='<li class="s-stg-h" aria-hidden="true"><span>Dimension</span><span>What it covers</span><span>How it is measured</span><span>Indicators</span></li>'+
+        '<li class="s-stg"><span class="s-stg-n"><i class="s-ebsw e"></i>Enabling conditions</span><span class="s-stg-d">The policies, statutes, coordinating bodies and regulatory frameworks that make an impact economy possible, for example a mandatory sustainability disclosure policy or a green public procurement framework.</span><span class="s-stg-m">In place / Planned / Absent</span><span class="s-stg-c">'+nE+' indicators</span></li>'+
+        '<li class="s-stg"><span class="s-stg-n"><i class="s-ebsw b"></i>Behaviour</span><span class="s-stg-d">The observed activity of companies, investors, consumers and governments, for example sustainability reporting rates or impact investment volumes.</span><span class="s-stg-m">Volumes, densities &amp; shares</span><span class="s-stg-c">'+nB+' indicators</span></li>';
+      var n=document.querySelector('[data-ebn="all"]');if(n)n.textContent=nE+nB;
+    }
+
+    /* Global results: live anchor metrics */
+    var an=function(i,v,l){var x=document.querySelector('[data-anchor="'+i+'"]');if(x)x.innerHTML='<b>'+v+'</b><small>'+l+'</small>'};
+    if(C.length){
+      var P=C.filter(function(c){return c.x&&c.x.spi!=null}),X=P.map(function(c){return c.score}),Y=P.map(function(c){return c.x.spi}),mx=mean(X),my=mean(Y),q=0,u=0,w=0;X.forEach(function(v,i){q+=(v-mx)*(Y[i]-my);u+=(v-mx)*(v-mx);w+=(Y[i]-my)*(Y[i]-my)});
+      an(1,'r = '+(q/Math.sqrt(u*w)).toFixed(2),'with social progress');
+      an(2,C.filter(function(c){return c.stars>0}).length+' / '+C.length,'countries with a leading-edge model');
+      an(3,C.filter(function(c){return c.e!=null&&c.b!=null&&c.e>c.b}).length+' / '+C.length,'enabling ahead of behaviour');
+      an(4,Math.max.apply(null,C.map(function(c){return c.score}))+' / 100','highest score in 2026');
+    }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
@@ -333,5 +357,5 @@ document.addEventListener('click',function(e){
   var t=document.getElementById(b.getAttribute('aria-controls'));if(!t)return;
   var open=t.hidden;t.hidden=!open;b.setAttribute('aria-expanded',open);
   var sp=b.querySelector('span'),T=window.IEI_T||function(x){return x};
-  if(sp){if(!b.dataset.l0)b.dataset.l0=sp.textContent;sp.textContent=open?(b.classList.contains('s-evbtn')?T('Hide the data'):T('Hide the country list')):b.dataset.l0;}
+  if(sp){if(!b.dataset.l0)b.dataset.l0=sp.textContent;sp.textContent=open?(b.classList.contains('s-evbtn')?T('Hide data'):T('Hide the country list')):b.dataset.l0;}
 });
