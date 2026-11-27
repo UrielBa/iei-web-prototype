@@ -112,12 +112,13 @@
   }
   function ticks(bn, fn, cmp, own) {
     var out = '';
-    return out; /* comparator is drawn as its own bar, not a marker */
+    if (cmp != null && !bn.none) out += tk('', bn.label, cmp, own);
+    return out;
   }
   function tickKey() {
     if (state.bench === 'none') return '';
     var c = byId[state.sel], bn = benchFor(c);
-    return '<p class="ic-tkey ic-cmpkey"><span><i class="me"></i>' + esc(c.name) + ' · coloured bars</span><span><i class="cm"></i>' + esc(bn.label) + ' · white bars</span></p>';
+    return '<p class="ic-tkey ic-cmpkey"><span><i class="me"></i>' + esc(c.name) + ' (bars)</span><span><i class="cm"></i>' + esc(bn.label) + ' (line)</span></p>';
   }
 
 
@@ -212,7 +213,7 @@
         return v == null ? '<td class="ic-hv na"><span class="ic-na">No data</span></td>' : '<td class="ic-hv' + (j === 0 ? ' me' : '') + '" style="background:' + hc.bg + ';color:' + hc.fg + '">' + v + '</td>';
       }).join('');
       var mine = x.get(c), dd = (mine == null || x.ref == null) ? null : Math.round(mine - x.ref);
-      var cls = dd == null ? '' : dd >= 5 ? 'up' : dd <= -5 ? 'down' : 'eq', lab = dd == null ? '–' : dd >= 5 ? 'Above' : dd <= -5 ? 'Below' : 'In line';
+      var cls = dd == null ? '' : dd >= 5 ? 'up' : dd <= -5 ? 'down' : 'eq', lab = dd == null ? '–' : dd >= 5 ? 'Higher' : dd <= -5 ? 'Lower' : 'Similar';
       return '<tr><th scope="row" class="ic-hd"><span class="ic-did" style="--a:' + x.acc + '">' + x.id + '</span><span class="ic-hl2">' + esc(x.lab) + (x.key ? ' <i class="ic-keym" title="Key impact model">◆</i>' : '') + '</span></th>' + cells +
         (P.length ? '<td class="ic-hv avg">' + (pavg == null ? '–' : Math.round(pavg)) + '</td>' : '') +
         '<td class="ic-hv st ' + cls + '">' + lab + (dd == null ? '' : ' <em>' + sgn(dd) + '</em>') + '</td></tr>';
@@ -225,7 +226,7 @@
       [['region', 'Same region'], ['income', 'Same income group'], ['closest', 'Closest profile'], ['clear', 'Clear']].map(function (o) { return '<button type="button" class="ic-qp" data-qp="' + o[0] + '">' + o[1] + '</button>'; }).join('') +
       (P.length < 5 ? '<label class="ic-field ic-add"><span class="ic-sr">Add a country</span><select class="ic-padd"><option value="">Add a country…</option>' + opts.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
       '<div class="ic-tscroll"><table class="ic-heat"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
-      '<p class="ic-note">A stronger shade means a higher ' + (lvl === 'lever' ? 'lever' : lvl === 'driver' ? 'driver' : 'indicator') + ' score' + (lvl === 'indicator' ? ' (35 scored indicators; leading-edge models are not scored)' : '') + '. “Above” / “Below” mark a difference of 5 points or more from ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
+      '<p class="ic-note">A stronger shade means a higher ' + (lvl === 'lever' ? 'lever' : lvl === 'driver' ? 'driver' : 'indicator') + ' score' + (lvl === 'indicator' ? ' (35 scored indicators; leading-edge models are not scored)' : '') + '. “Higher” / “Lower” mark a difference of 5 points or more from ' + esc(bn.short) + '; the 5-point threshold is illustrative, not a methodological cut-off.</p></div>';
   }
   function csvDownload() {
     var c = byId[state.sel], bn = benchFor(c), P = state.peers.map(function (id) { return byId[id]; }).filter(Boolean);
@@ -467,10 +468,10 @@
     var pwx = pathways(c), pwTxt = pwx.integrated ? ' It exhibits all four impact economy pathways.' : pwx.lead ? ' Its strongest pathway is <b>' + pwx.lead.p.name + '</b>.' : '';
     if (bn.none) summary += 'Its strongest lever is <b>' + esc(lv[0].L.short) + '</b> (' + lv[0].v + ') and its weakest is <b>' + esc(lv[3].L.short) + '</b> (' + lv[3].v + ').';
     else summary += 'Compared with ' + esc(bn.short) + ' (' + Math.round(refTotal) + '), ' +
-      (best.d === worst.d ? 'its levers are broadly in line.' :
-        best.d <= 0 ? 'it has room to grow on every lever, above all on <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + '); it comes closest on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ').' :
-        worst.d >= 0 ? 'it performs at or above the comparison on every lever, most strongly on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ').' :
-        'it performs above the comparison on <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + '), while <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ') offers the most room to grow.');
+      (best.d === worst.d ? 'it scores similarly across the four levers.' :
+        best.d <= 0 ? 'it scores lower across all four levers, with the widest gap in <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + ').' :
+        worst.d >= 0 ? 'it scores higher or similar across all four levers, with the widest margin in <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ').' :
+        'it scores higher in <b>' + esc(best.L.short) + '</b> (' + sgn(best.d) + ') and lower in <b>' + esc(worst.L.short) + '</b> (' + sgn(worst.d) + '), where the gap is widest.');
     var peers = C.filter(function (x) { return x.id !== c.id; }).map(function (x) {
       var dist = Math.sqrt(x.l.reduce(function (s, v, k) { return s + Math.pow(v - c.l[k], 2); }, 0));
       return { c: x, dist: dist };
@@ -488,7 +489,7 @@
     var levCards = levers.map(function (x) {
       return '<div class="ic-lev" style="--a:' + x.L.accent + '"><p class="ic-lname"><i></i>' + esc(x.L.short) + '</p>' +
         '<p class="ic-lval">' + x.v + '<em class="ic-d ' + (x.d > 0 ? 'up' : x.d < 0 ? 'down' : 'eq') + '">' + sgn(x.d) + '</em></p>' +
-        '<div class="ic-bar"><span style="width:' + x.v + '%"></span></div>' + (bn.none || x.ref == null ? '' : '<div class="ic-cbar" title="' + esc(bn.label) + ': ' + Math.round(x.ref) + '"><span style="width:' + x.ref.toFixed(1) + '%"></span></div>') +
+        '<div class="ic-bar"><span style="width:' + x.v + '%"></span>' + ticks(bn, function (y) { return y.l[x.k]; }, x.ref, x.v) + '</div>' +
         '<p class="ic-lmeta">' + (bn.none ? '&nbsp;' : esc(state.bench === 'country' ? bn.label : 'Comparison') + ': <b>' + Math.round(x.ref) + '</b>') + '</p>' + cbtn('L:' + (x.k + 1), 'for this lever') + '</div>';
     }).join('');
 
@@ -544,7 +545,7 @@
       acc('path', 'Pathways: who is driving change', (function () { var p = pathways(c); return p.integrated ? 'Integrated: all four pathways' : p.lead ? 'Strongest: ' + p.lead.p.name + ' · ' + p.ex.length + ' of 4 exhibited' : 'No pathway exhibited yet'; })(), pathCard(c)) +
       acc('sg', 'Relative strengths and opportunities', 'Where ' + esc(c.name) + ' stands out, and where it has most room to grow, compared with ' + (bn.none ? 'the comparison' : esc(bn.short)), bn.none ? noCmp : '<div class="ic-two">' +
         '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="up"></i>Relative strengths</h4><ul>' + sg(strengths, 'up') + '</ul></div>' +
-        '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Most room to grow</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div></div>') +
+        '  <div class="ic-card ic-sg"><h4 class="ic-h4"><i class="down"></i>Priority areas for growth</h4><ul>' + sg(gaps, 'down') + '</ul>' + actLink(c) + '</div></div>') +
       acc('why', 'What explains the differences', 'The facts behind the main strengths and opportunities, ideas for action and examples from other countries', bn.none ? noCmp : indCard(c, bn)) +
       acc('act', 'Learn &amp; act', 'Five areas to explore, a peer to learn from and a way to turn a finding into an ask', '<div class="ic-card ic-actwrap"><div id="ieiAct" class="ia-dark"></div></div>') +
       acc('ctx', 'Outcomes context: social progress and environment', 'How ' + esc(c.name) + ' does on the Social Progress and Environmental Performance indices, and why we show them', ctxCard(c, bn)) +
@@ -691,15 +692,16 @@
     if (c.e == null && c.b == null) return '';
     function row(key, label, cls, v) {
       var ref = avg(bn.list, function (x) { return x[key]; }), rk = posIn(function (x) { return x[key]; }, c), d = (v == null || ref == null) ? null : Math.round(v - ref);
-      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-ebbars"><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span></div>' + (ref == null || bn.none ? '' : '<div class="ic-cbar" title="' + esc(bn.label) + ': ' + Math.round(ref) + '"><span style="width:' + ref.toFixed(1) + '%"></span></div>') + '</div>' +
-        '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null || bn.none ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + (ref == null || bn.none ? '' : '<span class="ic-cval">' + esc(state.bench === 'country' ? bn.label : 'Comparison') + ' ' + Math.round(ref) + '</span>') + '</p></div>';
+      return '<div class="ic-ebr"><p class="ic-ebl"><i class="ic-sq ' + cls + '"></i>' + label + '</p><div class="ic-ebbars"><div class="ic-bar" style="--a:var(--ec-' + cls + ')"><span style="width:' + (v == null ? 0 : v) + '%"></span>' + (ref == null || bn.none ? '' : tk('', bn.label, ref, v == null ? null : Math.round(v))) + '</div>' +
+        (ref == null || bn.none ? '' : '<p class="ic-ebvals">' + esc(c.name) + ': <b>' + (v == null ? '–' : Math.round(v)) + '</b> · ' + esc(state.bench === 'country' ? bn.label : 'Comparison') + ': <b>' + Math.round(ref) + '</b></p>') + '</div>' +
+        '<p class="ic-ebv"><b>' + (v == null ? '–' : Math.round(v)) + '</b>' + (d == null || bn.none ? '' : '<em class="ic-d ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'eq') + '">' + sgn(d) + '</em>') + '</p></div>';
     }
     var diff = (c.e != null && c.b != null) ? c.e - c.b : null;
     var msg = diff == null ? '' : diff >= 5 ? 'Policy and regulatory frameworks are ahead of practice: enabling conditions score ' + Math.round(diff) + ' points above behaviour.' :
       diff <= -5 ? 'Practice is ahead of frameworks: behaviour scores ' + Math.round(-diff) + ' points above enabling conditions.' : 'Frameworks and practice are broadly in step (within 5 points).';
     return '<div class="ic-card ic-eb"><h4 class="ic-h4">Enabling conditions and behaviour</h4>' +
       '<p class="ic-note ic-ebn"><b>Enabling conditions</b> are the policies, rules and institutions that make an impact economy possible. <b>Behaviour</b> is what companies, investors, consumers and governments actually do. Each score averages the indicators of that type within each driver, then across drivers. It is a diagnostic view of the same indicators, not a separate score.</p>' +
-      (bn.none ? '' : '<p class="ic-eblg ic-cmpkey"><span><i class="me"></i>' + esc(c.name) + ' · coloured bars</span><span><i class="cm"></i>' + esc(bn.label) + ' · white bars</span></p>') + row('e', 'Enabling conditions', 'e', c.e) + row('b', 'Behaviour', 'b', c.b) +
+      (bn.none ? '' : '<p class="ic-eblg ic-cmpkey"><span><i class="me"></i>' + esc(c.name) + ' (bar)</span><span><i class="cm"></i>' + esc(bn.label) + ' (line)</span></p>') + row('e', 'Enabling conditions', 'e', c.e) + row('b', 'Behaviour', 'b', c.b) +
       (msg ? '<p class="ic-ebm">' + esc(msg) + '</p>' : '') + '</div>';
   }
   function gapsHtml(c, bn) {
@@ -715,7 +717,7 @@
         (withAct ? gapCases(m, c) : '') +
         '<button type="button" class="ic-mlink" data-ind="' + esc(m.id) + '">More detail</button></li>';
     }
-    return '<div class="ic-gaps"><div class="ic-gcol"><h5><i class="down"></i>Where there is most room to grow, compared with ' + esc(bn.short) + '</h5>' + (behind.length ? '<ul>' + behind.map(function (r) { return li(r, true); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points below the comparison.</p>') + '</div>' +
+    return '<div class="ic-gaps"><div class="ic-gcol"><h5><i class="down"></i>Priority areas for growth, compared with ' + esc(bn.short) + '</h5>' + (behind.length ? '<ul>' + behind.map(function (r) { return li(r, true); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points below the comparison.</p>') + '</div>' +
       '<div class="ic-gcol"><h5><i class="up"></i>Where it stands out</h5>' + (ahead.length ? '<ul>' + ahead.map(function (r) { return li(r, false); }).join('') + '</ul>' : '<p class="ic-gnone">No indicator is 5 or more points above the comparison.</p>') + '</div></div>';
   }
   function gapCases(m, c) {
@@ -763,7 +765,7 @@
       '<p class="sub it">The total is the average of 14 equally weighted drivers. The marker on each bar shows the comparison.</p></div></div>' +
       '<h2>The four levers</h2><div class="levs">' + levs + '</div>' + (eb ? '<h2>Enabling conditions and behaviour</h2>' + eb : '') +
       '<h2>All 14 drivers</h2><table><thead><tr><th></th><th>Driver</th><th></th><th class="n">Score</th><th class="n">Comparison</th><th class="n">Gap</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-      (gaps ? '<h2 class="pg">Where ' + esc(c.name) + ' has most room to grow, and what would help</h2><ul class="g">' + gaps + '</ul>' : '') +
+      (gaps ? '<h2 class="pg">Where ' + esc(c.name) + ': priority areas for growth, and what would help</h2><ul class="g">' + gaps + '</ul>' : '') +
       '<div class="foot">Comparison: ' + esc(bn.label) + '. ' + (V.status ? esc(V.status) + ' ' : '') + 'Online profile: ' + esc(url) + '<br>Source: GSG Impact, Impact Economy Index' + (V.source ? '. ' + esc(V.source) : '') + '.</div>' +
       '<script>window.addEventListener("load",function(){(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.print()},300)})});<\/script></body></html>';
     var w = window.open('', '_blank');
