@@ -517,3 +517,7 @@ a.cs-go,.cs-go,.cs-card h3,.cs-card h3 a{color:var(--v-navy) !important}
 .s-dstages i{width:16px;height:16px;border:1px solid rgba(15,20,40,.25)}
 .s-dstages b{color:var(--v-navy)}
 .s-drawer .s-arrow{color:var(--v-navy) !important}
+.s-dlist li,.s-dstages li{padding:0 !important;margin:0 !important;border:0 !important}
+
+/* scatter ISO labels */
+.s-scat .s-iso{font:700 5.6px "Urbanist",sans-serif;fill:#3A3F55;pointer-events:none}

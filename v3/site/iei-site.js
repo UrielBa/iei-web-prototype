@@ -112,21 +112,35 @@ function insights(){
   function scat(k,label){
     var P=C.filter(function(c){return c.x&&c.x[k]!=null});if(P.length<5)return {svg:'',r:null,n:0};
     var X=P.map(function(c){return c.score}),Y=P.map(function(c){return c.x[k]}),r=corr(X,Y);
-    var W=300,H=210,l=34,rr=8,t=10,b=30,x0=20,x1=80,y0=Math.floor(Math.min.apply(null,Y)/10)*10,y1=Math.ceil(Math.max.apply(null,Y)/10)*10;
+    var W=300,H=210,l=34,rr=8,t=10,b=30,b0=30,x0=20,x1=80,y0=Math.floor(Math.min.apply(null,Y)/10)*10,y1=Math.ceil(Math.max.apply(null,Y)/10)*10;
     var sx=function(v){return l+(v-x0)/(x1-x0)*(W-l-rr)},sy=function(v){return H-b-(v-y0)/(y1-y0)*(H-t-b)};
     var mx=avg(X),my=avg(Y),num=0,den=0;X.forEach(function(x,i){num+=(x-mx)*(Y[i]-my);den+=(x-mx)*(x-mx)});var sl=num/den,ic=my-sl*mx;
     var sv='<svg class="s-swarm s-scat" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+' plotted against Index score">';
     [20,40,60,80].forEach(function(v){sv+='<line x1="'+sx(v)+'" x2="'+sx(v)+'" y1="'+t+'" y2="'+(H-b)+'" stroke="#E4E6EF"/><text x="'+sx(v)+'" y="'+(H-b+14)+'" text-anchor="middle">'+v+'</text>'});
     for(var g=y0;g<=y1;g+=Math.max(10,Math.round((y1-y0)/40)*10)){sv+='<line x1="'+l+'" x2="'+(W-rr)+'" y1="'+sy(g)+'" y2="'+sy(g)+'" stroke="#E4E6EF"/><text x="'+(l-5)+'" y="'+(sy(g)+3)+'" text-anchor="end">'+g+'</text>'}
     sv+='<line x1="'+sx(x0)+'" y1="'+sy(sl*x0+ic)+'" x2="'+sx(x1)+'" y2="'+sy(sl*x1+ic)+'" stroke="#0F1428" stroke-width="1.5" stroke-dasharray="5 4"/>';
-    P.forEach(function(c){sv+='<circle class="s-dot" tabindex="0" cx="'+sx(c.score).toFixed(1)+'" cy="'+sy(c.x[k]).toFixed(1)+'" r="4.2" fill="#6478FF" fill-opacity=".85" stroke="#0F1428" stroke-opacity=".35" stroke-width=".6" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'});
+    P.forEach(function(c){sv+='<circle class="s-dot" tabindex="0" cx="'+sx(c.score).toFixed(1)+'" cy="'+sy(c.x[k]).toFixed(1)+'" r="3.2" fill="#6478FF" fill-opacity=".85" stroke="#0F1428" stroke-opacity=".35" stroke-width=".6" data-c="'+c.id+'" data-k="sc" aria-label="'+esc(c.name)+'"></circle>'});
+    // ISO3 labels: greedy placement, densest points first, avoiding other labels, dots and the plot edge
+    var FS=5.6,LW=FS*1.85,LH=FS*.95,DR=3.2,pts=P.map(function(c){return {id:c.id,x:sx(c.score),y:sy(c.x[k])}}),boxes=[];
+    var hit=function(a,b){return a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h};
+    var dens=function(p){return pts.filter(function(q){return Math.abs(q.x-p.x)<14&&Math.abs(q.y-p.y)<10}).length};
+    pts.slice().sort(function(a,b){return dens(b)-dens(a)}).forEach(function(p){
+      var C8=[[DR+1,-LH/2,'start'],[-DR-1,-LH/2,'end'],[-LW/2,-DR-LH-.5,'middle'],[-LW/2,DR+.5,'middle'],[DR,-DR-LH,'start'],[-DR,-DR-LH,'end'],[DR,DR,'start'],[-DR,DR,'end']],best=null;
+      C8.forEach(function(o){if(best&&best.s===0)return;
+        var bx=o[2]==='start'?p.x+o[0]:o[2]==='end'?p.x+o[0]-LW:p.x+o[0]+LW/2-LW/2,b={x:o[2]==='middle'?p.x-LW/2:bx,y:p.y+o[1],w:LW,h:LH,a:o[2]};
+        if(b.x<l||b.x+b.w>W-rr+2||b.y<t||b.y+b.h>H-b0)return;
+        var s=boxes.filter(function(q){return hit(b,q)}).length*3+pts.filter(function(q){return q!==p&&hit(b,{x:q.x-DR,y:q.y-DR,w:2*DR,h:2*DR})}).length;
+        if(!best||s<best.s)best={b:b,s:s}});
+      if(best&&best.s<3){boxes.push(best.b);var tx=best.b.a==='start'?best.b.x:best.b.a==='end'?best.b.x+LW:best.b.x+LW/2;
+        sv+='<text class="s-iso" x="'+tx.toFixed(1)+'" y="'+(best.b.y+LH-.6).toFixed(1)+'" text-anchor="'+best.b.a+'">'+p.id+'</text>'}
+    });
     sv+='<text x="'+(W-rr)+'" y="'+(H-2)+'" text-anchor="end">Index score →</text><text x="'+l+'" y="'+(t-1)+'">'+esc(label)+' ↑</text></svg>';
     return {svg:sv,r:r,n:P.length};
   }
   var sp=scat('spi','Social Progress Index'),ep=scat('epi','Environmental Performance Index');
   var n1='<div class="s-scats"><figure>'+sp.svg+'<figcaption>Social Progress Index · r = '+(sp.r==null?'–':sp.r.toFixed(2))+'</figcaption></figure><figure>'+ep.svg+'<figcaption>Environmental Performance Index · r = '+(ep.r==null?'–':ep.r.toFixed(2))+'</figcaption></figure></div>'+
     '<p class="s-cap">Across '+sp.n+' countries, higher Index scores go with better social and environmental outcomes. After accounting for income (GDP per capita), the association weakens but remains positive (partial r = '+pcorr('spi').toFixed(2)+' for SPI, '+pcorr('epi').toFixed(2)+' for EPI).'+
-    '<small>The Social Progress Index measures how well countries meet people’s basic needs, wellbeing and opportunity; the Environmental Performance Index measures environmental health and ecosystem vitality. The IEI measures the conditions and behaviours that make such outcomes more likely, not the outcomes themselves. Correlation does not establish cause. Each dot is a country; hover for the name.</small></p>';
+    '<small>The Social Progress Index measures how well countries meet people’s basic needs, wellbeing and opportunity; the Environmental Performance Index measures environmental health and ecosystem vitality. The IEI measures the conditions and behaviours that make such outcomes more likely, not the outcomes themselves. Correlation does not establish cause. Each dot is a country, labelled with its ISO code; hover for the full name.</small></p>';
   // NEW M2: stages + income
   var n2=e1+sv+'<div class="s-cchips"><span>'+esc(TT('Above income peers'))+'</span>'+['GBR','FRA','FIN'].map(chip).join('')+'</div><div class="s-cchips"><span>'+esc(TT('Below income peers'))+'</span>'+['RUS','SAU'].map(chip).join('')+'</div>'+
     '<p class="s-cap">'+(advHi===adv.length?'All '+adv.length+' Advanced countries are high-income':advHi+' of '+adv.length+' Advanced countries are high-income')+', yet high-income economies range from '+Math.min.apply(null,rows[0][1].map(function(c){return c.score}))+' to '+Math.max.apply(null,rows[0][1].map(function(c){return c.score}))+'.<small>Each dot is a country, coloured by maturity stage. Hover for the name.</small></p>';
