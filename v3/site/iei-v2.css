@@ -753,3 +753,9 @@ a.cs-go,.cs-go,.cs-card h3,.cs-card h3 a{color:var(--v-navy) !important}
 .s-ins .s-find[hidden]{display:none !important}
 .s-ins .s-find{grid-template-columns:64px minmax(0,1fr) !important}
 @media (max-width:767px){.s-ins .s-find{grid-template-columns:40px minmax(0,1fr) !important}}
+/* 28 Nov: hero subtitle smaller (longer copy); report benefits list in the definition */
+.s-lede-big{font:400 clamp(17px,1.5vw,20px)/1.5 "Urbanist",sans-serif !important}
+.s-why .s-why-k{margin:0 0 12px !important;font-weight:600 !important;color:#fff !important}
+.s-benefits{list-style:none;margin:0;padding:0;border-top:1px solid var(--v-ruled)}
+.s-benefits li{position:relative;padding:10px 0 10px 22px;border-bottom:1px solid var(--v-ruled);font:400 15px/1.5 "Urbanist",sans-serif;color:var(--v-mutd)}
+.s-benefits li::before{content:"";position:absolute;left:0;top:20px;width:10px;height:2px;background:#fff}

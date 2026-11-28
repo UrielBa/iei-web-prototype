@@ -367,7 +367,7 @@
       '<div class="ic-cx"><b>' + ev.n + '<em>/' + ev.of + '</em></b><span>Evidence coverage</span><small>Scored indicators with data. Missing data is not treated as zero.</small></div>' +
       '</div></div>';
   }
-  /* ---------- impact economy pathways (2026 report, 16 Nov draft): who is driving change ---------- */
+  /* ---------- impact economy pathways (2026 report, 27 Nov draft): who is driving change ---------- */
   var PW = [
     { k: 'gov', name: 'Government-led', who: 'Governments acting directly, as reporters, buyers, funders and conveners', d: ['1.B', '2.B', '3.C', '4.A'] },
     { k: 'mkt', name: 'Market practice-led', who: 'Companies, consumers, intermediaries and citizens acting on impact in everyday economic decisions', d: ['1.A', '2.A', '2.C', '3.E', '4.B', '4.C'] },
@@ -375,10 +375,10 @@
     { k: 'phi', name: 'Philanthropic capital-led', who: 'Philanthropies and development finance institutions deploying grants, blended finance and dedicated capital', d: ['3.D'] }
   ];
   function pwScore(x, p) { var v = p.d.map(function (id) { return x.d[DID.indexOf(id)]; }).filter(function (y) { return y != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; }
-  PW.forEach(function (p) { p.mean = avg(C, function (x) { return pwScore(x, p); }); });
+  PW.forEach(function (p) { p.mean = avg(C, function (x) { return pwScore(x, p); }); var v = C.map(function (x) { return pwScore(x, p); }).filter(function (y) { return y != null; }); p.sd = Math.sqrt(v.reduce(function (a, y) { return a + (y - p.mean) * (y - p.mean); }, 0) / v.length) || 1; });
   function pathways(x) {
     var rows = PW.map(function (p) { var v = pwScore(x, p); return { p: p, v: v, ex: v != null && v >= 50 }; });
-    var ex = rows.filter(function (r) { return r.ex; }), lead = ex.slice().sort(function (a, b) { return (b.v - b.p.mean) - (a.v - a.p.mean); })[0] || null;
+    var ex = rows.filter(function (r) { return r.ex; }), lead = ex.slice().sort(function (a, b) { return (b.v - b.p.mean) / b.p.sd - (a.v - a.p.mean) / a.p.sd; })[0] || null;
     return { rows: rows, ex: ex, lead: lead, integrated: ex.length === PW.length };
   }
   function pathCard(c) {
@@ -396,7 +396,7 @@
       esc(c.name) + ' does not yet exhibit any pathway: no group of actors averages 50 or more.';
     return '<div class="ic-card ic-pwc"><p class="ic-pwhead">' + head + '</p><div class="ic-pws">' + rows + '</div>' +
       '<p class="ic-scatk"><span><i class="me"></i>' + esc(c.name) + '</span><span><i class="th"></i>Threshold (50)</span><span><i class="mn"></i>All-country average</span>' + (Q ? '<span><i class="cm"></i>' + esc(byId[cmpId].name) + '</span>' : '') + '</p>' +
-      '<p class="ic-note">Pathways show which actors are driving progress, following the 2026 report: a country exhibits a pathway when the average of the drivers linked to those actors is 50 or more (the Late Developing threshold); the strongest is the one furthest above the all-country average. Pathways are not formal classifications and can change as institutions and markets develop. Calculated here from the current driver scores.</p></div>';
+      '<p class="ic-note">Pathways show which actors are driving progress, following the 2026 report: a country exhibits a pathway when the average of the drivers linked to those actors is 50 or more (the Late Developing threshold); the strongest is the exhibited pathway on which the country scores furthest above that pathway’s own all-country average, measured in standard deviations. Pathways are not formal classifications and can change as institutions and markets develop. Calculated here from the current driver scores.</p></div>';
   }
   function tierLabel(n) { var t = META.tiers.filter(function (x) { return x.name === n; })[0]; return t ? 'Stage ' + t.stage + ' · ' + n + ' (' + t.min + '–' + t.max + ')' : n; }
   function tierDesc(n) { var t = META.tiers.filter(function (x) { return x.name === n; })[0]; return t && t.desc ? t.desc : ''; }
